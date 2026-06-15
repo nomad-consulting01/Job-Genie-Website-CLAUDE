@@ -68,30 +68,34 @@ async function main() {
     const routeHeadHtml = buildHeadHtml(head);
 
     // 3. Build the final HTML:
-    //    - Replace static title/meta/canonical/robots from index.html with route-specific values
+    //    - Remove static home-page duplicates FIRST (so cleanup never touches routeHeadHtml)
+    //    - Then inject the route-specific head block in place of <title>
     //    - Keep the shared JSON-LD schemas (Org, FAQ, HowTo, SoftwareApp)
     //    - Inject the pre-rendered React HTML into #root
     let html = template;
 
-    // Replace static home-page title with route title
+    // Step 3a: Strip old static tags BEFORE injecting any route-specific content.
+    // These regexes only touch the original index.html template text, which has no
+    // route-specific block yet, so they cannot accidentally remove the new tags.
+    html = html.replace(/<meta name="description"[^>]*(\/?>)/g, '');
+    html = html.replace(/<meta name="robots"[^>]*(\/?>)/g, '');
+    html = html.replace(/<link rel="canonical"[^>]*(\/?>)/g, '');
+    html = html.replace(/<meta property="og:title"[^>]*(\/?>)/g, '');
+    html = html.replace(/<meta property="og:description"[^>]*(\/?>)/g, '');
+    html = html.replace(/<meta property="og:url"[^>]*(\/?>)/g, '');
+    html = html.replace(/<meta property="og:site_name"[^>]*(\/?>)/g, '');
+    html = html.replace(/<meta property="og:type"[^>]*(\/?>)/g, '');
+    html = html.replace(/<meta name="twitter:card"[^>]*(\/?>)/g, '');
+    html = html.replace(/<meta name="twitter:title"[^>]*(\/?>)/g, '');
+    html = html.replace(/<meta name="twitter:description"[^>]*(\/?>)/g, '');
+
+    // Step 3b: Replace the now-isolated <title> tag with the full route-specific
+    // head block (title + description + robots + canonical + og + twitter + JSON-LD).
+    // Done AFTER cleanup so routeHeadHtml is never touched by the removals above.
     html = html.replace(
       /<title>[^<]*<\/title>/,
       `<!-- Route-specific head for ${url} -->\n    ${routeHeadHtml}\n    <!-- End route-specific head -->`
     );
-
-    // Remove the old static duplicate meta/link tags that are now in routeHeadHtml
-    // (preserving the static JSON-LD schemas and font preconnects)
-    html = html.replace(/<meta name="description"[^/]*(\/?>)/g, '');
-    html = html.replace(/<meta name="robots"[^/]*(\/?>)/g, '');
-    html = html.replace(/<link rel="canonical"[^/]*(\/?>)/g, '');
-    html = html.replace(/<meta property="og:title"[^/]*(\/?>)/g, '');
-    html = html.replace(/<meta property="og:description"[^/]*(\/?>)/g, '');
-    html = html.replace(/<meta property="og:url"[^/]*(\/?>)/g, '');
-    html = html.replace(/<meta property="og:site_name"[^/]*(\/?>)/g, '');
-    html = html.replace(/<meta property="og:type"[^/]*(\/?>)/g, '');
-    html = html.replace(/<meta name="twitter:card"[^/]*(\/?>)/g, '');
-    html = html.replace(/<meta name="twitter:title"[^/]*(\/?>)/g, '');
-    html = html.replace(/<meta name="twitter:description"[^/]*(\/?>)/g, '');
 
     // 4. Inject pre-rendered HTML into the root div
     html = html.replace(
