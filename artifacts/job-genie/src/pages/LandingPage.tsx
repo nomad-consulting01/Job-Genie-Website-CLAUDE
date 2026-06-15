@@ -55,8 +55,8 @@ export default function LandingPage() {
       />
       <PageContent
         variant={variant}
-        experimentId={exp?.id}
-        variantId={exp?.id ?? `lp_${slug}`}
+        experimentId={variantConfig.experiment_id}
+        variantId={exp?.id ?? variantConfig.variant_id}
       />
     </>
   );

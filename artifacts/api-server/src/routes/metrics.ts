@@ -118,13 +118,12 @@ router.get("/metrics", (_req, res) => {
     hero_cta_clicks: number; newsletter_signups: number; engaged_30s: number; scroll_50: number;
   }>;
 
-  // By UTM source
+  // By UTM source — aggregate page_views and conversions from all events (not filtered to page_view)
   const topUtmSources = db.prepare(
     `SELECT COALESCE(traffic_source, utm_source, 'direct') as source,
-      COUNT(*) as visits,
+      SUM(CASE WHEN event_name='page_view' THEN 1 ELSE 0 END) as visits,
       SUM(CASE WHEN event_name='free_autopsy_click' THEN 1 ELSE 0 END) as conversions
      FROM conversion_events
-     WHERE event_name='page_view'
      GROUP BY source ORDER BY visits DESC LIMIT 10`
   ).all() as Array<{ source: string; visits: number; conversions: number }>;
 

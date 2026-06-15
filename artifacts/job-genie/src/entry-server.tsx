@@ -74,17 +74,57 @@ export function getRouteHead(url: string): RouteHead {
 
 /**
  * Builds the route-specific head HTML fragment to inject into the static template.
- * Replaces the home-page defaults in index.html with correct per-route values.
+ * Replaces the home-page defaults in index.html with correct per-route values and
+ * includes the full required schema set: WebPage, Service, Offer, BreadcrumbList,
+ * and per-route Question (AEO).
  */
 export function buildHeadHtml(head: RouteHead): string {
+  const isHome = head.canonical === `${SITE_URL}/` || head.canonical === SITE_URL;
+  const slug = head.canonical.replace(`${SITE_URL}/`, '').replace(/\/$/, '') || '';
+
   const webPageSchema = JSON.stringify({
     '@context': 'https://schema.org',
-    '@type': 'WebPage',
+    '@type': isHome ? 'WebSite' : 'WebPage',
     '@id': `${head.canonical}#webpage`,
     url: head.canonical,
     name: head.title,
     description: head.description,
     isPartOf: { '@id': `${SITE_URL}/#website` },
+    ...(isHome
+      ? {
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/?q={search_term_string}` },
+            'query-input': 'required name=search_term_string',
+          },
+        }
+      : {}),
+  });
+
+  const serviceSchema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Job Genie Application Autopsy',
+    provider: { '@id': `${SITE_URL}/#organization` },
+    description:
+      'Free recruiter-visibility diagnostic — Application Silence Score, ghost-job exposure, and resume alignment analysis.',
+    offers: [
+      { '@type': 'Offer', name: 'Free Autopsy', price: '0', priceCurrency: 'USD' },
+      { '@type': 'Offer', name: 'Pro Plan', price: '49', priceCurrency: 'USD', billingIncrement: 'P1M' },
+    ],
+    areaServed: 'Worldwide',
+    serviceType: 'Job Search Optimization',
+  });
+
+  const breadcrumbSchema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+      ...(slug
+        ? [{ '@type': 'ListItem', position: 2, name: head.title, item: head.canonical }]
+        : []),
+    ],
   });
 
   const questionSchema = head.aeoQuestion
@@ -110,6 +150,8 @@ export function buildHeadHtml(head: RouteHead): string {
     `<meta name="twitter:title" content="${esc(head.title)}" />`,
     `<meta name="twitter:description" content="${esc(head.description)}" />`,
     `<script type="application/ld+json">${webPageSchema}</script>`,
+    `<script type="application/ld+json">${serviceSchema}</script>`,
+    `<script type="application/ld+json">${breadcrumbSchema}</script>`,
     questionSchema ? `<script type="application/ld+json">${questionSchema}</script>` : null,
   ];
 
