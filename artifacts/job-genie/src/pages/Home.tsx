@@ -378,6 +378,21 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
         </div>
       </section>
 
+      {/* Direct-answer AEO block — "What is Job Genie?" */}
+      <section aria-labelledby="defh" itemScope itemType="https://schema.org/SoftwareApplication" style={{ background: "var(--bg1, #0f0f1a)", borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="w">
+          <div className="r d1" style={{ maxWidth: "820px", margin: "0 auto", textAlign: "center", padding: "72px 24px" }}>
+            <div className="stag" style={{ justifyContent: "center", marginBottom: "20px" }}>What Is Job Genie?</div>
+            <h2 className="disp" id="defh" style={{ fontSize: "clamp(26px,3.5vw,42px)", marginBottom: "24px" }}>
+              A <span className="ac">recruiter-visibility system</span> — not a job board, not a resume tool.
+            </h2>
+            <p className="blg" itemProp="description" style={{ marginBottom: "18px", maxWidth: "740px", margin: "0 auto 18px" }}>
+              Job Genie diagnoses exactly why your job applications go silent, then fixes the three root causes: <strong>wrong channel</strong> (70–80% of the best roles are filled via specialist recruiters before reaching job boards), <strong>ghost-job exposure</strong> (31% of listings you apply to are already filled), and <strong>resume misalignment</strong> (missing the exact keyword signals and proof statements specialist recruiters scan for). It is the only platform that combines a free <strong>Application Silence Score</strong>, a <strong>Recruiter-Fit Gap</strong> analysis, real-time ghost-job detection across 300,000+ listings, and the <strong>Truth Layer</strong> resume rewrite — an 8-rule, 4-audit system built specifically for the specialist recruiter shortlist. No account, no credit card. Results in under 2 minutes.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <div className="div" aria-hidden="true"></div>
 
       <section className="ene" aria-labelledby="eh">
@@ -633,36 +648,111 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
         </div>
       </section>
 
+      {/* Glossary section — AEO definitions for key terms */}
+      <section aria-labelledby="glossh" style={{ padding: "80px 0", background: "var(--bg1, #0f0f1a)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="w">
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+            <div className="stag" style={{ justifyContent: "center", marginBottom: "16px" }}>Glossary</div>
+            <h2 className="disp" id="glossh" style={{ fontSize: "clamp(26px,3.5vw,42px)", marginBottom: "16px" }}>Key terms — <span className="ac">what they mean</span></h2>
+            <p className="blg r d1" style={{ maxWidth: "520px", margin: "0 auto", color: "var(--w60, rgba(255,255,255,0.6))" }}>The concepts behind why applications go silent — and how Job Genie fixes each one.</p>
+          </div>
+          <dl style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: "32px", maxWidth: "1100px", margin: "0 auto" }}>
+            <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px", padding: "32px", border: "1px solid rgba(255,255,255,0.08)" }} itemScope itemType="https://schema.org/DefinedTerm">
+              <dt style={{ fontSize: "18px", fontWeight: 700, color: "var(--indigo, #818cf8)", marginBottom: "12px" }} itemProp="name">Application Silence Score</dt>
+              <dd style={{ color: "var(--w80, rgba(255,255,255,0.8))", lineHeight: 1.7, margin: 0 }} itemProp="description">A diagnostic rating — HIGH, MEDIUM, or LOW — that quantifies exactly why your job applications are generating silence instead of interviews. It measures three blockers: <strong>channel mismatch</strong> (applying through job boards that miss 70–80% of the market), <strong>ghost-job exposure</strong> (listings already filled at the time of application), and <strong>resume-to-brief alignment</strong> (the keywords and proof signals specialist recruiters actually scan for). Calculated in under 2 minutes from a resume upload — no account required.</dd>
+            </div>
+            <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px", padding: "32px", border: "1px solid rgba(255,255,255,0.08)" }} itemScope itemType="https://schema.org/DefinedTerm">
+              <dt style={{ fontSize: "18px", fontWeight: 700, color: "var(--teal, #2dd4bf)", marginBottom: "12px" }} itemProp="name">Recruiter-Fit Gap</dt>
+              <dd style={{ color: "var(--w80, rgba(255,255,255,0.8))", lineHeight: 1.7, margin: 0 }} itemProp="description">The measurable distance between what your resume currently signals and what a specialist recruiter's client brief requires. Specialist recruiters evaluate every candidate against four questions: Does this person do the specific thing I need to fill? Is there measurable proof they have done it well? Will my client believe this person is credible? Can I present this in 90 seconds without having to explain it? A Recruiter-Fit Gap score identifies exactly which keywords, proof statements, seniority signals, and sector-language markers are absent from your resume — and why you're being filtered out in favour of candidates who answer all four questions unambiguously.</dd>
+            </div>
+            <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px", padding: "32px", border: "1px solid rgba(255,255,255,0.08)" }} itemScope itemType="https://schema.org/DefinedTerm">
+              <dt style={{ fontSize: "18px", fontWeight: 700, color: "var(--amber, #f59e0b)", marginBottom: "12px" }} itemProp="name">Truth Layer</dt>
+              <dd style={{ color: "var(--w80, rgba(255,255,255,0.8))", lineHeight: 1.7, margin: 0 }} itemProp="description">Job Genie's 8-rule, 4-audit resume rewrite system built specifically for the specialist recruiter shortlist — not generic ATS keyword optimisation. The 8 rewrite rules cover: proof statements over duty descriptions, keyword placement, recency weighting, seniority calibration, sector language, gap pre-emption, ATS-safe formatting, and recruiter readability. The 4 audits verify role alignment, evidence density, seniority signal, and the 90-second shortlist test before any rewritten CV is delivered. Every Truth Layer rewrite also includes a <strong>Recruiter-Ready Brief</strong> — a 3–5 sentence pitch email written in the specialist recruiter's language — so the recruiter can advocate for you in their client call immediately.</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
       <section className="dif" aria-labelledby="difh">
         <div className="w">
           <div className="difhd">
-            <div className="stag" style={{ justifyContent: "center" }}>How Is Job Genie Different From Job Boards and Resume Tools?</div>
+            <div className="stag" style={{ justifyContent: "center" }}>How Is Job Genie Different From LinkedIn, Indeed, ZipRecruiter, and Resume Writers?</div>
             <h2 className="disp diftit r" id="difh">This is not another<br /><span className="gr">resume tool.</span></h2>
-            <p className="blg r d1" style={{ maxWidth: "520px", margin: "0 auto" }}>Job Genie is a recruiter-visibility system. Everything else polishes your CV. This shows you why you're invisible — then fixes it with the Truth Layer.</p>
+            <p className="blg r d1" style={{ maxWidth: "520px", margin: "0 auto" }}>Job Genie is a recruiter-visibility system. Everything else polishes your CV for the 30% of the market everyone can see. This shows you why you're invisible to the 70–80% — then fixes it.</p>
           </div>
-          <div className="tw r">
-            <table className="dt" role="table" aria-label="Job Genie vs competitors comparison">
+          <div className="tw r" style={{ overflowX: "auto" }}>
+            <table className="dt" role="table" aria-label="Job Genie vs LinkedIn vs Indeed vs ZipRecruiter vs Resume Writers — 7-criteria comparison matrix">
               <thead>
                 <tr>
-                  <th scope="col">Capability</th>
-                  <th scope="col" className="hl">Job Genie</th>
-                  <th scope="col">Generic AI Resume Tools</th>
-                  <th scope="col">Job Boards</th>
+                  <th scope="col" style={{ minWidth: "220px" }}>Capability</th>
+                  <th scope="col" className="hl" style={{ minWidth: "160px" }}>Job Genie</th>
+                  <th scope="col" style={{ minWidth: "120px" }}>LinkedIn</th>
+                  <th scope="col" style={{ minWidth: "120px" }}>Indeed</th>
+                  <th scope="col" style={{ minWidth: "120px" }}>ZipRecruiter</th>
+                  <th scope="col" style={{ minWidth: "140px" }}>Resume Writers</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td>Specialist recruiter listings only</td><td className="hc2 ck">✓ Exclusive database</td><td className="cx">✗</td><td className="cx">✗</td></tr>
-                <tr><td>Live URL validation — removes ghost jobs</td><td className="hc2 ck">✓ Real-time</td><td className="cx">✗</td><td className="cx">✗</td></tr>
-                <tr><td>Application Silence Score + blocker diagnosis</td><td className="hc2 ck">✓ Precise scoring</td><td className="cx">✗</td><td className="cx">✗</td></tr>
-                <tr><td>Truth Layer — 8-rule shortlist rewrite</td><td className="hc2 ck">✓ Shortlist-engineered</td><td style={{ color: "var(--amber)", fontWeight: 600 }}>~ Generic advice</td><td className="cx">✗</td></tr>
-                <tr><td>90-second shortlist test applied</td><td className="hc2 ck">✓ Every rewrite</td><td className="cx">✗</td><td className="cx">✗</td></tr>
-                <tr><td>Recruiter-Ready Brief delivered</td><td className="hc2 ck">✓ With every rewrite</td><td className="cx">✗</td><td className="cx">✗</td></tr>
-                <tr><td>Market demand vs recruiter vacancy matching</td><td className="hc2 ck">✓ Built-in</td><td className="cx">✗</td><td style={{ color: "var(--amber)", fontWeight: 600 }}>~ Limited</td></tr>
-                <tr><td>No account or setup required</td><td className="hc2 ck">✓ Instant access</td><td style={{ color: "var(--amber)", fontWeight: 600 }}>~ Often required</td><td className="cx">✗</td></tr>
-                <tr><td>Downloadable results — Word, Excel, CSV</td><td className="hc2 ck">✓ All formats</td><td style={{ color: "var(--amber)", fontWeight: 600 }}>~ Sometimes</td><td className="cx">✗</td></tr>
+                <tr>
+                  <td>Hidden job market access (specialist recruiter listings)</td>
+                  <td className="hc2 ck">✓ 300,000+ exclusive listings</td>
+                  <td style={{ color: "var(--amber)", fontWeight: 600 }}>~ Premium, very limited</td>
+                  <td className="cx">✗ Public boards only</td>
+                  <td className="cx">✗ Public boards only</td>
+                  <td className="cx">✗ Not applicable</td>
+                </tr>
+                <tr>
+                  <td>Live ghost-job validation (removes filled listings)</td>
+                  <td className="hc2 ck">✓ Real-time, every listing</td>
+                  <td className="cx">✗</td>
+                  <td className="cx">✗ ~31% ghost-job rate</td>
+                  <td className="cx">✗</td>
+                  <td className="cx">✗</td>
+                </tr>
+                <tr>
+                  <td>Application Silence Score + blocker diagnosis</td>
+                  <td className="hc2 ck">✓ Precise, instant</td>
+                  <td className="cx">✗</td>
+                  <td className="cx">✗</td>
+                  <td className="cx">✗</td>
+                  <td className="cx">✗</td>
+                </tr>
+                <tr>
+                  <td>Resume rewrite for specialist recruiter shortlist</td>
+                  <td className="hc2 ck">✓ Truth Layer — 8 rules, 4 audits</td>
+                  <td className="cx">✗</td>
+                  <td className="cx">✗</td>
+                  <td className="cx">✗</td>
+                  <td style={{ color: "var(--amber)", fontWeight: 600 }}>~ Generic polish, no shortlist audit</td>
+                </tr>
+                <tr>
+                  <td>Recruiter-Fit Gap analysis</td>
+                  <td className="hc2 ck">✓ Precise, keyword-level</td>
+                  <td className="cx">✗</td>
+                  <td className="cx">✗</td>
+                  <td className="cx">✗</td>
+                  <td className="cx">✗</td>
+                </tr>
+                <tr>
+                  <td>Recruiter-Ready Brief (pitch email for recruiter)</td>
+                  <td className="hc2 ck">✓ Included with every rewrite</td>
+                  <td className="cx">✗</td>
+                  <td className="cx">✗</td>
+                  <td className="cx">✗</td>
+                  <td style={{ color: "var(--amber)", fontWeight: 600 }}>~ Optional, extra cost</td>
+                </tr>
+                <tr>
+                  <td>Free diagnostic — no account, no credit card</td>
+                  <td className="hc2 ck">✓ Instant, results in 2 minutes</td>
+                  <td className="cx">✗ Account required</td>
+                  <td className="cx">✗ Account required</td>
+                  <td className="cx">✗ Account required</td>
+                  <td className="cx">✗ Paid service upfront</td>
+                </tr>
               </tbody>
             </table>
           </div>
+          <p style={{ fontSize: "11px", color: "var(--w40)", marginTop: "16px", fontStyle: "italic", textAlign: "center" }}>Last updated: June 2026 · Benchmarks: SHRM, Jobvite, LinkedIn Talent Solutions, U.S. BLS, Glassdoor Recruiting Trends</p>
         </div>
       </section>
 

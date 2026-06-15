@@ -1,13 +1,15 @@
 /**
  * Static pre-render script for AEO/SEO.
  *
- * Run after the Vite client build to generate static HTML files for each
- * landing page route. Output is written into dist/public/ so the static
- * HTML serves full page content (FAQ, comparison, hero copy) to crawlers
- * without requiring JavaScript execution.
+ * Run after the Vite client build to generate static HTML files for each landing page
+ * route. Each file includes:
+ *   - Full React-rendered page content (FAQ, comparison table, hero copy) in the <body>
+ *   - Route-specific <title>, <meta name="description">, canonical, robots, og/twitter tags
+ *   - Per-route WebPage + Question JSON-LD in <head>
+ *   - The shared static JSON-LD schemas from index.html (Org, FAQ, HowTo, SoftwareApp)
  *
  * Usage (run automatically via `pnpm build`):
- *   PORT=0 BASE_PATH=/ node prerender.mjs
+ *   BASE_PATH=/ node prerender.mjs
  */
 import { build } from 'vite';
 import fs from 'fs';
@@ -41,25 +43,63 @@ async function main() {
     },
   });
 
-  console.log('[prerender] Loading SSR render function…');
-  const { render } = await import('./dist/server/entry-server.mjs');
+  console.log('[prerender] Loading SSR render functions…');
+  const { render, getRouteHead, buildHeadHtml } = await import(
+    './dist/server/entry-server.mjs'
+  );
 
   const templatePath = path.resolve(__dirname, 'dist/public/index.html');
   if (!fs.existsSync(templatePath)) {
     throw new Error(
-      'dist/public/index.html not found — run the client build first:\n  pnpm --filter @workspace/job-genie build'
+      'dist/public/index.html not found — run the client build first:\n' +
+        '  pnpm --filter @workspace/job-genie build:client'
     );
   }
   const template = fs.readFileSync(templatePath, 'utf-8');
 
   for (const url of ROUTES) {
     console.log(`[prerender] Rendering ${url}…`);
+
+    // 1. Render React app to HTML string
     const appHtml = render(url);
 
-    // Inject pre-rendered HTML into the root div and mark as SSR'd
-    const html = template
-      .replace('<div id="root"></div>', `<div id="root" data-ssr="true">${appHtml}</div>`);
+    // 2. Get route-specific head metadata
+    const head = getRouteHead(url);
+    const routeHeadHtml = buildHeadHtml(head);
 
+    // 3. Build the final HTML:
+    //    - Replace static title/meta/canonical/robots from index.html with route-specific values
+    //    - Keep the shared JSON-LD schemas (Org, FAQ, HowTo, SoftwareApp)
+    //    - Inject the pre-rendered React HTML into #root
+    let html = template;
+
+    // Replace static home-page title with route title
+    html = html.replace(
+      /<title>[^<]*<\/title>/,
+      `<!-- Route-specific head for ${url} -->\n    ${routeHeadHtml}\n    <!-- End route-specific head -->`
+    );
+
+    // Remove the old static duplicate meta/link tags that are now in routeHeadHtml
+    // (preserving the static JSON-LD schemas and font preconnects)
+    html = html.replace(/<meta name="description"[^/]*(\/?>)/g, '');
+    html = html.replace(/<meta name="robots"[^/]*(\/?>)/g, '');
+    html = html.replace(/<link rel="canonical"[^/]*(\/?>)/g, '');
+    html = html.replace(/<meta property="og:title"[^/]*(\/?>)/g, '');
+    html = html.replace(/<meta property="og:description"[^/]*(\/?>)/g, '');
+    html = html.replace(/<meta property="og:url"[^/]*(\/?>)/g, '');
+    html = html.replace(/<meta property="og:site_name"[^/]*(\/?>)/g, '');
+    html = html.replace(/<meta property="og:type"[^/]*(\/?>)/g, '');
+    html = html.replace(/<meta name="twitter:card"[^/]*(\/?>)/g, '');
+    html = html.replace(/<meta name="twitter:title"[^/]*(\/?>)/g, '');
+    html = html.replace(/<meta name="twitter:description"[^/]*(\/?>)/g, '');
+
+    // 4. Inject pre-rendered HTML into the root div
+    html = html.replace(
+      '<div id="root"></div>',
+      `<div id="root" data-ssr="true">${appHtml}</div>`
+    );
+
+    // 5. Write to output file
     const outFile =
       url === '/'
         ? path.resolve(__dirname, 'dist/public/index.html')
@@ -67,10 +107,10 @@ async function main() {
 
     fs.mkdirSync(path.dirname(outFile), { recursive: true });
     fs.writeFileSync(outFile, html, 'utf-8');
-    console.log(`[prerender] ✓ ${outFile}`);
+    console.log(`[prerender] ✓ Written → ${outFile}`);
   }
 
-  console.log('[prerender] Done — all routes pre-rendered.');
+  console.log('[prerender] Done — all routes pre-rendered with route-specific head.');
 }
 
 main().catch((err) => {

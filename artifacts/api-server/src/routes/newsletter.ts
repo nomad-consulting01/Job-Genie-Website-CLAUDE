@@ -67,29 +67,8 @@ router.post("/newsletter", async (req, res) => {
     logger.warn("BEEHIIV_API_KEY or BEEHIIV_PUBLICATION_ID not set — skipping Beehiiv sync");
   }
 
-  try {
-    const db = getDb();
-    db.prepare(
-      `INSERT INTO conversion_events
-        (event_name, page_slug, visitor_id, experiment_id, variant_id,
-         utm_source, utm_medium, utm_campaign, utm_content, utm_term, metadata)
-       VALUES ('newsletter_submit_success', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(
-      body.page_slug ?? "/",
-      body.visitor_id ?? null,
-      body.experiment_id ?? null,
-      body.variant_id ?? null,
-      body.utm_source ?? null,
-      body.utm_medium ?? null,
-      body.utm_campaign ?? null,
-      body.utm_content ?? null,
-      body.utm_term ?? null,
-      JSON.stringify({ email_domain: email.split("@")[1] ?? "unknown" })
-    );
-  } catch (err) {
-    logger.error({ err }, "Failed to log newsletter event");
-  }
-
+  // newsletter_submit_success is tracked client-side via /api/events (with full attribution).
+  // Do NOT insert server-side to avoid double-counting the conversion event.
   return res.json({ ok: true, message: "Successfully subscribed" });
 });
 
