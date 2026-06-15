@@ -145,3 +145,57 @@ export interface NewsletterResponse {
   message?: string | null;
 }
 
+export interface OptimizationInsight {
+  slug?: string;
+  views?: number;
+  conversions?: number;
+  newsletter?: number;
+  conversion_rate?: number;
+  scroll_rate_50pct?: number;
+  engagement_rate_30s?: number;
+  exit_intent_rate?: number;
+  diagnostics?: string[];
+}
+
+export type OptimizationReportSavedRecommendationsItem = { [key: string]: unknown };
+
+export interface OptimizationReport {
+  insights?: OptimizationInsight[];
+  saved_recommendations?: OptimizationReportSavedRecommendationsItem[];
+}
+
+export interface VariantInput {
+  slug: string;
+  /** @nullable */
+  headline?: string | null;
+  /** @nullable */
+  subheadline?: string | null;
+  /** @nullable */
+  eyebrow?: string | null;
+  /** @nullable */
+  hero_quote?: string | null;
+  /** @nullable */
+  cta_primary?: string | null;
+  /** @nullable */
+  cta_secondary?: string | null;
+  /** @nullable */
+  variant_id?: string | null;
+  /** @nullable */
+  experiment_id?: string | null;
+}
+
+export interface VariantCreateResponse {
+  id?: number;
+}
+
+export interface VariantStatusResponse {
+  ok?: boolean;
+  status?: string;
+}
+
+export type VariantListVariantsItem = { [key: string]: unknown };
+
+export interface VariantList {
+  variants?: VariantListVariantsItem[];
+}
+

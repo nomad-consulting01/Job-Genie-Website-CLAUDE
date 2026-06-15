@@ -14,6 +14,8 @@ tags:
     description: Conversion event tracking and metrics
   - name: newsletter
     description: Newsletter subscription via Beehiiv proxy
+  - name: admin
+    description: Admin-protected variant management and optimization (Bearer token required)
 paths:
   /healthz:
     get:
@@ -109,7 +111,174 @@ paths:
         "400":
           description: Invalid request
 
+  /admin/metrics:
+    get:
+      operationId: getAdminMetrics
+      tags: [admin]
+      summary: Get admin-protected site metrics
+      description: Same as /metrics but requires admin Bearer token
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Site metrics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteMetrics"
+        "401":
+          description: Unauthorized
+
+  /admin/optimization-report:
+    get:
+      operationId: getOptimizationReport
+      tags: [admin]
+      summary: Get optimization diagnostics per slug
+      description: Runs five diagnostics (CVR, scroll depth, engagement, exit intent, high performer) and saves draft recommendations.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Optimization insights and saved recommendations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OptimizationReport"
+        "401":
+          description: Unauthorized
+
+  /admin/variants:
+    get:
+      operationId: listVariants
+      tags: [admin]
+      summary: List all landing page variants
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Variant list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VariantList"
+        "401":
+          description: Unauthorized
+    post:
+      operationId: createVariant
+      tags: [admin]
+      summary: Create a new landing page variant
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VariantInput"
+      responses:
+        "201":
+          description: Variant created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VariantCreateResponse"
+        "400":
+          description: Missing required field
+        "401":
+          description: Unauthorized
+        "409":
+          description: Slug already exists
+
+  /admin/variants/{id}/activate:
+    post:
+      operationId: activateVariant
+      tags: [admin]
+      summary: Activate a variant
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Variant activated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VariantStatusResponse"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Variant not found
+
+  /admin/variants/{id}/pause:
+    post:
+      operationId: pauseVariant
+      tags: [admin]
+      summary: Pause a variant
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Variant paused
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VariantStatusResponse"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Variant not found
+
+  /admin/export/events.csv:
+    get:
+      operationId: exportEventsCsv
+      tags: [admin]
+      summary: Export all events as CSV
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+
+  /admin/export/metrics.csv:
+    get:
+      operationId: exportMetricsCsv
+      tags: [admin]
+      summary: Export slug metrics as CSV
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
   schemas:
     HealthStatus:
       type: object
@@ -314,3 +483,87 @@ components:
           type: boolean
         message:
           type: ["string", "null"]
+
+    OptimizationInsight:
+      type: object
+      properties:
+        slug:
+          type: string
+        views:
+          type: integer
+        conversions:
+          type: integer
+        newsletter:
+          type: integer
+        conversion_rate:
+          type: number
+        scroll_rate_50pct:
+          type: number
+        engagement_rate_30s:
+          type: number
+        exit_intent_rate:
+          type: number
+        diagnostics:
+          type: array
+          items:
+            type: string
+
+    OptimizationReport:
+      type: object
+      properties:
+        insights:
+          type: array
+          items:
+            $ref: "#/components/schemas/OptimizationInsight"
+        saved_recommendations:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+
+    VariantInput:
+      type: object
+      required:
+        - slug
+      properties:
+        slug:
+          type: string
+        headline:
+          type: ["string", "null"]
+        subheadline:
+          type: ["string", "null"]
+        eyebrow:
+          type: ["string", "null"]
+        hero_quote:
+          type: ["string", "null"]
+        cta_primary:
+          type: ["string", "null"]
+        cta_secondary:
+          type: ["string", "null"]
+        variant_id:
+          type: ["string", "null"]
+        experiment_id:
+          type: ["string", "null"]
+
+    VariantCreateResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+
+    VariantStatusResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        status:
+          type: string
+
+    VariantList:
+      type: object
+      properties:
+        variants:
+          type: array
+          items:
+            type: object
+            additionalProperties: true

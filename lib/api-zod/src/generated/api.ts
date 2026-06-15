@@ -132,3 +132,101 @@ export const SubscribeNewsletterResponse = zod.object({
 })
 
 
+/**
+ * Same as /metrics but requires admin Bearer token
+ * @summary Get admin-protected site metrics
+ */
+export const GetAdminMetricsResponse = zod.object({
+  "total_page_views": zod.number().optional(),
+  "total_unique_visitors": zod.number().optional(),
+  "total_free_autopsy_clicks": zod.number().optional(),
+  "total_newsletter_signups": zod.number().optional(),
+  "overall_conversion_rate": zod.number().optional(),
+  "by_slug": zod.array(zod.object({
+  "slug": zod.string().optional(),
+  "page_views": zod.number().optional(),
+  "unique_visitors": zod.number().optional(),
+  "free_autopsy_clicks": zod.number().optional(),
+  "hero_cta_clicks": zod.number().optional(),
+  "newsletter_signups": zod.number().optional(),
+  "conversion_rate": zod.number().optional(),
+  "autopsy_rate": zod.number().optional(),
+  "newsletter_rate": zod.number().optional(),
+  "hero_ctr": zod.number().optional()
+})).optional(),
+  "top_slug": zod.string().nullish(),
+  "worst_slug": zod.string().nullish(),
+  "top_utm_campaigns": zod.array(zod.record(zod.string(), zod.unknown())).optional()
+})
+
+
+/**
+ * Runs five diagnostics (CVR, scroll depth, engagement, exit intent, high performer) and saves draft recommendations.
+ * @summary Get optimization diagnostics per slug
+ */
+export const GetOptimizationReportResponse = zod.object({
+  "insights": zod.array(zod.object({
+  "slug": zod.string().optional(),
+  "views": zod.number().optional(),
+  "conversions": zod.number().optional(),
+  "newsletter": zod.number().optional(),
+  "conversion_rate": zod.number().optional(),
+  "scroll_rate_50pct": zod.number().optional(),
+  "engagement_rate_30s": zod.number().optional(),
+  "exit_intent_rate": zod.number().optional(),
+  "diagnostics": zod.array(zod.string()).optional()
+})).optional(),
+  "saved_recommendations": zod.array(zod.record(zod.string(), zod.unknown())).optional()
+})
+
+
+/**
+ * @summary List all landing page variants
+ */
+export const ListVariantsResponse = zod.object({
+  "variants": zod.array(zod.record(zod.string(), zod.unknown())).optional()
+})
+
+
+/**
+ * @summary Create a new landing page variant
+ */
+export const CreateVariantBody = zod.object({
+  "slug": zod.string(),
+  "headline": zod.string().nullish(),
+  "subheadline": zod.string().nullish(),
+  "eyebrow": zod.string().nullish(),
+  "hero_quote": zod.string().nullish(),
+  "cta_primary": zod.string().nullish(),
+  "cta_secondary": zod.string().nullish(),
+  "variant_id": zod.string().nullish(),
+  "experiment_id": zod.string().nullish()
+})
+
+
+/**
+ * @summary Activate a variant
+ */
+export const ActivateVariantParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const ActivateVariantResponse = zod.object({
+  "ok": zod.boolean().optional(),
+  "status": zod.string().optional()
+})
+
+
+/**
+ * @summary Pause a variant
+ */
+export const PauseVariantParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const PauseVariantResponse = zod.object({
+  "ok": zod.boolean().optional(),
+  "status": zod.string().optional()
+})
+
+

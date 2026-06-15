@@ -20,35 +20,94 @@ function requireAdmin(req: Request, res: Response, next: NextFunction): void {
 
 router.use(requireAdmin);
 
+router.get("/metrics", (_req, res) => {
+  const db = getDb();
+  const total = db.prepare(
+    `SELECT
+      SUM(CASE WHEN event_name='page_view' THEN 1 ELSE 0 END) as total_page_views,
+      COUNT(DISTINCT CASE WHEN event_name='page_view' AND visitor_id IS NOT NULL THEN visitor_id END) as total_unique_visitors,
+      SUM(CASE WHEN event_name='free_autopsy_click' THEN 1 ELSE 0 END) as total_free_autopsy_clicks,
+      SUM(CASE WHEN event_name='newsletter_signup_complete' THEN 1 ELSE 0 END) as total_newsletter_signups
+    FROM conversion_events`
+  ).get() as { total_page_views: number; total_unique_visitors: number; total_free_autopsy_clicks: number; total_newsletter_signups: number };
+
+  const bySlugs = db.prepare(
+    `SELECT page_slug as slug,
+      SUM(CASE WHEN event_name='page_view' THEN 1 ELSE 0 END) as page_views,
+      COUNT(DISTINCT CASE WHEN event_name='page_view' AND visitor_id IS NOT NULL THEN visitor_id END) as unique_visitors,
+      SUM(CASE WHEN event_name='free_autopsy_click' THEN 1 ELSE 0 END) as free_autopsy_clicks,
+      SUM(CASE WHEN event_name='hero_cta_click' THEN 1 ELSE 0 END) as hero_cta_clicks,
+      SUM(CASE WHEN event_name='newsletter_signup_complete' THEN 1 ELSE 0 END) as newsletter_signups
+    FROM conversion_events GROUP BY page_slug ORDER BY page_views DESC`
+  ).all() as Array<{ slug: string; page_views: number; unique_visitors: number; free_autopsy_clicks: number; hero_cta_clicks: number; newsletter_signups: number }>;
+
+  const pv = Number(total?.total_page_views ?? 0);
+  const ac = Number(total?.total_free_autopsy_clicks ?? 0);
+
+  return res.json({
+    total_page_views: pv,
+    total_unique_visitors: Number(total?.total_unique_visitors ?? 0),
+    total_free_autopsy_clicks: ac,
+    total_newsletter_signups: Number(total?.total_newsletter_signups ?? 0),
+    overall_conversion_rate: pv > 0 ? parseFloat(((ac / pv) * 100).toFixed(2)) : 0,
+    by_slug: bySlugs.map(row => ({
+      ...row,
+      conversion_rate: row.page_views > 0 ? parseFloat(((row.free_autopsy_clicks / row.page_views) * 100).toFixed(2)) : 0,
+    })),
+  });
+});
+
 router.get("/optimization-report", (_req, res) => {
   const db = getDb();
   const slugStats = db.prepare(
     `SELECT page_slug as slug,
       SUM(CASE WHEN event_name='page_view' THEN 1 ELSE 0 END) as views,
       SUM(CASE WHEN event_name='free_autopsy_click' THEN 1 ELSE 0 END) as conversions,
-      SUM(CASE WHEN event_name='newsletter_signup_complete' THEN 1 ELSE 0 END) as newsletter
+      SUM(CASE WHEN event_name='newsletter_signup_complete' THEN 1 ELSE 0 END) as newsletter,
+      SUM(CASE WHEN event_name='scroll_50' THEN 1 ELSE 0 END) as scroll50,
+      SUM(CASE WHEN event_name='scroll_75' THEN 1 ELSE 0 END) as scroll75,
+      SUM(CASE WHEN event_name='exit_intent' THEN 1 ELSE 0 END) as exits,
+      SUM(CASE WHEN event_name='time_on_page_30s' THEN 1 ELSE 0 END) as engaged30s
     FROM conversion_events GROUP BY page_slug ORDER BY views DESC`
-  ).all() as Array<{ slug: string; views: number; conversions: number; newsletter: number }>;
+  ).all() as Array<{ slug: string; views: number; conversions: number; newsletter: number; scroll50: number; scroll75: number; exits: number; engaged30s: number }>;
 
-  const recommendations = db.prepare(
+  const savedRecs = db.prepare(
     "SELECT * FROM optimization_recommendations ORDER BY created_at DESC LIMIT 50"
   ).all();
 
   const insights = slugStats.map((row) => {
-    const r = row.views > 0 ? row.conversions / row.views : 0;
+    const cvr = row.views > 0 ? row.conversions / row.views : 0;
+    const scrollRate = row.views > 0 ? row.scroll50 / row.views : 0;
+    const engagementRate = row.views > 0 ? row.engaged30s / row.views : 0;
+    const exitRate = row.views > 0 ? row.exits / row.views : 0;
+
+    const diagnostics: string[] = [];
+    if (row.views > 30 && cvr < 0.02) diagnostics.push(`Low CVR ${(cvr*100).toFixed(1)}% — test a stronger headline or CTA copy.`);
+    if (scrollRate < 0.3 && row.views > 20) diagnostics.push(`Only ${(scrollRate*100).toFixed(0)}% scroll past 50% — hero section may be losing users; test shorter copy above the fold.`);
+    if (engagementRate < 0.4 && row.views > 20) diagnostics.push(`Only ${(engagementRate*100).toFixed(0)}% stay 30s+ — consider faster load and sharper opening hook.`);
+    if (exitRate > 0.5 && row.views > 20) diagnostics.push(`High exit-intent rate ${(exitRate*100).toFixed(0)}% — consider an exit-intent popup or stronger sticky bar.`);
+    if (cvr > 0.08) diagnostics.push(`High-performing slug (${(cvr*100).toFixed(1)}% CVR) — scale traffic to this variant.`);
+
+    if (diagnostics.length > 0) {
+      db.prepare(
+        `INSERT INTO optimization_recommendations (slug, recommendation, status) VALUES (?, ?, 'draft')`
+      ).run(row.slug, diagnostics.join(' | '));
+    }
+
     return {
-      ...row,
-      conversion_rate: r,
-      suggestion:
-        r < 0.02 && row.views > 50
-          ? `"${row.slug}" has low CVR (${(r * 100).toFixed(1)}%) — test a new headline variant.`
-          : r > 0.08
-          ? `"${row.slug}" is high-performing (${(r * 100).toFixed(1)}%) — scale traffic.`
-          : null,
+      slug: row.slug,
+      views: row.views,
+      conversions: row.conversions,
+      newsletter: row.newsletter,
+      conversion_rate: cvr,
+      scroll_rate_50pct: scrollRate,
+      engagement_rate_30s: engagementRate,
+      exit_intent_rate: exitRate,
+      diagnostics,
     };
   });
 
-  return res.json({ insights, recommendations });
+  return res.json({ insights, saved_recommendations: savedRecs });
 });
 
 router.get("/variants", (_req, res) => {

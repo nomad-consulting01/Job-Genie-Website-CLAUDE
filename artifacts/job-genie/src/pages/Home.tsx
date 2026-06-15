@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "wouter";
-import { trackEvent } from "../lib/analytics";
+import { trackEvent, useEngagementTracking } from "../lib/analytics";
+import { getExperiment } from "../lib/abtest";
 import { SEO } from "../components/SEO";
 import { NewsletterForm } from "../components/NewsletterForm";
 
@@ -128,7 +129,12 @@ function LoopAnimation() {
 function FAQAccordion() {
   const [openId, setOpenId] = useState<number | null>(null);
 
-  const toggle = (id: number) => setOpenId(openId === id ? null : id);
+  const toggle = (id: number) => {
+    if (openId !== id) {
+      trackEvent('faq_open', { faq_index: id, faq_question: faqs[id]?.q?.slice(0, 80) ?? '' });
+    }
+    setOpenId(openId === id ? null : id);
+  };
 
   const faqs = [
     {
@@ -225,13 +231,14 @@ function StickyBar() {
   );
 }
 
-export function PageContent({ variant = {} }: { variant?: any }) {
+export function PageContent({ variant = {}, experimentId, variantId }: { variant?: any; experimentId?: string; variantId?: string }) {
   useScrollReveal();
   useScrollNav();
+  useEngagementTracking({ slug: variant.slug, experimentId, variantId });
 
   useEffect(() => {
-    trackEvent("page_view");
-  }, []);
+    trackEvent("page_view", { experiment_id: experimentId, variant_id: variantId });
+  }, [experimentId, variantId]);
 
   const headline = variant.headline || (
     <>
@@ -746,38 +753,33 @@ export function PageContent({ variant = {} }: { variant?: any }) {
 }
 
 export default function Home() {
-  const [variant, setVariant] = useState<any>({});
-
-  useEffect(() => {
-    import("../lib/abtest").then((abtest) => {
-      const v = abtest.getExperiment("home_headline_test");
-      if (v?.overrides) {
-        if (v.overrides.headline_line1) {
-          setVariant({
-            ...v.overrides,
-            headline: (
-              <>
-                <span className="t1">{v.overrides.headline_line1}</span>
-                <span className="t2">{v.overrides.headline_line2}</span>
-                <span className="t3">{v.overrides.headline_line3}</span>
-              </>
-            )
-          });
-        } else {
-          setVariant(v.overrides);
-        }
+  // Synchronous A/B assignment — reads localStorage before first render, zero flicker
+  const exp = getExperiment("home_headline_test");
+  const overrides = (exp?.overrides ?? {}) as Record<string, string>;
+  const variant: Record<string, unknown> = overrides.headline_line1
+    ? {
+        ...overrides,
+        headline: (
+          <>
+            <span className="t1">{overrides.headline_line1}</span>
+            <span className="t2">{overrides.headline_line2}</span>
+            <span className="t3">{overrides.headline_line3}</span>
+          </>
+        ),
       }
-    });
-  }, []);
+    : overrides;
 
   return (
     <>
-      <SEO 
+      <SEO
         title="Why Your Job Applications Go Silent | Free Application Autopsy | Job Genie"
         description="Why do job applications go silent? Job Genie reveals your Application Silence Score, diagnoses your Recruiter-Fit Gap, and matches you to 300,000+ specialist recruiter listings in under 2 minutes — free, no account needed."
         url="https://job-genie.ai/"
+        canonicalUrl="https://job-genie.ai/"
+        pageType="home"
+        aeoQuestion="Why do my job applications keep going silent?"
       />
-      <PageContent variant={variant} />
+      <PageContent variant={variant} experimentId="home_headline_test" variantId={exp?.id} />
     </>
   );
 }

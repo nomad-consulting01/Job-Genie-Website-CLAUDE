@@ -25,8 +25,13 @@ import type {
   HealthStatus,
   NewsletterInput,
   NewsletterResponse,
+  OptimizationReport,
   SiteMetrics,
-  SlugMetrics
+  SlugMetrics,
+  VariantCreateResponse,
+  VariantInput,
+  VariantList,
+  VariantStatusResponse
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -418,4 +423,602 @@ export const useSubscribeNewsletter = <TError = ErrorType<void>,
       > => {
       return useMutation(getSubscribeNewsletterMutationOptions(options));
     }
+
+export const getGetAdminMetricsUrl = () => {
+
+
+
+
+  return `/api/admin/metrics`
+}
+
+/**
+ * Same as /metrics but requires admin Bearer token
+ * @summary Get admin-protected site metrics
+ */
+export const getAdminMetrics = async ( options?: RequestInit): Promise<SiteMetrics> => {
+
+  return customFetch<SiteMetrics>(getGetAdminMetricsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminMetricsQueryKey = () => {
+    return [
+    `/api/admin/metrics`
+    ] as const;
+    }
+
+
+export const getGetAdminMetricsQueryOptions = <TData = Awaited<ReturnType<typeof getAdminMetrics>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminMetrics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminMetricsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminMetrics>>> = ({ signal }) => getAdminMetrics({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminMetrics>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminMetricsQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminMetrics>>>
+export type GetAdminMetricsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get admin-protected site metrics
+ */
+
+export function useGetAdminMetrics<TData = Awaited<ReturnType<typeof getAdminMetrics>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminMetrics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminMetricsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetOptimizationReportUrl = () => {
+
+
+
+
+  return `/api/admin/optimization-report`
+}
+
+/**
+ * Runs five diagnostics (CVR, scroll depth, engagement, exit intent, high performer) and saves draft recommendations.
+ * @summary Get optimization diagnostics per slug
+ */
+export const getOptimizationReport = async ( options?: RequestInit): Promise<OptimizationReport> => {
+
+  return customFetch<OptimizationReport>(getGetOptimizationReportUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetOptimizationReportQueryKey = () => {
+    return [
+    `/api/admin/optimization-report`
+    ] as const;
+    }
+
+
+export const getGetOptimizationReportQueryOptions = <TData = Awaited<ReturnType<typeof getOptimizationReport>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getOptimizationReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetOptimizationReportQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOptimizationReport>>> = ({ signal }) => getOptimizationReport({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOptimizationReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetOptimizationReportQueryResult = NonNullable<Awaited<ReturnType<typeof getOptimizationReport>>>
+export type GetOptimizationReportQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get optimization diagnostics per slug
+ */
+
+export function useGetOptimizationReport<TData = Awaited<ReturnType<typeof getOptimizationReport>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getOptimizationReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetOptimizationReportQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListVariantsUrl = () => {
+
+
+
+
+  return `/api/admin/variants`
+}
+
+/**
+ * @summary List all landing page variants
+ */
+export const listVariants = async ( options?: RequestInit): Promise<VariantList> => {
+
+  return customFetch<VariantList>(getListVariantsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListVariantsQueryKey = () => {
+    return [
+    `/api/admin/variants`
+    ] as const;
+    }
+
+
+export const getListVariantsQueryOptions = <TData = Awaited<ReturnType<typeof listVariants>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listVariants>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListVariantsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listVariants>>> = ({ signal }) => listVariants({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listVariants>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListVariantsQueryResult = NonNullable<Awaited<ReturnType<typeof listVariants>>>
+export type ListVariantsQueryError = ErrorType<void>
+
+
+/**
+ * @summary List all landing page variants
+ */
+
+export function useListVariants<TData = Awaited<ReturnType<typeof listVariants>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listVariants>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListVariantsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateVariantUrl = () => {
+
+
+
+
+  return `/api/admin/variants`
+}
+
+/**
+ * @summary Create a new landing page variant
+ */
+export const createVariant = async (variantInput: VariantInput, options?: RequestInit): Promise<VariantCreateResponse> => {
+
+  return customFetch<VariantCreateResponse>(getCreateVariantUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      variantInput,)
+  }
+);}
+
+
+
+
+export const getCreateVariantMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createVariant>>, TError,{data: BodyType<VariantInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createVariant>>, TError,{data: BodyType<VariantInput>}, TContext> => {
+
+const mutationKey = ['createVariant'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createVariant>>, {data: BodyType<VariantInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createVariant(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateVariantMutationResult = NonNullable<Awaited<ReturnType<typeof createVariant>>>
+    export type CreateVariantMutationBody = BodyType<VariantInput>
+    export type CreateVariantMutationError = ErrorType<void>
+
+    /**
+ * @summary Create a new landing page variant
+ */
+export const useCreateVariant = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createVariant>>, TError,{data: BodyType<VariantInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createVariant>>,
+        TError,
+        {data: BodyType<VariantInput>},
+        TContext
+      > => {
+      return useMutation(getCreateVariantMutationOptions(options));
+    }
+
+export const getActivateVariantUrl = (id: string,) => {
+
+
+
+
+  return `/api/admin/variants/${id}/activate`
+}
+
+/**
+ * @summary Activate a variant
+ */
+export const activateVariant = async (id: string, options?: RequestInit): Promise<VariantStatusResponse> => {
+
+  return customFetch<VariantStatusResponse>(getActivateVariantUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getActivateVariantMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof activateVariant>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof activateVariant>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['activateVariant'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof activateVariant>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  activateVariant(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ActivateVariantMutationResult = NonNullable<Awaited<ReturnType<typeof activateVariant>>>
+
+    export type ActivateVariantMutationError = ErrorType<void>
+
+    /**
+ * @summary Activate a variant
+ */
+export const useActivateVariant = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof activateVariant>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof activateVariant>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getActivateVariantMutationOptions(options));
+    }
+
+export const getPauseVariantUrl = (id: string,) => {
+
+
+
+
+  return `/api/admin/variants/${id}/pause`
+}
+
+/**
+ * @summary Pause a variant
+ */
+export const pauseVariant = async (id: string, options?: RequestInit): Promise<VariantStatusResponse> => {
+
+  return customFetch<VariantStatusResponse>(getPauseVariantUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getPauseVariantMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof pauseVariant>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof pauseVariant>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['pauseVariant'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof pauseVariant>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  pauseVariant(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PauseVariantMutationResult = NonNullable<Awaited<ReturnType<typeof pauseVariant>>>
+
+    export type PauseVariantMutationError = ErrorType<void>
+
+    /**
+ * @summary Pause a variant
+ */
+export const usePauseVariant = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof pauseVariant>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof pauseVariant>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getPauseVariantMutationOptions(options));
+    }
+
+export const getExportEventsCsvUrl = () => {
+
+
+
+
+  return `/api/admin/export/events.csv`
+}
+
+/**
+ * @summary Export all events as CSV
+ */
+export const exportEventsCsv = async ( options?: RequestInit): Promise<string> => {
+
+  return customFetch<string>(getExportEventsCsvUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getExportEventsCsvQueryKey = () => {
+    return [
+    `/api/admin/export/events.csv`
+    ] as const;
+    }
+
+
+export const getExportEventsCsvQueryOptions = <TData = Awaited<ReturnType<typeof exportEventsCsv>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof exportEventsCsv>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getExportEventsCsvQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof exportEventsCsv>>> = ({ signal }) => exportEventsCsv({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof exportEventsCsv>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ExportEventsCsvQueryResult = NonNullable<Awaited<ReturnType<typeof exportEventsCsv>>>
+export type ExportEventsCsvQueryError = ErrorType<void>
+
+
+/**
+ * @summary Export all events as CSV
+ */
+
+export function useExportEventsCsv<TData = Awaited<ReturnType<typeof exportEventsCsv>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof exportEventsCsv>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getExportEventsCsvQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getExportMetricsCsvUrl = () => {
+
+
+
+
+  return `/api/admin/export/metrics.csv`
+}
+
+/**
+ * @summary Export slug metrics as CSV
+ */
+export const exportMetricsCsv = async ( options?: RequestInit): Promise<string> => {
+
+  return customFetch<string>(getExportMetricsCsvUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getExportMetricsCsvQueryKey = () => {
+    return [
+    `/api/admin/export/metrics.csv`
+    ] as const;
+    }
+
+
+export const getExportMetricsCsvQueryOptions = <TData = Awaited<ReturnType<typeof exportMetricsCsv>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof exportMetricsCsv>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getExportMetricsCsvQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof exportMetricsCsv>>> = ({ signal }) => exportMetricsCsv({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof exportMetricsCsv>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ExportMetricsCsvQueryResult = NonNullable<Awaited<ReturnType<typeof exportMetricsCsv>>>
+export type ExportMetricsCsvQueryError = ErrorType<void>
+
+
+/**
+ * @summary Export slug metrics as CSV
+ */
+
+export function useExportMetricsCsv<TData = Awaited<ReturnType<typeof exportMetricsCsv>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof exportMetricsCsv>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getExportMetricsCsvQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
