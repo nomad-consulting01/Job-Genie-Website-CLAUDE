@@ -240,6 +240,33 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
     trackEvent("page_view", { experiment_id: experimentId, variant_id: variantId });
   }, [experimentId, variantId]);
 
+  useEffect(() => {
+    const base = { experiment_id: experimentId, variant_id: variantId };
+    const sections: Array<{ selector: string; event: string; fired: boolean }> = [
+      { selector: ".tl-sect", event: "truth_layer_section_view", fired: false },
+      { selector: ".dif", event: "comparison_section_view", fired: false },
+    ];
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const sec = sections.find(s => entry.target.matches(s.selector));
+          if (sec && !sec.fired) {
+            sec.fired = true;
+            trackEvent(sec.event, base);
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+    sections.forEach(s => {
+      const el = document.querySelector(s.selector);
+      if (el) io.observe(el);
+    });
+    return () => io.disconnect();
+  }, [experimentId, variantId]);
+
   const headline = variant.headline || (
     <>
       <span className="t1">100 applications.</span>
@@ -298,7 +325,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bp" onClick={() => trackEvent("hero_cta_click", { location: "hero_primary" })}>
                   {ctaPrimary}
                 </a>
-                <a href="#how" className="btn bg" onClick={() => trackEvent("hero_cta_click", { location: "hero_secondary" })}>
+                <a href="#how" className="btn bg" onClick={() => trackEvent("secondary_cta_click", { location: "hero" })}>
                   {ctaSecondary}
                 </a>
               </div>

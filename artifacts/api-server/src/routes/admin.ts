@@ -89,9 +89,14 @@ router.get("/optimization-report", (_req, res) => {
     if (cvr > 0.08) diagnostics.push(`High-performing slug (${(cvr*100).toFixed(1)}% CVR) — scale traffic to this variant.`);
 
     if (diagnostics.length > 0) {
-      db.prepare(
-        `INSERT INTO optimization_recommendations (slug, recommendation, status) VALUES (?, ?, 'draft')`
-      ).run(row.slug, diagnostics.join(' | '));
+      const recentRec = db.prepare(
+        `SELECT id FROM optimization_recommendations WHERE slug = ? AND created_at > datetime('now', '-24 hours') LIMIT 1`
+      ).get(row.slug);
+      if (!recentRec) {
+        db.prepare(
+          `INSERT INTO optimization_recommendations (slug, recommendation, status) VALUES (?, ?, 'draft')`
+        ).run(row.slug, diagnostics.join(' | '));
+      }
     }
 
     return {

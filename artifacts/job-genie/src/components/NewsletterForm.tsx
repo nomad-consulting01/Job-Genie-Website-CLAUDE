@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSubscribeNewsletter } from "@workspace/api-client-react";
 import { trackEvent } from "../lib/analytics";
 
@@ -6,16 +6,24 @@ export function NewsletterForm() {
   const [email, setEmail] = useState("");
   const subscribe = useSubscribeNewsletter();
 
+  useEffect(() => {
+    trackEvent("newsletter_form_view");
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
+    trackEvent("newsletter_submit_attempt");
     subscribe.mutate(
       { data: { email, page_slug: window.location.pathname } },
       {
         onSuccess: () => {
-          trackEvent("newsletter_signup_complete", { email });
+          trackEvent("newsletter_signup_complete");
           setEmail("");
+        },
+        onError: () => {
+          trackEvent("newsletter_submit_error");
         },
       }
     );

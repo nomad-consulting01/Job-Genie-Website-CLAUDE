@@ -5,6 +5,26 @@ import { createHash } from "crypto";
 
 const router = Router();
 
+const ALLOWED_EVENTS = new Set([
+  "page_view",
+  "scroll_25", "scroll_50", "scroll_75", "scroll_90",
+  "time_on_page_30s", "time_on_page_60s",
+  "exit_intent",
+  "faq_open",
+  "free_autopsy_click",
+  "hero_cta_click",
+  "secondary_cta_click",
+  "truth_layer_cta_click",
+  "truth_layer_section_view",
+  "comparison_section_view",
+  "pricing_click",
+  "newsletter_form_view",
+  "newsletter_signup_intent",
+  "newsletter_submit_attempt",
+  "newsletter_signup_complete",
+  "newsletter_submit_error",
+]);
+
 router.post("/events", (req, res) => {
   const parse = TrackEventBody.safeParse(req.body);
   if (!parse.success) {
@@ -12,6 +32,10 @@ router.post("/events", (req, res) => {
   }
 
   const body = parse.data;
+
+  if (!ALLOWED_EVENTS.has(body.event_name)) {
+    return res.status(400).json({ error: `Unknown event: ${body.event_name}` });
+  }
 
   const ip = String(
     req.headers["x-forwarded-for"] || req.socket?.remoteAddress || ""

@@ -40,7 +40,7 @@ export default function LandingPage() {
     ...(overrides.cta_primary ? { cta_primary: overrides.cta_primary } : {}),
   };
 
-  const robots = variantConfig.indexing === 'noindex' ? 'noindex, nofollow' : 'index, follow';
+  const robots = variantConfig.indexing === 'noindex' ? 'noindex, follow' : 'index, follow';
 
   return (
     <>
