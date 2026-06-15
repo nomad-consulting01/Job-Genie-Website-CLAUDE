@@ -57,11 +57,11 @@ router.post("/newsletter", async (req, res) => {
       if (!beehiivRes.ok) {
         const errText = await beehiivRes.text();
         logger.warn({ status: beehiivRes.status, body: errText }, "Beehiiv API error");
-        return res.status(200).json({ ok: true, message: "Subscribed (Beehiiv error logged)" });
+        return res.status(502).json({ ok: false, error: "Newsletter provider error — try again later" });
       }
     } catch (err) {
       logger.error({ err }, "Beehiiv fetch failed");
-      return res.status(200).json({ ok: true, message: "Subscribed (Beehiiv unreachable)" });
+      return res.status(502).json({ ok: false, error: "Newsletter provider unreachable — try again later" });
     }
   } else {
     logger.warn("BEEHIIV_API_KEY or BEEHIIV_PUBLICATION_ID not set — skipping Beehiiv sync");
