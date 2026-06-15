@@ -1,6 +1,28 @@
 import { useEffect, useState } from "react";
 import { useSubscribeNewsletter } from "@workspace/api-client-react";
 import { trackEvent } from "../lib/analytics";
+import { getVisitorId } from "../lib/abtest";
+
+function getLocalVariantContext(): { experiment_id: string | null; variant_id: string | null } {
+  try {
+    const expKey = "exp_home_headline_test";
+    const variantId = localStorage.getItem(expKey) ?? null;
+    return { experiment_id: "home_headline_test", variant_id: variantId };
+  } catch {
+    return { experiment_id: null, variant_id: null };
+  }
+}
+
+function getUtmParams() {
+  const s = new URLSearchParams(window.location.search);
+  return {
+    utm_source: s.get("utm_source"),
+    utm_medium: s.get("utm_medium"),
+    utm_campaign: s.get("utm_campaign"),
+    utm_content: s.get("utm_content"),
+    utm_term: s.get("utm_term"),
+  };
+}
 
 export function NewsletterForm() {
   const [email, setEmail] = useState("");
@@ -15,11 +37,27 @@ export function NewsletterForm() {
     if (!email) return;
 
     trackEvent("newsletter_submit_attempt");
+    const { experiment_id, variant_id } = getLocalVariantContext();
+    const utm = getUtmParams();
+
     subscribe.mutate(
-      { data: { email, page_slug: window.location.pathname } },
+      {
+        data: {
+          email,
+          page_slug: window.location.pathname,
+          experiment_id: experiment_id ?? undefined,
+          variant_id: variant_id ?? undefined,
+          utm_source: utm.utm_source ?? undefined,
+          utm_medium: utm.utm_medium ?? undefined,
+          utm_campaign: utm.utm_campaign ?? undefined,
+          utm_content: utm.utm_content ?? undefined,
+          utm_term: utm.utm_term ?? undefined,
+          visitor_id: getVisitorId(),
+        },
+      },
       {
         onSuccess: () => {
-          trackEvent("newsletter_signup_complete");
+          trackEvent("newsletter_submit_success");
           setEmail("");
         },
         onError: () => {

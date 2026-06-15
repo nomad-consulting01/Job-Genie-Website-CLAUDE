@@ -17,12 +17,12 @@ const ALLOWED_EVENTS = new Set([
   "truth_layer_cta_click",
   "truth_layer_section_view",
   "comparison_section_view",
-  "pricing_click",
   "newsletter_form_view",
   "newsletter_signup_intent",
   "newsletter_submit_attempt",
-  "newsletter_signup_complete",
+  "newsletter_submit_success",
   "newsletter_submit_error",
+  "pricing_cta_click",
 ]);
 
 router.post("/events", (req, res) => {

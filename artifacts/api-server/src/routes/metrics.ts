@@ -23,7 +23,7 @@ router.get("/metrics", (_req, res) => {
   ).get() as { c: number }).c;
 
   const newsletterSignups = (db.prepare(
-    "SELECT COUNT(*) as c FROM conversion_events WHERE event_name='newsletter_signup_complete'"
+    "SELECT COUNT(*) as c FROM conversion_events WHERE event_name='newsletter_submit_success'"
   ).get() as { c: number }).c;
 
   const bySlugRaw = db.prepare(
@@ -33,7 +33,7 @@ router.get("/metrics", (_req, res) => {
       COUNT(DISTINCT CASE WHEN event_name='page_view' AND visitor_id IS NOT NULL THEN visitor_id END) as unique_visitors,
       SUM(CASE WHEN event_name='free_autopsy_click' THEN 1 ELSE 0 END) as free_autopsy_clicks,
       SUM(CASE WHEN event_name='hero_cta_click' THEN 1 ELSE 0 END) as hero_cta_clicks,
-      SUM(CASE WHEN event_name='newsletter_signup_complete' THEN 1 ELSE 0 END) as newsletter_signups
+      SUM(CASE WHEN event_name='newsletter_submit_success' THEN 1 ELSE 0 END) as newsletter_signups
     FROM conversion_events
     GROUP BY page_slug
     ORDER BY page_views DESC`
@@ -81,7 +81,7 @@ router.get("/metrics/:slug", (req, res) => {
       COUNT(DISTINCT CASE WHEN event_name='page_view' AND visitor_id IS NOT NULL THEN visitor_id END) as unique_visitors,
       SUM(CASE WHEN event_name='free_autopsy_click' THEN 1 ELSE 0 END) as free_autopsy_clicks,
       SUM(CASE WHEN event_name='hero_cta_click' THEN 1 ELSE 0 END) as hero_cta_clicks,
-      SUM(CASE WHEN event_name='newsletter_signup_complete' THEN 1 ELSE 0 END) as newsletter_signups,
+      SUM(CASE WHEN event_name='newsletter_submit_success' THEN 1 ELSE 0 END) as newsletter_signups,
       SUM(CASE WHEN event_name='scroll_25' THEN 1 ELSE 0 END) as scroll_25,
       SUM(CASE WHEN event_name='scroll_50' THEN 1 ELSE 0 END) as scroll_50,
       SUM(CASE WHEN event_name='scroll_75' THEN 1 ELSE 0 END) as scroll_75,
@@ -115,7 +115,7 @@ router.get("/metrics/:slug", (req, res) => {
       SUM(CASE WHEN event_name='page_view' THEN 1 ELSE 0 END) as page_views,
       SUM(CASE WHEN event_name='free_autopsy_click' THEN 1 ELSE 0 END) as free_autopsy_clicks,
       SUM(CASE WHEN event_name='hero_cta_click' THEN 1 ELSE 0 END) as hero_cta_clicks,
-      SUM(CASE WHEN event_name='newsletter_signup_complete' THEN 1 ELSE 0 END) as newsletter_signups
+      SUM(CASE WHEN event_name='newsletter_submit_success' THEN 1 ELSE 0 END) as newsletter_signups
     FROM conversion_events WHERE page_slug = ? AND variant_id IS NOT NULL
     GROUP BY variant_id, experiment_id
     ORDER BY page_views DESC`

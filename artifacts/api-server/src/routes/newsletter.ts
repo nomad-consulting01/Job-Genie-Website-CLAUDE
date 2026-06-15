@@ -34,15 +34,20 @@ router.post("/newsletter", async (req, res) => {
             utm_source: body.utm_source ?? "job-genie-website",
             utm_medium: body.utm_medium ?? "landing-page",
             utm_campaign: body.utm_campaign ?? body.page_slug ?? "homepage",
+            utm_content: body.utm_content ?? null,
+            utm_term: body.utm_term ?? null,
             custom_fields: [
               ...(body.page_slug
                 ? [{ name: "page_slug", value: body.page_slug }]
                 : []),
-              ...(body.lead_magnet
-                ? [{ name: "lead_magnet", value: body.lead_magnet }]
+              ...(body.experiment_id
+                ? [{ name: "experiment_id", value: body.experiment_id }]
                 : []),
               ...(body.variant_id
                 ? [{ name: "variant_id", value: body.variant_id }]
+                : []),
+              ...(body.visitor_id
+                ? [{ name: "visitor_id", value: body.visitor_id }]
                 : []),
             ],
           }),
@@ -65,9 +70,22 @@ router.post("/newsletter", async (req, res) => {
   try {
     const db = getDb();
     db.prepare(
-      `INSERT INTO conversion_events (event_name, page_slug, metadata)
-       VALUES ('newsletter_signup_complete', ?, ?)`
-    ).run(body.page_slug ?? "/", JSON.stringify({ email_domain: email.split("@")[1] ?? "unknown" }));
+      `INSERT INTO conversion_events
+        (event_name, page_slug, visitor_id, experiment_id, variant_id,
+         utm_source, utm_medium, utm_campaign, utm_content, utm_term, metadata)
+       VALUES ('newsletter_submit_success', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(
+      body.page_slug ?? "/",
+      body.visitor_id ?? null,
+      body.experiment_id ?? null,
+      body.variant_id ?? null,
+      body.utm_source ?? null,
+      body.utm_medium ?? null,
+      body.utm_campaign ?? null,
+      body.utm_content ?? null,
+      body.utm_term ?? null,
+      JSON.stringify({ email_domain: email.split("@")[1] ?? "unknown" })
+    );
   } catch (err) {
     logger.error({ err }, "Failed to log newsletter event");
   }

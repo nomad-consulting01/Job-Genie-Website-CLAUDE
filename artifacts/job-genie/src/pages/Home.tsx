@@ -707,7 +707,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Truth Layer resume rewrite</span></li>
                 <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Recruiter-Ready Brief</span></li>
               </ul>
-              <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bg" style={{ width: "100%", justifyContent: "center" }} onClick={() => trackEvent("free_autopsy_click", { location: "pricing_free" })}>Claim My Free Autopsy</a>
+              <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bg" style={{ width: "100%", justifyContent: "center" }} onClick={() => { trackEvent("free_autopsy_click", { location: "pricing_free" }); trackEvent("pricing_cta_click", { location: "pricing_free" }); }}>Claim My Free Autopsy</a>
             </div>
             <div className="pc ft r d1">
               <div className="pbg">Most Popular</div>
@@ -725,7 +725,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg><strong style={{ color: "var(--wh)" }}>Recruiter-Ready Brief</strong> — with every rewrite</li>
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>Unlimited Excel, CSV &amp; Word downloads</li>
               </ul>
-              <a href="https://bit.ly/3PqDSBv" className="btn bp" style={{ width: "100%", justifyContent: "center" }} onClick={() => trackEvent("pricing_click", { location: "pricing_pro" })}>Get Full Autopsy — Go Pro</a>
+              <a href="https://bit.ly/3PqDSBv" className="btn bp" style={{ width: "100%", justifyContent: "center" }} onClick={() => trackEvent("pricing_cta_click", { location: "pricing_pro" })}>Get Full Autopsy — Go Pro</a>
             </div>
           </div>
         </div>
