@@ -141,40 +141,72 @@ function FAQAccordion() {
 
   const faqs = [
     {
-      q: "Why do my job applications keep going silent?",
-      a: "Applications go silent for three fixable reasons. First, wrong channel — you are applying to the 30% of roles that are publicly posted and competitive, while 70–80% of the best roles are filled through specialist recruiters before they ever reach a job board. Second, ghost job exposure — approximately 31% of job board listings are already filled when you apply. Third, resume misalignment — your resume does not contain the exact keywords, seniority signals, and role-match indicators specialist recruiters search for. Job Genie's free Autopsy identifies which blocker is affecting you in under 2 minutes."
+      q: "Why am I not hearing back from any of my job applications?",
+      a: "If you have sent dozens or hundreds of applications and heard nothing back — not even rejections — you are experiencing Application Silence, and it is rarely about your qualifications. A single role now draws thousands of near-identical, AI-optimised applications, so most are filtered or deprioritised before a human ever opens them. The fix is not more volume; it is becoming a candidate a specialist recruiter can put on a shortlist. Job Genie diagnoses why you are being filtered with an Application Silence Score and rewrites your profile to clear the recruiter shortlist threshold."
+    },
+    {
+      q: "Is it normal to apply to 100+ jobs and get no response in 2026?",
+      a: "Unfortunately, yes — and it is a signal the channel is broken, not that you are. With auto-apply tools pushing some roles past thousands of submissions, interview rates on public postings have collapsed into the low single digits, while referred and recruiter-shortlisted candidates convert many times higher. The public-application channel now has the worst odds of any route into a job. Job Genie redirects your effort toward the channels that still work."
+    },
+    {
+      q: "Why do recruiters ghost candidates, even after interviews?",
+      a: "Recruiters usually ghost because of volume and broken process, not personal rejection. A single recruiter may long-list hundreds of names, phone-screen 10 to 20, and present only 3 to 4 to the client — and roles get put on hold, filled internally, or reassigned without anyone updating applicants. It feels personal; it almost never is. The way out is to stop competing inside the silent pile and instead become recruiter-ready, so a recruiter has a reason to keep you on the list."
+    },
+    {
+      q: "I got ghosted after a final interview or verbal offer — what does it mean?",
+      a: "It usually means something changed on the employer side — a hiring freeze, an internal candidate, a reorg — not that you did something wrong. Late-stage ghosting is one of the most-reported frustrations in recruiting communities precisely because it is so opaque. You cannot control employer chaos, but you can control how recruiter-ready you are for the next shortlist. Job Genie's Recruiter-Ready Brief keeps you positioned so a single ghosting does not reset your whole search."
+    },
+    {
+      q: "Are ghost jobs real, or am I imagining it?",
+      a: "Ghost jobs are real and common. 81% of recruiters say their employer has posted a ghost job (MyPerfectResume), 62% of hiring managers admit doing it (Resume Builder), and 43% of employers say they post roles mainly to look like they are growing (Clarify Capital). One 2025 analysis estimated about 27% of U.S. LinkedIn listings were likely ghost jobs (ResumeUp.AI). So a real share of what you apply to was never a fillable opening. Job Genie screens specialist-recruiter listings so you spend energy on roles actually being filled."
+    },
+    {
+      q: "How can I tell if a job posting is real before I waste time applying?",
+      a: "Watch for the tells: the same role reposted for months, vague responsibilities with no named hiring manager, generic boilerplate, or one company hiring dozens of identical seats. Real, fillable roles tend to have a specific owner, a recent post date, and concrete scope. Job Genie screens specialist-recruiter listings so you spend energy on roles actually being filled — not ghost postings."
+    },
+    {
+      q: "Does my resume really get auto-rejected by ATS bots?",
+      a: "Mostly myth, partly true. Most recruiters do not run AI detectors or auto-reject the instant a resume arrives — they do not have the time or budget. But applicant tracking systems do parse, rank, and deprioritise: legacy systems on exact keyword matches, modern systems on semantic concept-matching. The real risk is not instant deletion — it is quietly ranking below better-matched profiles. The fix is a resume written in the language of the role and the recruiter, not keyword-stuffed."
+    },
+    {
+      q: "Do I really have to tailor my resume for every single job?",
+      a: "Tailoring to the job post has hit diminishing returns: when everyone uses the same AI to mirror the same description, tailored resumes look identical and recruiters stop trusting surface alignment. The higher-leverage move is tailoring to the recruiter shortlist — the handful of candidates a specialist recruiter will actually represent. Job Genie's Truth Layer rewrite optimises for recruiter-fit rather than the keyword-mirroring you can no longer win on."
+    },
+    {
+      q: "Should I use an AI tool to auto-apply to hundreds of jobs?",
+      a: "Almost certainly not. Auto-apply tools drop you straight into the pile recruiters have stopped reading — thousands of look-alike applications per role that signal low intent. In 2026 the winning move is the opposite: fewer, higher-fit applications aimed at roles genuinely being filled, with a profile a recruiter can shortlist. Quantity is exactly the strategy the broken system punishes."
+    },
+    {
+      q: "Is it better to apply to more jobs or fewer, better-targeted ones?",
+      a: "Fewer and better-targeted, decisively. More applications mean more noise, lower per-application odds, and a higher chance of being screened out as spam. Targeted applications to real roles where you clear the recruiter-fit bar convert far better. Job Genie is built around this — it finds the roles worth your effort and makes you the obvious shortlist pick rather than one of thousands."
+    },
+    {
+      q: "How do I find jobs that are not posted publicly?",
+      a: "Many mid-career and specialist roles are filled through referrals and recruiter shortlists before — or instead of — a public posting. Employee referrals deliver over 30% of hires and convert far better than cold applications (about 1 in 16 vs 1 in 100, per SHRM and a Lever analysis), and referred candidates are roughly 4x more likely to be hired. You reach these roles by being recruiter-ready and discoverable to the specialist recruiters who fill them — not by refreshing job boards. Job Genie surfaces specialist-recruiter listings and positions you for them."
+    },
+    {
+      q: "Is networking really the only way to get hired now?",
+      a: "Networking is not the only way, but referrals carry real, measurable weight. Sociologist Mark Granovetter's classic research found that most people who land a job through a contact do so via weak ties (acquaintances), not close friends, because acquaintances connect you to information outside your own circle. In practice, being visible and credible to recruiters and loose professional contacts beats cold-applying. Job Genie gives you that recruiter-facing presence without forcing you to cold-network your way in."
+    },
+    {
+      q: "Is it true that 70–80% of jobs are filled through the hidden job market?",
+      a: "Not credibly — that specific figure is essentially a myth. It traces to 1970s research by sociologist Mark Granovetter, who found about 56% of job-changers in one Boston suburb found work through personal contacts — a narrow, dated finding later inflated into the claim that 80% of jobs are hidden. What is true: referrals and recruiter shortlists genuinely dominate hiring for mid-to-senior and specialist roles, and many posted jobs are ghost jobs. Job Genie is built on the accurate version, not the hype."
+    },
+    {
+      q: "I have years of experience — why am I struggling to get interviews?",
+      a: "The more senior or specialised your background, the more hiring moves off public boards and onto recruiter shortlists and referral networks. Experienced candidates who rely on public applications can feel invisible precisely because their roles are filled elsewhere. The problem is usually channel, not capability. Job Genie reroutes experienced candidates toward the specialist-recruiter channel where experience is an advantage, not a filtered keyword."
+    },
+    {
+      q: "What is the Recruiter-Fit Gap?",
+      a: "The Recruiter-Fit Gap is the distance between how you present yourself and what a specialist recruiter needs to see to put you on a client shortlist. Most qualified candidates are not rejected on ability — they are filtered because their profile does not map cleanly to a recruiter brief. Job Genie measures this gap with a Recruiter-Fit Matrix and closes it, so you cross the shortlist threshold instead of stalling in Application Silence."
+    },
+    {
+      q: "What is the hidden job market?",
+      a: "The hidden job market is the set of roles filled through referrals, recruiter shortlists, and direct outreach without being publicly advertised. The concept dates to Mark Granovetter's 1974 research on how people actually find jobs; the popular claim that 70–80% of jobs are hidden is an unsupported inflation of it, but the phenomenon itself is real — most pronounced for mid-to-senior and specialist roles, where employers prefer a small, trusted talent pool over thousands of public applications. Job Genie makes you visible inside this market through specialist-recruiter listings."
     },
     {
       q: "What is an Application Silence Score?",
-      a: "An Application Silence Score is a diagnostic rating — HIGH, MEDIUM, or LOW — that quantifies exactly why your job search is losing interviews. It identifies specific blockers: channel mismatch, ghost job exposure, and resume-to-brief alignment gaps (with a role alignment score compared against the shortlist threshold). Calculated in under 2 minutes from a resume upload. No account or credit card required."
-    },
-    {
-      q: "What is the Truth Layer resume rewrite and how is it different from other AI resume tools?",
-      a: "The Truth Layer is Job Genie's specialist recruiter shortlist optimisation system — not a general resume polish. It applies 8 non-negotiable rewrite rules (proof statements over duty descriptions, keyword placement, recency weighting, seniority calibration, sector language matching, gap pre-emption, and ATS-safe formatting), runs 4 pre-delivery audits, and applies the 90-second shortlist test before any CV is delivered. Most AI resume tools optimise for ATS keywords. The Truth Layer optimises for the moment a specialist recruiter decides whether to pick up the phone."
-    },
-    {
-      q: "What four questions does a specialist recruiter ask in the first 30 seconds?",
-      a: "Every specialist recruiter evaluates a CV against four questions: (1) Does this person do the thing I am trying to fill? (2) Can I see measurable proof they have done it well? (3) Will my client believe this person is credible? (4) Can I present this in 90 seconds without having to explain it? If the answer to any of these is not clearly yes, the CV does not make the shortlist. Job Genie's Truth Layer is built to make every answer unambiguously yes before the CV leaves the platform."
-    },
-    {
-      q: "What percentage of jobs are filled through specialist recruiters and never posted publicly?",
-      a: "Research consistently shows 70–80% of the best roles — particularly senior, specialist, and high-compensation positions — are filled before they ever appear on public job boards. Candidates known to specialist recruiters experience a 5x–10x job-search efficiency advantage over cold job-board applicants, because the recruiter advocates for them directly with hiring managers. Sources: U.S. Bureau of Labor Statistics job search research; LinkedIn Talent Surveys."
-    },
-    {
-      q: "How is Job Genie different from LinkedIn, Indeed, or resume review tools?",
-      a: "Job Genie is not a job board. It is a recruiter-visibility system. Job boards show the 20–30% of available roles that are publicly posted. Job Genie accesses 300,000+ listings from 150+ specialist staffing agencies — roles that never appear on LinkedIn or Indeed. Generic resume tools polish your CV. Job Genie diagnoses why it's being filtered out, applies the Truth Layer rewrite built specifically for the specialist recruiter shortlist, validates every listing URL in real time, and delivers a Recruiter-Ready Brief alongside the rewritten CV."
-    },
-    {
-      q: "What is a ghost job and how common are they?",
-      a: "A ghost job is a listing that remains visible online but is no longer actively being filled — the position has been filled, paused, or cancelled. Research estimates approximately 31% of job board listings at any given time are ghost jobs. Job Genie's live URL validation automatically identifies and removes ghost jobs from its specialist recruiter database, so every listing shown is verified active."
-    },
-    {
-      q: "Is Job Genie free? What does each plan include?",
-      a: "Yes. The Free Autopsy includes your Application Silence Score, Recruiter-Fit Score, keyword gap analysis, and full blocker diagnosis — no account or credit card required. The Pro plan at $49/month unlocks the full 300,000+ specialist recruiter listings database, live URL validation, market demand matching, the Truth Layer resume rewrite (8 rules, 4 audits, 90-second test), the Recruiter-Ready Brief, and unlimited downloadable results. Cancel anytime."
-    },
-    {
-      q: "What is the best resume writing service for specialist recruiter submissions?",
-      a: "Job Genie's Truth Layer is specifically engineered for specialist recruiter submission — not generic ATS optimisation. It applies 8 rewrite rules, runs 4 pre-delivery audits, and applies the 90-second shortlist test before any CV is delivered. It is the only system that also produces a Recruiter-Ready Brief — a 3–5 sentence email in the recruiter's language — alongside the rewritten CV, and then matches the rewritten CV directly to 300,000+ live specialist recruiter-held listings from the hidden job market."
+      a: "An Application Silence Score is Job Genie's diagnostic of why your applications get no response — quantifying how far your profile sits from the recruiter shortlist threshold across the roles you target. Instead of guessing why you are being ghosted, you get a concrete read on what is filtering you out and what to change. It turns the black hole of silence into a fixable, measurable gap."
     }
   ];
 
@@ -192,7 +224,7 @@ function FAQAccordion() {
             </span>
           </button>
           <div className="fa" id={`fa${i}`} itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-            <p itemProp="text" dangerouslySetInnerHTML={{ __html: faq.a.replace(/(\d+%|70–80%|300,000\+|150\+|30%|31%|HIGH, MEDIUM, or LOW|90-second shortlist test|Truth Layer|Recruiter-Ready Brief|Free Autopsy|Pro plan at \$49\/month|5x–10x)/g, '<strong>$1</strong>') }} />
+            <p itemProp="text" dangerouslySetInnerHTML={{ __html: faq.a.replace(/(\d+%|300,000\+|150\+|4x|1 in 16|1 in 100|Application Silence Score|Application Silence|Recruiter-Fit Gap|Recruiter-Fit Matrix|Recruiter-Ready Brief|Truth Layer|Free Autopsy|hidden job market|ghost jobs?|recruiter shortlist)/g, '<strong>$1</strong>') }} />
           </div>
         </div>
       ))}
