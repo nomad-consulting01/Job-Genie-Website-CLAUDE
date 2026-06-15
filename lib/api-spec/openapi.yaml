@@ -455,6 +455,8 @@ components:
           format: email
         page_slug:
           type: ["string", "null"]
+        visitor_id:
+          type: ["string", "null"]
         experiment_id:
           type: ["string", "null"]
         variant_id:

@@ -115,6 +115,7 @@ export const GetSlugMetricsResponse = zod.object({
 export const SubscribeNewsletterBody = zod.object({
   "email": zod.string().email(),
   "page_slug": zod.string().nullish(),
+  "visitor_id": zod.string().nullish(),
   "experiment_id": zod.string().nullish(),
   "variant_id": zod.string().nullish(),
   "beehiiv_segment": zod.string().nullish(),

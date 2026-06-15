@@ -166,7 +166,19 @@ router.get("/optimization-report", (_req, res) => {
     const faqEngagementRate = row.views > 0 ? row.faq_opens / row.views : 0;
     const currentVariant = currentVariantMap.get(row.slug) ?? "control";
 
-    // Diagnostic 1: low overall CTA (hero + autopsy)
+    // Diagnostic 1: low hero CTA click rate (<3%) — distinct from overall CVR
+    if (row.views > 20 && heroCtr < 0.03) {
+      recommendations.push({
+        slug: row.slug, current_variant: currentVariant, views: row.views,
+        conversion_rate: parseFloat((heroCtr * 100).toFixed(2)),
+        issue_detected: "low_hero_cta_rate",
+        likely_problem: `Hero CTA click rate is only ${(heroCtr * 100).toFixed(1)}% (below 3% threshold) — the above-the-fold offer or button copy is not compelling enough to drive immediate action.`,
+        recommended_test: "A/B test a specificity-driven hero CTA ('See my exact blockers') vs the current generic label; test button colour and placement.",
+        priority: "high",
+      });
+    }
+
+    // Diagnostic 2: low overall autopsy CVR (<2%)
     if (row.views > 30 && cvr < 0.02) {
       recommendations.push({
         slug: row.slug, current_variant: currentVariant, views: row.views,
@@ -178,7 +190,7 @@ router.get("/optimization-report", (_req, res) => {
       });
     }
 
-    // Diagnostic 2: high scroll depth but low conversion (engaged but not converting)
+    // Diagnostic 3: high scroll depth but low conversion (engaged but not converting)
     if (scrollRate > 0.5 && cvr < 0.03 && row.views > 20) {
       recommendations.push({
         slug: row.slug, current_variant: currentVariant, views: row.views,
@@ -190,7 +202,7 @@ router.get("/optimization-report", (_req, res) => {
       });
     }
 
-    // Diagnostic 3: high newsletter form views but low signup rate
+    // Diagnostic 4: high newsletter form views but low signup rate
     if (row.newsletter_views > 10 && newsletterConvRate < 0.05) {
       recommendations.push({
         slug: row.slug, current_variant: currentVariant, views: row.views,
@@ -202,7 +214,7 @@ router.get("/optimization-report", (_req, res) => {
       });
     }
 
-    // Diagnostic 4: high FAQ engagement but low hero CTA click (interested but not converting)
+    // Diagnostic 5: high FAQ engagement but low hero CTA click (interested but not converting)
     if (faqEngagementRate > 0.12 && heroCtr < 0.04 && row.views > 20) {
       recommendations.push({
         slug: row.slug, current_variant: currentVariant, views: row.views,
@@ -214,7 +226,7 @@ router.get("/optimization-report", (_req, res) => {
       });
     }
 
-    // Diagnostic 5: low scroll (losing users before value prop)
+    // Diagnostic 6: low scroll (losing users before value prop)
     if (scrollRate < 0.3 && row.views > 20) {
       recommendations.push({
         slug: row.slug, current_variant: currentVariant, views: row.views,
@@ -311,8 +323,43 @@ router.get("/optimization-report", (_req, res) => {
 
 router.get("/variants", (_req, res) => {
   const db = getDb();
-  const variants = db.prepare("SELECT * FROM landing_page_variants ORDER BY created_at DESC").all();
-  return res.json({ variants });
+  const variants = db.prepare("SELECT * FROM landing_page_variants ORDER BY created_at DESC").all() as Array<Record<string, unknown>>;
+
+  // Attach a metrics summary (views, conversions, hero_ctr) per variant row
+  const metricsBySlugsVariant = db.prepare(
+    `SELECT page_slug as slug, variant_id,
+      SUM(CASE WHEN event_name='page_view' THEN 1 ELSE 0 END) as page_views,
+      SUM(CASE WHEN event_name='free_autopsy_click' THEN 1 ELSE 0 END) as conversions,
+      SUM(CASE WHEN event_name='hero_cta_click' THEN 1 ELSE 0 END) as hero_cta_clicks,
+      SUM(CASE WHEN event_name='newsletter_submit_success' THEN 1 ELSE 0 END) as newsletter_signups
+     FROM conversion_events
+     WHERE variant_id IS NOT NULL
+     GROUP BY page_slug, variant_id`
+  ).all() as Array<{ slug: string; variant_id: string; page_views: number; conversions: number; hero_cta_clicks: number; newsletter_signups: number }>;
+
+  const metricsMap = new Map<string, { page_views: number; conversions: number; hero_cta_clicks: number; newsletter_signups: number; conversion_rate: number; hero_ctr: number }>();
+  for (const row of metricsBySlugsVariant) {
+    const key = `${row.slug}::${row.variant_id}`;
+    const pv = row.page_views;
+    metricsMap.set(key, {
+      page_views: pv,
+      conversions: row.conversions,
+      hero_cta_clicks: row.hero_cta_clicks,
+      newsletter_signups: row.newsletter_signups,
+      conversion_rate: pv > 0 ? parseFloat(((row.conversions / pv) * 100).toFixed(2)) : 0,
+      hero_ctr: pv > 0 ? parseFloat(((row.hero_cta_clicks / pv) * 100).toFixed(2)) : 0,
+    });
+  }
+
+  const enriched = variants.map((v) => {
+    const key = `${String(v['slug'] ?? '')}::${String(v['variant_id'] ?? '')}`;
+    const metrics = metricsMap.get(key) ?? {
+      page_views: 0, conversions: 0, hero_cta_clicks: 0, newsletter_signups: 0, conversion_rate: 0, hero_ctr: 0,
+    };
+    return { ...v, metrics };
+  });
+
+  return res.json({ variants: enriched });
 });
 
 router.post("/variants", (req, res) => {

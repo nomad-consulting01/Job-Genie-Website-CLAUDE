@@ -120,6 +120,8 @@ export interface NewsletterInput {
   /** @nullable */
   page_slug?: string | null;
   /** @nullable */
+  visitor_id?: string | null;
+  /** @nullable */
   experiment_id?: string | null;
   /** @nullable */
   variant_id?: string | null;

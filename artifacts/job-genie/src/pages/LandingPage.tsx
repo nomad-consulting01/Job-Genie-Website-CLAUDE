@@ -7,6 +7,8 @@ import { getSlugExperiment } from "../lib/abtest";
 
 interface VariantConfig {
   slug: string;
+  variant_id: string;
+  experiment_id: string;
   status: string;
   indexing: string;
   canonical_url: string;

@@ -77,20 +77,23 @@ function LoopAnimation() {
   useEffect(() => {
     const lw = document.querySelector(".lwrap");
     if (!lw) return;
+    let interval: ReturnType<typeof setInterval> | undefined;
     const lo = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          const interval = setInterval(() => {
+          interval = setInterval(() => {
             setCur((c) => (c + 1) % nodes.length);
           }, 900);
           lo.unobserve(lw);
-          return () => clearInterval(interval);
         }
       },
       { threshold: 0.3 }
     );
     lo.observe(lw);
-    return () => lo.disconnect();
+    return () => {
+      lo.disconnect();
+      clearInterval(interval);
+    };
   }, [nodes.length]);
 
   return (
