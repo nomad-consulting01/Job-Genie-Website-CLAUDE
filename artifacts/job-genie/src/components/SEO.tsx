@@ -123,6 +123,9 @@ export function SEO({
     }] : []),
   ];
 
+  // SSR guard: document.head is unavailable during server-side prerender
+  if (typeof document === 'undefined') return null;
+
   // Use createPortal to inject into document.head synchronously on first render
   // (not deferred like useEffect), ensuring crawlers that execute JS see metadata immediately
   return createPortal(

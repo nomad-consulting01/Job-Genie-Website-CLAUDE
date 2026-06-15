@@ -59,6 +59,7 @@ router.get("/metrics", (_req, res) => {
 
 router.get("/optimization-report", (_req, res) => {
   const db = getDb();
+
   const slugStats = db.prepare(
     `SELECT page_slug as slug,
       SUM(CASE WHEN event_name='page_view' THEN 1 ELSE 0 END) as views,
@@ -88,12 +89,39 @@ router.get("/optimization-report", (_req, res) => {
     GROUP BY variant_id ORDER BY views DESC`
   ).all() as Array<{ variant_id: string; views: number; conversions: number }>;
 
+  // Current active variant per slug (for report context)
+  const activeVariants = db.prepare(
+    `SELECT slug, variant_id FROM landing_page_variants WHERE status='active' ORDER BY created_at DESC`
+  ).all() as Array<{ slug: string; variant_id: string }>;
+  const currentVariantMap = new Map<string, string>();
+  for (const v of activeVariants) {
+    if (!currentVariantMap.has(v.slug)) currentVariantMap.set(v.slug, v.variant_id);
+  }
+
+  // Paid traffic engagement (bounce proxy)
+  const paidTrafficStats = db.prepare(
+    `SELECT
+      SUM(CASE WHEN event_name='page_view' THEN 1 ELSE 0 END) as paid_views,
+      SUM(CASE WHEN event_name='time_on_page_30s' THEN 1 ELSE 0 END) as paid_engaged,
+      SUM(CASE WHEN event_name='free_autopsy_click' THEN 1 ELSE 0 END) as paid_conversions
+    FROM conversion_events
+    WHERE utm_medium IN ('cpc','paid','ppc','paidsocial') OR traffic_source = 'paid'`
+  ).get() as { paid_views: number; paid_engaged: number; paid_conversions: number } | null;
+
+  const overallEngagementRow = db.prepare(
+    `SELECT
+      SUM(CASE WHEN event_name='page_view' THEN 1 ELSE 0 END) as total_views,
+      SUM(CASE WHEN event_name='time_on_page_30s' THEN 1 ELSE 0 END) as total_engaged
+    FROM conversion_events`
+  ).get() as { total_views: number; total_engaged: number } | null;
+
   const savedRecs = db.prepare(
     "SELECT * FROM optimization_recommendations ORDER BY created_at DESC LIMIT 50"
   ).all();
 
   interface RecommendationItem {
     slug: string;
+    current_variant: string;
     views: number;
     conversion_rate: number;
     issue_detected: string;
@@ -104,6 +132,30 @@ router.get("/optimization-report", (_req, res) => {
 
   const recommendations: RecommendationItem[] = [];
 
+  // Overall paid traffic bounce diagnostic (site-wide, emitted once)
+  if (paidTrafficStats && overallEngagementRow) {
+    const paidViews = Number(paidTrafficStats.paid_views ?? 0);
+    const paidEngaged = Number(paidTrafficStats.paid_engaged ?? 0);
+    const overallViews = Number(overallEngagementRow.total_views ?? 0);
+    const overallEngaged = Number(overallEngagementRow.total_engaged ?? 0);
+    if (paidViews > 10 && overallViews > 0) {
+      const paidEngRate = paidEngaged / paidViews;
+      const overallEngRate = overallViews > 0 ? overallEngaged / overallViews : 0;
+      if (paidEngRate < overallEngRate * 0.65) {
+        recommendations.push({
+          slug: "all",
+          current_variant: "n/a",
+          views: paidViews,
+          conversion_rate: paidViews > 0 ? parseFloat(((paidTrafficStats.paid_conversions / paidViews) * 100).toFixed(2)) : 0,
+          issue_detected: "paid_traffic_bounce",
+          likely_problem: `Paid traffic 30s engagement rate (${(paidEngRate * 100).toFixed(0)}%) is significantly below organic average (${(overallEngRate * 100).toFixed(0)}%) — ad creative and landing page message may not be aligned.`,
+          recommended_test: "Test a dedicated paid landing page that mirrors ad headline exactly; add a 'You clicked because…' confirmation hook above the fold.",
+          priority: "high",
+        });
+      }
+    }
+  }
+
   slugStats.forEach((row) => {
     const cvr = row.views > 0 ? row.conversions / row.views : 0;
     const scrollRate = row.views > 0 ? row.scroll50 / row.views : 0;
@@ -111,74 +163,101 @@ router.get("/optimization-report", (_req, res) => {
     const exitRate = row.views > 0 ? row.exits / row.views : 0;
     const newsletterConvRate = row.newsletter_views > 0 ? row.newsletter / row.newsletter_views : 0;
     const heroCtr = row.views > 0 ? row.hero_clicks / row.views : 0;
+    const faqEngagementRate = row.views > 0 ? row.faq_opens / row.views : 0;
+    const currentVariant = currentVariantMap.get(row.slug) ?? "control";
 
+    // Diagnostic 1: low overall CTA (hero + autopsy)
     if (row.views > 30 && cvr < 0.02) {
       recommendations.push({
-        slug: row.slug, views: row.views,
+        slug: row.slug, current_variant: currentVariant, views: row.views,
         conversion_rate: parseFloat((cvr * 100).toFixed(2)),
         issue_detected: "low_cvr",
         likely_problem: `Only ${(cvr * 100).toFixed(1)}% of visitors click the Free Autopsy CTA — headline or offer framing may not be resonating.`,
-        recommended_test: "A/B test a more specific headline (e.g., name the exact blocker) against the current copy; also test CTA button colour.",
+        recommended_test: "A/B test a more specific headline (name the exact blocker) against current copy; also test CTA button colour.",
         priority: "high",
       });
     }
-    if (scrollRate < 0.3 && row.views > 20) {
+
+    // Diagnostic 2: high scroll depth but low conversion (engaged but not converting)
+    if (scrollRate > 0.5 && cvr < 0.03 && row.views > 20) {
       recommendations.push({
-        slug: row.slug, views: row.views,
+        slug: row.slug, current_variant: currentVariant, views: row.views,
         conversion_rate: parseFloat((cvr * 100).toFixed(2)),
-        issue_detected: "low_scroll_depth",
-        likely_problem: `Only ${(scrollRate * 100).toFixed(0)}% of visitors scroll past 50% — hero section may be losing users before they see the value proposition.`,
-        recommended_test: "Move the strongest social proof or stat above the fold; shorten opening paragraph; test a single-column hero.",
+        issue_detected: "high_scroll_low_cvr",
+        likely_problem: `${(scrollRate * 100).toFixed(0)}% of visitors scroll past 50% but only ${(cvr * 100).toFixed(1)}% convert — users are engaged but the CTA isn't closing them.`,
+        recommended_test: "Add a sticky bottom CTA bar; test a more specific offer (e.g., 'See your keyword gaps') vs generic 'Free Autopsy'.",
         priority: "high",
       });
     }
-    if (engagementRate < 0.4 && row.views > 20) {
+
+    // Diagnostic 3: high newsletter form views but low signup rate
+    if (row.newsletter_views > 10 && newsletterConvRate < 0.05) {
       recommendations.push({
-        slug: row.slug, views: row.views,
+        slug: row.slug, current_variant: currentVariant, views: row.views,
         conversion_rate: parseFloat((cvr * 100).toFixed(2)),
-        issue_detected: "low_30s_engagement",
-        likely_problem: `Only ${(engagementRate * 100).toFixed(0)}% of visitors stay 30 seconds — page may be loading slowly or the opening hook isn't holding attention.`,
-        recommended_test: "Test a shorter, punchier opening sentence; check Core Web Vitals; try a 2-sentence hero subhead.",
+        issue_detected: "high_newsletter_views_low_signup",
+        likely_problem: `${row.newsletter_views} visitors see the newsletter form but only ${(newsletterConvRate * 100).toFixed(1)}% sign up — the lead magnet or CTA copy may be weak.`,
+        recommended_test: "Test a specific lead magnet ('7 recruiter keywords your resume is missing') vs generic newsletter pitch.",
         priority: "medium",
       });
     }
+
+    // Diagnostic 4: high FAQ engagement but low hero CTA click (interested but not converting)
+    if (faqEngagementRate > 0.12 && heroCtr < 0.04 && row.views > 20) {
+      recommendations.push({
+        slug: row.slug, current_variant: currentVariant, views: row.views,
+        conversion_rate: parseFloat((cvr * 100).toFixed(2)),
+        issue_detected: "faq_high_engagement_low_cta",
+        likely_problem: `${(faqEngagementRate * 100).toFixed(0)}% of visitors open FAQs (high intent signal) but hero CTA rate is only ${(heroCtr * 100).toFixed(1)}% — users have questions that aren't being resolved into action.`,
+        recommended_test: "Add a CTA button after each FAQ answer; insert a mid-page 'Ready to see your blockers?' CTA between FAQ items.",
+        priority: "medium",
+      });
+    }
+
+    // Diagnostic 5: low scroll (losing users before value prop)
+    if (scrollRate < 0.3 && row.views > 20) {
+      recommendations.push({
+        slug: row.slug, current_variant: currentVariant, views: row.views,
+        conversion_rate: parseFloat((cvr * 100).toFixed(2)),
+        issue_detected: "low_scroll_depth",
+        likely_problem: `Only ${(scrollRate * 100).toFixed(0)}% of visitors scroll past 50% — hero section may be losing users before they reach the value proposition.`,
+        recommended_test: "Move the strongest social proof stat above the fold; shorten the opening paragraph; test a single-column hero.",
+        priority: "high",
+      });
+    }
+
+    // Bonus: low engagement (slow page or weak hook)
+    if (engagementRate < 0.4 && row.views > 20) {
+      recommendations.push({
+        slug: row.slug, current_variant: currentVariant, views: row.views,
+        conversion_rate: parseFloat((cvr * 100).toFixed(2)),
+        issue_detected: "low_30s_engagement",
+        likely_problem: `Only ${(engagementRate * 100).toFixed(0)}% of visitors stay 30 seconds — page may be loading slowly or the opening hook isn't holding attention.`,
+        recommended_test: "Test a shorter opening sentence; check Core Web Vitals; try a 2-sentence hero subhead.",
+        priority: "medium",
+      });
+    }
+
+    // Bonus: high exit intent
     if (exitRate > 0.5 && row.views > 20) {
       recommendations.push({
-        slug: row.slug, views: row.views,
+        slug: row.slug, current_variant: currentVariant, views: row.views,
         conversion_rate: parseFloat((cvr * 100).toFixed(2)),
         issue_detected: "high_exit_intent",
-        likely_problem: `${(exitRate * 100).toFixed(0)}% of visitors move to exit — high intent-to-leave rate suggests unmet expectation between ad/search intent and page content.`,
+        likely_problem: `${(exitRate * 100).toFixed(0)}% of visitors move to exit — high intent-to-leave suggests unmet expectation between ad/search intent and page content.`,
         recommended_test: "Add an exit-intent overlay with a free lead magnet; tighten UTM-to-headline message match.",
         priority: "medium",
       });
     }
-    if (row.newsletter_views > 10 && newsletterConvRate < 0.05) {
-      recommendations.push({
-        slug: row.slug, views: row.views,
-        conversion_rate: parseFloat((cvr * 100).toFixed(2)),
-        issue_detected: "low_newsletter_conversion",
-        likely_problem: `Only ${(newsletterConvRate * 100).toFixed(1)}% of newsletter form views convert — offer or CTA copy may be weak.`,
-        recommended_test: "Test a specific lead magnet (e.g., '7 recruiter keywords your resume is missing') as the newsletter hook.",
-        priority: "low",
-      });
-    }
-    if (heroCtr < 0.03 && row.views > 30) {
-      recommendations.push({
-        slug: row.slug, views: row.views,
-        conversion_rate: parseFloat((cvr * 100).toFixed(2)),
-        issue_detected: "low_hero_ctr",
-        likely_problem: `Hero CTA click rate is ${(heroCtr * 100).toFixed(1)}% — primary CTA button may not stand out or the copy isn't action-driving.`,
-        recommended_test: "Test button copy: 'Show Me What's Blocking Me' vs current; test a contrasting button colour.",
-        priority: "medium",
-      });
-    }
+
+    // Bonus: high performer — scale traffic
     if (cvr > 0.08) {
       recommendations.push({
-        slug: row.slug, views: row.views,
+        slug: row.slug, current_variant: currentVariant, views: row.views,
         conversion_rate: parseFloat((cvr * 100).toFixed(2)),
         issue_detected: "high_performer",
-        likely_problem: `This slug/variant has a ${(cvr * 100).toFixed(1)}% CVR — above benchmark. Scaling traffic here will increase total conversions.`,
-        recommended_test: "Increase paid/social traffic allocation to this slug; document winning elements for use in other variants.",
+        likely_problem: `${(cvr * 100).toFixed(1)}% CVR — above benchmark. Scaling traffic here increases total conversions directly.`,
+        recommended_test: "Increase paid/social traffic allocation to this slug; document winning elements for other variants.",
         priority: "low",
       });
     }
@@ -202,6 +281,7 @@ router.get("/optimization-report", (_req, res) => {
     slug: r.slug,
     cvr: r.views > 0 ? r.conversions / r.views : 0,
     views: r.views,
+    current_variant: currentVariantMap.get(r.slug) ?? "control",
   })).filter(r => r.views > 0).sort((a, b) => b.cvr - a.cvr);
 
   const byVariantCvr = variantStats.map(v => ({
@@ -213,7 +293,9 @@ router.get("/optimization-report", (_req, res) => {
   return res.json({
     summary: {
       top_slug: bySlugCvr[0]?.slug ?? null,
+      top_slug_variant: bySlugCvr[0]?.current_variant ?? null,
       worst_slug: bySlugCvr.length > 1 ? bySlugCvr[bySlugCvr.length - 1]?.slug ?? null : null,
+      worst_slug_variant: bySlugCvr.length > 1 ? bySlugCvr[bySlugCvr.length - 1]?.current_variant ?? null : null,
       best_variant_id: byVariantCvr[0]?.variant_id ?? null,
       worst_variant_id: byVariantCvr.length > 1 ? byVariantCvr[byVariantCvr.length - 1]?.variant_id ?? null : null,
       total_recommendations: recommendations.length,
@@ -247,7 +329,7 @@ router.post("/variants", (req, res) => {
     return res.status(201).json({ id: (result as { lastInsertRowid: number }).lastInsertRowid });
   } catch (err: unknown) {
     if (err instanceof Error && err.message?.includes("UNIQUE")) {
-      return res.status(409).json({ error: "Slug already exists" });
+      return res.status(409).json({ error: "Slug + variant already exists" });
     }
     throw err;
   }
