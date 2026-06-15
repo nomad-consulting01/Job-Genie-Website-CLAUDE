@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: analytics
+    description: Conversion event tracking and metrics
+  - name: newsletter
+    description: Newsletter subscription via Beehiiv proxy
 paths:
   /healthz:
     get:
@@ -24,6 +28,87 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /events:
+    post:
+      operationId: trackEvent
+      tags: [analytics]
+      summary: Track conversion event
+      description: Accepts a conversion event payload from the browser and stores it in SQLite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConversionEventInput"
+      responses:
+        "200":
+          description: Event recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventAck"
+        "400":
+          description: Invalid event
+
+  /metrics:
+    get:
+      operationId: getSiteMetrics
+      tags: [analytics]
+      summary: Get site-wide metrics
+      description: Returns aggregate metrics across all slugs and variants
+      responses:
+        "200":
+          description: Site metrics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteMetrics"
+
+  /metrics/{slug}:
+    get:
+      operationId: getSlugMetrics
+      tags: [analytics]
+      summary: Get slug-level metrics
+      description: Returns conversion metrics for a specific landing page slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Slug metrics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SlugMetrics"
+        "404":
+          description: Slug not found
+
+  /newsletter:
+    post:
+      operationId: subscribeNewsletter
+      tags: [newsletter]
+      summary: Subscribe to newsletter via Beehiiv
+      description: Server-side proxy to Beehiiv API. Accepts email and segmentation metadata. Never exposes API key to client.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterInput"
+      responses:
+        "200":
+          description: Subscription result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsletterResponse"
+        "400":
+          description: Invalid request
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +119,198 @@ components:
       required:
         - status
 
+    ConversionEventInput:
+      type: object
+      required:
+        - event_name
+        - page_slug
+      properties:
+        event_name:
+          type: string
+        timestamp:
+          type: ["string", "null"]
+        session_id:
+          type: ["string", "null"]
+        visitor_id:
+          type: ["string", "null"]
+        page_slug:
+          type: string
+        experiment_id:
+          type: ["string", "null"]
+        variant_id:
+          type: ["string", "null"]
+        traffic_source:
+          type: ["string", "null"]
+        utm_source:
+          type: ["string", "null"]
+        utm_medium:
+          type: ["string", "null"]
+        utm_campaign:
+          type: ["string", "null"]
+        utm_content:
+          type: ["string", "null"]
+        utm_term:
+          type: ["string", "null"]
+        referrer:
+          type: ["string", "null"]
+        device_type:
+          type: ["string", "null"]
+        browser:
+          type: ["string", "null"]
+        conversion_value:
+          type: ["number", "null"]
+        metadata:
+          type: ["object", "null"]
+          additionalProperties: true
+
+    EventAck:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+
+    SlugMetricRow:
+      type: object
+      properties:
+        slug:
+          type: string
+        page_views:
+          type: integer
+        unique_visitors:
+          type: integer
+        free_autopsy_clicks:
+          type: integer
+        hero_cta_clicks:
+          type: integer
+        newsletter_signups:
+          type: integer
+        conversion_rate:
+          type: number
+        autopsy_rate:
+          type: number
+        newsletter_rate:
+          type: number
+        hero_ctr:
+          type: number
+
+    VariantMetricRow:
+      type: object
+      properties:
+        variant_id:
+          type: string
+        experiment_id:
+          type: ["string", "null"]
+        page_views:
+          type: integer
+        free_autopsy_clicks:
+          type: integer
+        hero_cta_clicks:
+          type: integer
+        newsletter_signups:
+          type: integer
+        autopsy_rate:
+          type: number
+        hero_ctr:
+          type: number
+
+    SiteMetrics:
+      type: object
+      properties:
+        total_page_views:
+          type: integer
+        total_unique_visitors:
+          type: integer
+        total_free_autopsy_clicks:
+          type: integer
+        total_newsletter_signups:
+          type: integer
+        overall_conversion_rate:
+          type: number
+        by_slug:
+          type: array
+          items:
+            $ref: "#/components/schemas/SlugMetricRow"
+        top_slug:
+          type: ["string", "null"]
+        worst_slug:
+          type: ["string", "null"]
+        top_utm_campaigns:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+
+    SlugMetrics:
+      type: object
+      properties:
+        slug:
+          type: string
+        page_views:
+          type: integer
+        unique_visitors:
+          type: integer
+        free_autopsy_clicks:
+          type: integer
+        hero_cta_clicks:
+          type: integer
+        newsletter_signups:
+          type: integer
+        conversion_rate:
+          type: number
+        autopsy_rate:
+          type: number
+        newsletter_rate:
+          type: number
+        scroll_depth:
+          type: object
+          additionalProperties: true
+        by_variant:
+          type: array
+          items:
+            $ref: "#/components/schemas/VariantMetricRow"
+        by_traffic_source:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+
+    NewsletterInput:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+        page_slug:
+          type: ["string", "null"]
+        experiment_id:
+          type: ["string", "null"]
+        variant_id:
+          type: ["string", "null"]
+        beehiiv_segment:
+          type: ["string", "null"]
+        lead_magnet:
+          type: ["string", "null"]
+        utm_source:
+          type: ["string", "null"]
+        utm_medium:
+          type: ["string", "null"]
+        utm_campaign:
+          type: ["string", "null"]
+        utm_content:
+          type: ["string", "null"]
+        utm_term:
+          type: ["string", "null"]
+
+    NewsletterResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+        message:
+          type: ["string", "null"]

@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Job Genie"
+version = "1.0.0"
+id = "artifacts/job-genie"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19806
+
+[services.development]
+run = "pnpm --filter @workspace/job-genie run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/job-genie", "run", "build" ]
+publicDir = "artifacts/job-genie/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19806"
+BASE_PATH = "/"

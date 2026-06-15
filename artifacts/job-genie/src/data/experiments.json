@@ -1,0 +1,14 @@
+{
+  "experiments": [
+    {
+      "id": "home_headline_test",
+      "name": "Home Headline A/B Test",
+      "status": "active",
+      "traffic_split": 0.5,
+      "variants": [
+        {"id": "control", "name": "Control — Original Headline", "weight": 0.5, "overrides": {}},
+        {"id": "variant_b", "name": "Variant B — Channel Framing", "weight": 0.5, "overrides": {"headline_line1": "100 Applications.", "headline_line2": "Zero Interviews.", "headline_line3": "Here's The Exact Reason Why."}}
+      ]
+    }
+  ]
+}
