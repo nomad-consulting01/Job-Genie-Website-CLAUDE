@@ -1,0 +1,20 @@
+1. What you are building
+You are extending the existing Job-Genie.ai Replit app with an automated content & growth engine made of four interlocking loops. The app helps job seekers reach the hidden job market via recruiter-shortlist optimisation. The engine mines real pain points, answers them with the Job-Genie chat, and then recycles those answers into website AEO content, social posts, ad copy, and nurture email.
+The four loops are not independent scripts — they form a pipeline around one shared data object: the Q&A Corpus.
+                       ┌─────────────────────────────────────────┐
+  LOOP 1  Ingest&Answer │ mine pain points → answer via chat →     │
+  (produces corpus) ───▶│ publish answer-first AEO content         │
+                       └───────────────┬──────────────────────────┘
+                                       │  Q&A CORPUS (shared DB)
+                 ┌─────────────────────┼─────────────────────┐
+                 ▼                     ▼                     ▼
+   LOOP 2 Distribute        LOOP 4 Nurture          (corpus read by all)
+   corpus → social posts    corpus → lead magnet
+   → scheduled publish      + drip email
+        │
+        ▼
+   LOOP 3 Amplify
+   top-engagement posts → ad-copy variations
+Loop 1 feeds Loops 2 and 4. Loop 2's published posts feed Loop 3. Every loop reads from and writes to the same corpus.
+Bundled skill — meta-ai-aeo (authoritative for all AEO work)
+A skill file named meta-ai-aeo is provided alongside this prompt. Place it in the repo at /skills/meta-ai-aeo/SKILL.md and treat it as the authoritative spec for every piece of AEO, structured-data, crawlability, Open Graph, and answer-engine-visibility work in this build — even where this prompt summarises it. Whenever a task touches how Job-Genie content is structured, crawled, or made citable by Meta AI, load and follow that skill. It is invoked in three places: the site-wide AEO foundation (Phase 0b), Loop 1's publish step, and Loop 2's social-caption generation (the skill's Pipe 1 export helper). Where this prompt and the skill ever appear to conflict on AEO specifics, the skill wins.
