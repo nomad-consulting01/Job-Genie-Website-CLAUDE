@@ -1,0 +1,69 @@
+What you are building
+You are extending the existing Job-Genie.ai Replit app with an automated content & growth engine made of four interlocking loops. The app helps job seekers reach the hidden job market via recruiter-shortlist optimisation. The engine mines real pain points, answers them with the Job-Genie chat, and then recycles those answers into website AEO content, social posts, ad copy, and nurture email.
+The four loops are not independent scripts — they form a pipeline around one shared data object: the Q&A Corpus.
+                       ┌─────────────────────────────────────────┐
+  LOOP 1  Ingest&Answer │ mine pain points → answer via chat →     │
+  (produces corpus) ───▶│ publish answer-first AEO content         │
+                       └───────────────┬──────────────────────────┘
+                                       │  Q&A CORPUS (shared DB)
+                 ┌─────────────────────┼─────────────────────┐
+                 ▼                     ▼                     ▼
+   LOOP 2 Distribute        LOOP 4 Nurture          (corpus read by all)
+   corpus → social posts    corpus → lead magnet
+   → scheduled publish      + drip email
+        │
+        ▼
+   LOOP 3 Amplify
+   top-engagement posts → ad-copy variations
+Loop 1 feeds Loops 2 and 4. Loop 2's published posts feed Loop 3. Every loop reads from and writes to the same corpus.
+Bundled skill — meta-ai-aeo (authoritative for all AEO work)
+A skill file named meta-ai-aeo is provided alongside this prompt. Place it in the repo at /skills/meta-ai-aeo/SKILL.md and treat it as the authoritative spec for every piece of AEO, structured-data, crawlability, Open Graph, and answer-engine-visibility work in this build — even where this prompt summarises it. Whenever a task touches how Job-Genie content is structured, crawled, or made citable by Meta AI, load and follow that skill. It is invoked in three places: the site-wide AEO foundation (Phase 0b), Loop 1's publish step, and Loop 2's social-caption generation (the skill's Pipe 1 export helper). Where this prompt and the skill ever appear to conflict on AEO specifics, the skill wins.
+________________________________________
+2. Tech stack & architecture
+•	Runtime: Node.js (TypeScript) backend on Replit. Keep the existing app; add the engine as modular services.
+•	Database: PostgreSQL (Replit's built-in Postgres / Neon). This holds the Q&A Corpus and all loop state.
+•	Scheduler: a cron-style scheduler (e.g. node-cron) — one schedule per loop, configurable cadence.
+•	LLM: Anthropic Claude API (claude-sonnet-4-6 for generation, claude-opus-4-8 for higher-stakes copy). Key in a secret, never hard-coded.
+•	Architecture: each loop is its own service module under /src/loops/{loop1..loop4} with a shared /src/corpus data layer and a shared /src/integrations layer (one client per external API). Every loop exposes run() and is invokable both on a schedule and manually from an internal admin route.
+•	Rendering (AEO-critical): all public marketing and Q&A pages must serve their main content in the initial HTML response (SSR or static generation), not only after client-side JS. Crawlers that feed Meta AI (Google, Bing, Meta's crawler) must see the answer text without executing scripts. See the meta-ai-aeo skill.
+•	Admin UI: a simple internal dashboard (protected route) to view the corpus, approve/reject queued content, see loop run logs, and trigger loops manually.
+•	All external credentials go in Replit Secrets (env vars). List every required secret in a .env.example.
+________________________________________
+3. Shared data model — the Q&A Corpus
+Create these tables (adjust names to existing conventions):
+•	questions — id, source (reddit/quora/linkedin/manual), source_url, raw_text, normalised_question, pain_point_tags[], engagement_signal (upvotes/views if available), discovered_at, status.
+•	answers — id, question_id, answer_md, answer_first_block (40–60 word direct answer for AEO), model_used, created_at, quality_score.
+•	content_assets — id, answer_id, channel (web_aeo / facebook / instagram / whatsapp / ad / email), payload_json, status (draft/approved/scheduled/published/rejected), scheduled_for, published_at, external_id, engagement_metrics_json.
+•	loop_runs — id, loop, started_at, finished_at, items_processed, cost_estimate, status, error.
+The corpus is the single source of truth. Loops never call each other directly — they coordinate through these tables.
+________________________________________
+4. ⚠️ Integration constraints — READ BEFORE BUILDING
+Several platforms the loops touch have hard limits. Build to these realities; do not invent endpoints.
+Reddit (Loop 1). Official API only. Free tier is OAuth, ~100 requests/min, ~10k calls/month, and is non-commercial — commercial use technically requires a paid contract (starts ~$12k/yr). For a startup, build against the free tier with conservative polling (a few target subreddits, low frequency) and design the ingestion client so a compliant third-party data provider can be swapped in later without rewriting Loop 1. Use OAuth2; do not scrape HTML.
+Quora (Loop 1). There is no official public API. Do not build a scraper (against ToS, brittle). Instead: (a) support manual seeding of Quora questions through the admin UI, and/or (b) leave a clean adapter interface so a compliant social-listening provider can supply Quora data. Mark Quora as an optional/manual source, not an automated one.
+LinkedIn (Loop 1). There is no general content-search API, and scraping violates ToS and carries legal risk. Do not scrape LinkedIn. Support manual entry of LinkedIn-sourced questions via the admin UI, and stub an adapter for LinkedIn's official Marketing/Community Management API (limited scope) behind the same interface. Treat automated LinkedIn ingestion as out of scope unless an official API path is available.
+"Meta AI AEO" (Loop 1). AEO is not an API you call — it is a content-and-structure discipline that makes Meta AI (the Llama assistant in Instagram/Facebook/WhatsApp/Messenger/Threads/meta.ai) retrieve, trust, and cite Job-Genie pages. Per the bundled meta-ai-aeo skill, Meta AI draws on two pipes, and the codebase optimises for both differently:
+•	Pipe 2 — open web (fast, do first): Meta AI grounds real-time answers via Bing + Google partnerships and Meta's own crawler, then links out. This is pure codebase work — crawlability, answer-first content, JSON-LD, Open Graph — and can earn citations within days. Almost all engineering effort goes here.
+•	Pipe 1 — native Meta content (slow, long game): Meta AI is trained on public FB/IG/Threads posts weighted by engagement. Code can't post there, but it can make Job-Genie a single coherent entity those posts reinforce (consistent branding, Organization.sameAs, an FAQ→caption export helper that feeds Loop 2). There is no Meta-specific submission endpoint. Treat the skill's verification checklist as the definition of done for any AEO task.
+Facebook (Loop 2). Native API scheduling is supported: POST /{page-id}/feed with published=false and a future scheduled_publish_time (UNIX). Requires a Meta Business app, a Page, and the appropriate Page tokens/permissions. This path is clean.
+Instagram (Loop 2). Requires an Instagram Business/Creator account linked to a Facebook Page, a Meta app, and Meta App Review for instagram_business_content_publish (review takes ~2–4 weeks — flag this as a setup dependency). Publishing is a two-step container model: POST /{ig-user-id}/media (image must be a publicly hosted JPEG URL) → poll status → POST /{ig-user-id}/media_publish. There is no native API scheduled-publish for IG — store the schedule in our DB and have the scheduler call publish at the target time. Cap: 100 API posts / 24h.
+WhatsApp (Loop 2). WhatsApp is not a feed — there are no "posts." Use the WhatsApp Business Platform for broadcast-style messaging to opted-in subscribers via pre-approved message templates (template approval required; respect the messaging window and opt-in rules), or treat WhatsApp Channels/Status as a manual/owned-channel push. Model WhatsApp as an opt-in broadcast channel, not as social posting. Do not send unsolicited messages.
+Ads (Loop 3). Generating ad copy is just Claude. Actually creating live ads requires the Meta Marketing API (ad account, campaign/ad-set/creative objects) — treat that as an optional advanced step behind a human approval gate. Default Loop 3 output is approved ad-copy variations stored in the corpus + admin UI, ready for a human to launch.
+Email (Loop 4). Use the beehiiv API (the existing email stack). Relevant endpoints: Posts (create post via body_content HTML or structured blocks), Subscriptions (create/manage subscribers, tags), and Automations / journeys (enroll subscribers via the Add by API trigger). Auth is a Bearer token + publication ID. This path is clean.
+________________________________________
+5. Loop specifications
+LOOP 1 — Ingest & Answer (produces the corpus; optimise for AEO)
+•	Cadence: scheduled (e.g. daily). Configurable.
+•	Steps: 
+1.	Mine new job-search pain points from configured sources (Reddit via OAuth; Quora/LinkedIn via manual/adapter per §4). Target topics: ghost jobs, recruiter outreach, résumé screening, application silence, hidden job market, ATS, networking.
+2.	Dedup & normalise each item into a canonical normalised_question + pain_point_tags; skip near-duplicates of existing corpus questions.
+3.	Answer each new question by calling the Job-Genie chat (Claude) with the product's voice and domain vocabulary (Recruiter-Fit Gap, shortlist threshold, Truth Layer, Recruiter-Ready Brief, etc.). Produce both a full answer_md and a 40–60 word answer_first_block.
+4.	Quality-gate each answer with an evaluator pass (rubric: directly answers the question, uses Job-Genie framing, no fluff, factually careful). Score it; only answers above threshold proceed.
+5.	Publish AEO content to the website following the meta-ai-aeo skill (Pipe 2 rules) for every new Q&A page/section: 
+	Lead with the standalone answer_first_block (1–2 sentence direct, quotable answer with the subject named — "Job-Genie analyzes…", not "We analyze…"), then elaborate below.
+	Render the <h1>/<h2> as the natural-language question itself, not a slogan.
+	Front-load the defined, citable concepts (hidden job market, Recruiter-Fit Gap, Application Silence Score, 100-Application Autopsy, Truth Layer, ghost jobs).
+	Inject/extend FAQPage and HowTo JSON-LD so the new Q&A is in structured data, keeping schema text identical to the visible answer (mismatches suppress citation).
+	Emit correct Open Graph + canonical tags for the page (real PNG og:image), and ensure the page is in sitemap.xml and rendered in initial HTML.
+6.	Monitor & refine (the loop): track whether Meta AI and other answer engines surface/cite the pages; run the skill's verification checklist; periodically re-score and rewrite low-performing answer blocks and headings. This monitor → refine step is what makes Loop 1 a loop, not a one-shot.
+•	Stop conditions / guardrails: max N new questions per run; per-run token/cost cap; respect Reddit rate limits; dedup before answering; never publish an answer below quality threshold without manual approval.
