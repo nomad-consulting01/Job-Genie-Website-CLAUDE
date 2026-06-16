@@ -6,6 +6,8 @@ import NotFound from "@/pages/not-found";
 import Home from "./pages/Home";
 import LandingPage from "./pages/LandingPage";
 import Admin from "./pages/Admin";
+import QAPage from "./pages/QAPage";
+import AdminCorpus from "./pages/AdminCorpus";
 import "./styles/brand.css";
 
 const queryClient = new QueryClient();
@@ -15,6 +17,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/admin" component={Admin} />
+      <Route path="/admin/corpus" component={AdminCorpus} />
+      <Route path="/qa/:slug" component={QAPage} />
       <Route path="/:slug" component={LandingPage} />
       <Route component={NotFound} />
     </Switch>
