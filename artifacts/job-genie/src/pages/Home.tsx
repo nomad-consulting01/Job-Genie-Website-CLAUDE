@@ -392,11 +392,11 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
         </div>
       </section>
 
-      <section className="tldr-s" aria-label="Direct answer" aria-labelledby="direct-answer-h">
+      <section className="direct-answer" aria-label="Direct answer" aria-labelledby="direct-answer-h">
         <div className="w">
           <div className="tldr r">
-            <h2 className="tldr-lbl" id="direct-answer-h">TL;DR — What Job Genie Does</h2>
-            <p>Job applications go silent for three fixable reasons: <strong>wrong channel</strong> (many mid-to-senior and specialist roles are filled via specialist recruitment agencies before reaching job boards), <strong>ghost jobs</strong> (about 27% of LinkedIn listings were estimated to be ghost jobs in 2025, per ResumeUp.AI), and <strong>resume misalignment</strong> (missing the exact keywords specialist recruiters search for). Job Genie calculates your free <strong>Application Silence Score</strong> in under 2 minutes — no account needed — matches you to 300,000+ live specialist recruiter listings, and rewrites your resume using the <strong>Truth Layer</strong> — an 8-rule system built specifically for the specialist recruiter shortlist.</p>
+            <h2 className="tldr-lbl" id="direct-answer-h">Direct Answer</h2>
+            <p>Job applications go silent for three fixable reasons: <strong>wrong channel</strong> (many specialist and mid-to-senior roles are filled via specialist recruiters before reaching public job boards), <strong>ghost-job exposure</strong> (~27% of LinkedIn listings were likely ghost jobs in 2025, per ResumeUp.AI), and <strong>resume misalignment</strong> (missing the exact keywords specialist recruiters shortlist for). Job Genie calculates your free <strong>Application Silence Score</strong> in under 2 minutes — no account required.</p>
           </div>
         </div>
       </section>
