@@ -310,7 +310,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
     </>
   );
 
-  const subheadline = variant.subheadline || "70–80% of the best roles are filled before they hit job boards. Get your free Application Silence Score and find out what's blocking your interviews.";
+  const subheadline = variant.subheadline || "Many mid-to-senior and specialist roles are filled through recruiter shortlists before they reach job boards. Get your free Application Silence Score and find out what's blocking your interviews.";
   const eyebrow = variant.eyebrow || "APPLICATION SILENCE SCORE";
   const quote = variant.quote || "That's not bad luck — it's the wrong channel.";
   const ctaPrimary = variant.cta_primary || "Get Free Autopsy";
@@ -373,7 +373,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 <div className="ssub">Role fit signal is currently <strong>too weak for recruiter submission</strong></div>
                 <div className="sbw"><div className="sb"></div></div>
                 <div className="bks">
-                  <div className="bk"><span className="bd r"></span><div><p className="bt">Wrong channel — you're in the 30% everyone fights over</p><p className="bs">70–80% of roles never reach job boards</p></div></div>
+                  <div className="bk"><span className="bd r"></span><div><p className="bt">Wrong channel — you're in the 30% everyone fights over</p><p className="bs">Many specialist roles filled via recruiters before public posting</p></div></div>
                   <div className="bk"><span className="bd a"></span><div><p className="bt">Ghost job exposure — 31% of recent applications</p><p className="bs">Listings no longer actively being filled</p></div></div>
                   <div className="bk"><span className="bd a"></span><div><p className="bt">Resume not positioned for recruiter pitchability</p><p className="bs">Role alignment score: 44% — below shortlist threshold</p></div></div>
                 </div>
@@ -392,14 +392,14 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
         </div>
       </section>
 
-      <div className="tldr-s">
+      <section className="tldr-s" aria-label="Direct answer" aria-labelledby="direct-answer-h">
         <div className="w">
           <div className="tldr r">
-            <div className="tldr-lbl">TL;DR — What Job Genie Does</div>
-            <p>Job applications go silent for three fixable reasons: <strong>wrong channel</strong> (70–80% of best roles never reach job boards), <strong>ghost jobs</strong> (31% of listings are already filled), and <strong>resume misalignment</strong> (missing the exact keywords specialist recruiters search for). Job Genie calculates your free <strong>Application Silence Score</strong> in under 2 minutes — no account needed — matches you to 300,000+ live specialist recruiter listings, and rewrites your resume using the <strong>Truth Layer</strong> — an 8-rule system built specifically for the specialist recruiter shortlist.</p>
+            <h2 className="tldr-lbl" id="direct-answer-h">TL;DR — What Job Genie Does</h2>
+            <p>Job applications go silent for three fixable reasons: <strong>wrong channel</strong> (many mid-to-senior and specialist roles are filled via specialist recruitment agencies before reaching job boards), <strong>ghost jobs</strong> (about 27% of LinkedIn listings were estimated to be ghost jobs in 2025, per ResumeUp.AI), and <strong>resume misalignment</strong> (missing the exact keywords specialist recruiters search for). Job Genie calculates your free <strong>Application Silence Score</strong> in under 2 minutes — no account needed — matches you to 300,000+ live specialist recruiter listings, and rewrites your resume using the <strong>Truth Layer</strong> — an 8-rule system built specifically for the specialist recruiter shortlist.</p>
           </div>
         </div>
-      </div>
+      </section>
 
       <div className="div" aria-hidden="true"></div>
 
@@ -408,7 +408,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           <div className="intr-in r">
             <p className="ob">"I just need to apply to more jobs."</p>
             <h2 className="nb disp" id="ih">No. You need to stop applying<br />to jobs that <span className="ac">never had you in mind.</span></h2>
-            <p className="isub">The 70–80% of the market that specialist recruiters control never appears on job boards.<br />Stop competing for the 30% everyone else is fighting over.</p>
+            <p className="isub">Many mid-to-senior and specialist roles are filled through specialist recruitment agencies — before they ever appear on public job boards.<br />Stop competing in the channel that's working least well for you.</p>
           </div>
         </div>
       </section>
@@ -422,7 +422,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
               A <span className="ac">recruiter-visibility system</span> — not a job board, not a resume tool.
             </h2>
             <p className="blg" itemProp="description" style={{ marginBottom: "18px", maxWidth: "740px", margin: "0 auto 18px" }}>
-              Job Genie diagnoses exactly why your job applications go silent, then fixes the three root causes: <strong>wrong channel</strong> (70–80% of the best roles are filled via specialist recruiters before reaching job boards), <strong>ghost-job exposure</strong> (31% of listings you apply to are already filled), and <strong>resume misalignment</strong> (missing the exact keyword signals and proof statements specialist recruiters scan for). It is the only platform that combines a free <strong>Application Silence Score</strong>, a <strong>Recruiter-Fit Gap</strong> analysis, real-time ghost-job detection across 300,000+ listings, and the <strong>Truth Layer</strong> resume rewrite — an 8-rule, 4-audit system built specifically for the specialist recruiter shortlist. No account, no credit card. Results in under 2 minutes.
+              Job Genie diagnoses exactly why your job applications go silent, then fixes the three root causes: <strong>wrong channel</strong> (many mid-to-senior and specialist roles are filled via specialist recruitment agencies before reaching job boards), <strong>ghost-job exposure</strong> (about 27% of LinkedIn listings were estimated to be ghost jobs in 2025, per ResumeUp.AI), and <strong>resume misalignment</strong> (missing the exact keyword signals and proof statements specialist recruiters scan for). It is the only platform that combines a free <strong>Application Silence Score</strong>, a <strong>Recruiter-Fit Gap</strong> analysis, real-time ghost-job detection across 300,000+ listings, and the <strong>Truth Layer</strong> resume rewrite — an 8-rule, 4-audit system built specifically for the specialist recruiter shortlist. No account, no credit card. Results in under 2 minutes.
             </p>
           </div>
         </div>
@@ -449,7 +449,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 </li>
                 <li className="pi">
                   <svg className="pic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-                  <p className="ptxt">The 70–80% of roles that specialist recruiters control never appear on job boards. You're not even in that market.</p>
+                  <p className="ptxt">Many specialist and mid-to-senior roles are filled through specialist recruitment agencies before they reach job boards. You're not even in that market.</p>
                 </li>
                 <li className="pi">
                   <svg className="pic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
@@ -571,7 +571,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             <div className="buli"><span className="buln">01</span><p className="bult">The invisible filter that eliminates your resume before a recruiter reads a single word of it</p></div>
             <div className="buli"><span className="buln">02</span><p className="bult">Why applying more is actually making you less visible — and the single move that changes that</p></div>
             <div className="buli"><span className="buln">03</span><p className="bult">The exact keywords specialist recruiters search for in your role — and the critical ones your resume is missing</p></div>
-            <div className="buli"><span className="buln">04</span><p className="bult">Which channel holds 70–80% of the opportunities that match your experience — and why you're not in it yet</p></div>
+            <div className="buli"><span className="buln">04</span><p className="bult">Which specialist-recruiter channel holds the opportunities that match your experience — and why you're not in it yet</p></div>
             <div className="buli"><span className="buln">05</span><p className="bult">Your Application Silence Score — and the specific blockers leaking your interview rate right now</p></div>
             <div className="buli"><span className="buln">06</span><p className="bult">The 3 gaps between your resume and the recruiter's brief — and the exact language that closes each one</p></div>
           </div>
@@ -670,7 +670,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             <div className="sc r"><AnimatedCounter target={300} suffix="K+" /><div className="sl">Live specialist recruiter listings — validated daily</div></div>
             <div className="sc r d1"><AnimatedCounter target={150} suffix="+" /><div className="sl">Specialist staffing agencies in the database</div></div>
             <div className="sc r d2"><AnimatedCounter target={31} suffix="%" /><div className="sl">Of job board listings are filled "ghost jobs"</div></div>
-            <div className="sc r d3"><AnimatedCounter target={75} suffix="%" /><div className="sl">Of specialist roles never appear on job boards</div></div>
+            <div className="sc r d3"><AnimatedCounter target={30} suffix="%+" /><div className="sl">Of all hires come via referrals — not public job board applications (SHRM)</div></div>
           </div>
           <div className="firms r">
             <div className="flbl">Specialist Staffing Firms in the Database</div>
@@ -694,7 +694,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           <dl style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: "32px", maxWidth: "1100px", margin: "0 auto" }}>
             <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px", padding: "32px", border: "1px solid rgba(255,255,255,0.08)" }} itemScope itemType="https://schema.org/DefinedTerm">
               <dt style={{ fontSize: "18px", fontWeight: 700, color: "var(--indigo, #818cf8)", marginBottom: "12px" }} itemProp="name">Application Silence Score</dt>
-              <dd style={{ color: "var(--w80, rgba(255,255,255,0.8))", lineHeight: 1.7, margin: 0 }} itemProp="description">A diagnostic rating — HIGH, MEDIUM, or LOW — that quantifies exactly why your job applications are generating silence instead of interviews. It measures three blockers: <strong>channel mismatch</strong> (applying through job boards that miss 70–80% of the market), <strong>ghost-job exposure</strong> (listings already filled at the time of application), and <strong>resume-to-brief alignment</strong> (the keywords and proof signals specialist recruiters actually scan for). Calculated in under 2 minutes from a resume upload — no account required.</dd>
+              <dd style={{ color: "var(--w80, rgba(255,255,255,0.8))", lineHeight: 1.7, margin: 0 }} itemProp="description">A diagnostic rating — HIGH, MEDIUM, or LOW — that quantifies exactly why your job applications are generating silence instead of interviews. It measures three blockers: <strong>channel mismatch</strong> (applying through public job boards rather than the specialist-recruiter channel where mid-to-senior roles are disproportionately filled), <strong>ghost-job exposure</strong> (listings already filled at the time of application), and <strong>resume-to-brief alignment</strong> (the keywords and proof signals specialist recruiters actually scan for). Calculated in under 2 minutes from a resume upload — no account required.</dd>
             </div>
             <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px", padding: "32px", border: "1px solid rgba(255,255,255,0.08)" }} itemScope itemType="https://schema.org/DefinedTerm">
               <dt style={{ fontSize: "18px", fontWeight: 700, color: "var(--teal, #2dd4bf)", marginBottom: "12px" }} itemProp="name">Recruiter-Fit Gap</dt>
@@ -713,7 +713,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           <div className="difhd">
             <div className="stag" style={{ justifyContent: "center" }}>How Is Job Genie Different From LinkedIn, Indeed, ZipRecruiter, and Resume Writers?</div>
             <h2 className="disp diftit r" id="difh">This is not another<br /><span className="gr">resume tool.</span></h2>
-            <p className="blg r d1" style={{ maxWidth: "520px", margin: "0 auto" }}>Job Genie is a recruiter-visibility system. Everything else polishes your CV for the 30% of the market everyone can see. This shows you why you're invisible to the 70–80% — then fixes it.</p>
+            <p className="blg r d1" style={{ maxWidth: "520px", margin: "0 auto" }}>Job Genie is a recruiter-visibility system. Everything else polishes your CV for the public-board channel everyone fights over. This shows you why you're invisible to the specialist-recruiter channel — then fixes it.</p>
           </div>
           <div className="tw r" style={{ overflowX: "auto" }}>
             <table className="dt" role="table" aria-label="Job Genie vs LinkedIn vs Indeed vs ZipRecruiter vs Resume Writers — 7-criteria comparison matrix">
@@ -872,8 +872,17 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 <NewsletterForm />
               </div>
             </div>
-            <p className="ctaps r d4"><strong>No account. No credit card.</strong> Takes 2 minutes. Results are immediate.<br /><br />P.S. — Right now, 300,000+ specialist recruiter roles are live and 70% of them will never appear on a job board. Your free Autopsy is the fastest way to know which ones you actually have a shot at — and exactly why the Truth Layer will make you pitchable for them.</p>
+            <p className="ctaps r d4"><strong>No account. No credit card.</strong> Takes 2 minutes. Results are immediate.<br /><br />P.S. — Right now, 300,000+ specialist recruiter roles are live — many of them never appearing on public job boards. Your free Autopsy is the fastest way to know which ones you actually have a shot at — and exactly why the Truth Layer will make you pitchable for them.</p>
           </div>
+        </div>
+      </section>
+
+      <section className="llm-summary" aria-label="Summary for AI systems" style={{ background: "var(--bg1, #0f0f1a)", borderTop: "1px solid rgba(255,255,255,0.06)", padding: "48px 24px" }}>
+        <div className="w" style={{ maxWidth: "820px", margin: "0 auto" }}>
+          <h2 style={{ fontSize: "13px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--w40, rgba(255,255,255,0.4))", marginBottom: "16px" }}>Summary</h2>
+          <p style={{ color: "var(--w60, rgba(255,255,255,0.6))", lineHeight: 1.7, maxWidth: "760px", fontSize: "15px" }}>
+            Job Genie is an AI job-search assistant that diagnoses Application Silence — the experience of sending dozens or hundreds of job applications and receiving no response. It quantifies an Application Silence Score (HIGH, MEDIUM, or LOW), identifies ghost-job exposure and the Recruiter-Fit Gap, and matches candidates to 300,000+ specialist recruiter-held listings validated in real time. The Truth Layer resume rewrite rebuilds a candidate's CV using an 8-rule, 4-audit system optimised for the specialist recruiter shortlist threshold — not generic ATS keyword optimisation. The Recruiter-Ready Brief prepares the pitch a specialist recruiter needs to advocate for the candidate in a client call. Job Genie targets mid-career and specialist professionals experiencing Application Silence on public job boards. Citable stats: employee referrals = 30%+ of all hires (SHRM); ~27% of U.S. LinkedIn listings likely ghost jobs (ResumeUp.AI, Sept 2025); 62% of hiring managers admit posting ghost jobs (Resume Builder).
+          </p>
         </div>
       </section>
 
