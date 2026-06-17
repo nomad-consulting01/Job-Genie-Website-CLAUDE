@@ -40,7 +40,7 @@ export function getRouteHead(url: string): RouteHead {
     return {
       title: `${SITE_NAME} — Free Application Autopsy | Reach the Hidden Job Market`,
       description:
-        "70–80% of the best roles are filled before they hit job boards. Get your free Application Silence Score and find out what's blocking your interviews.",
+        "Many mid-to-senior and specialist roles are filled through specialist recruiters before reaching job boards. Get your free Application Silence Score and find out what's blocking your interviews.",
       canonical: `${SITE_URL}/`,
       robots: 'index, follow',
       aeoQuestion: 'Why do my job applications keep going silent?',
