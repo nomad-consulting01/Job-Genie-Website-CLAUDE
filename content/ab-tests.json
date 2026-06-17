@@ -1,0 +1,307 @@
+{
+  "_meta": {
+    "version": "2.0",
+    "description": "Job Genie A/B test configuration. Canonical source — do not edit artifacts/job-genie/src/data/experiments.json directly. Assignment is deterministic via hashed visitor_id from localStorage.",
+    "assignment_algorithm": "sha256(experiment_id + visitor_id) % 100 < weight_threshold",
+    "docs": "docs/ab-testing.md"
+  },
+
+  "experiments": [
+    {
+      "id": "home_h1_framing",
+      "name": "Home H1 — Framing variants",
+      "status": "active",
+      "page": "home",
+      "dimension": "h1",
+      "traffic_split": 1.0,
+      "variants": [
+        {
+          "id": "control",
+          "name": "Control — Numeric + outcome (current)",
+          "weight": 0.34,
+          "overrides": {
+            "headline_line1": "100 Applications.",
+            "headline_line2": "Zero Interviews.",
+            "headline_line3": "Here's The Exact Reason Why."
+          }
+        },
+        {
+          "id": "variant_b",
+          "name": "Variant B — Pain-first question",
+          "weight": 0.33,
+          "overrides": {
+            "headline_line1": "Why Does Nobody",
+            "headline_line2": "Reply To Your",
+            "headline_line3": "Job Applications?"
+          }
+        },
+        {
+          "id": "variant_c",
+          "name": "Variant C — Channel diagnosis framing",
+          "weight": 0.33,
+          "overrides": {
+            "headline_line1": "You're Applying",
+            "headline_line2": "To The Wrong",
+            "headline_line3": "Job Market."
+          }
+        }
+      ],
+      "primary_metric": "cta_click_rate",
+      "secondary_metrics": ["scroll_depth_50", "time_on_page"],
+      "started_at": "2026-06-01",
+      "min_sample_per_variant": 200
+    },
+
+    {
+      "id": "home_direct_answer_copy",
+      "name": "Home direct-answer block copy",
+      "status": "active",
+      "page": "home",
+      "dimension": "direct_answer",
+      "traffic_split": 1.0,
+      "variants": [
+        {
+          "id": "control",
+          "name": "Control — Three-causes explanation (current)",
+          "weight": 0.5,
+          "overrides": {
+            "direct_answer_text": "Job applications go silent for three fixable reasons: wrong channel (many specialist and mid-to-senior roles are filled via specialist recruiters before reaching public job boards), ghost-job exposure (~27% of LinkedIn listings were likely ghost jobs in 2025, per ResumeUp.AI), and resume misalignment (missing the exact keywords specialist recruiters shortlist for). Job Genie calculates your free Application Silence Score in under 2 minutes — no account required."
+          }
+        },
+        {
+          "id": "variant_b",
+          "name": "Variant B — Score-first framing",
+          "weight": 0.5,
+          "overrides": {
+            "direct_answer_text": "Job Genie's free Application Silence Score diagnoses why your applications go quiet. Most candidates are filtered for one of three reasons: applying through channels that never see the best roles, submitting to ghost jobs already filled at the time of application, or missing the recruiter-fit signals that get a profile on a specialist shortlist. Diagnosis takes under 2 minutes — no account required."
+          }
+        }
+      ],
+      "primary_metric": "cta_click_rate",
+      "started_at": "2026-06-01",
+      "min_sample_per_variant": 200
+    },
+
+    {
+      "id": "home_cta_headline",
+      "name": "Home CTA section headline",
+      "status": "active",
+      "page": "home",
+      "dimension": "cta_headline",
+      "traffic_split": 1.0,
+      "variants": [
+        {
+          "id": "control",
+          "name": "Control — Diagnostic framing",
+          "weight": 0.34,
+          "overrides": {
+            "cta_headline": "Find Out Exactly Why Your Applications Go Silent"
+          }
+        },
+        {
+          "id": "variant_b",
+          "name": "Variant B — Outcome/transformation framing",
+          "weight": 0.33,
+          "overrides": {
+            "cta_headline": "Stop Applying Into The Void. Start Getting Shortlisted."
+          }
+        },
+        {
+          "id": "variant_c",
+          "name": "Variant C — Speed + free emphasis",
+          "weight": 0.33,
+          "overrides": {
+            "cta_headline": "Your Free 2-Minute Application Silence Diagnosis"
+          }
+        }
+      ],
+      "primary_metric": "cta_click_rate",
+      "started_at": "2026-06-01",
+      "min_sample_per_variant": 200
+    },
+
+    {
+      "id": "home_cta_button_text",
+      "name": "Home CTA primary button text",
+      "status": "active",
+      "page": "home",
+      "dimension": "cta_button_text",
+      "traffic_split": 1.0,
+      "variants": [
+        {
+          "id": "control",
+          "name": "Control — Autopsy framing (current)",
+          "weight": 0.25,
+          "overrides": {
+            "button_text": "Run My Free Autopsy →"
+          }
+        },
+        {
+          "id": "variant_b",
+          "name": "Variant B — Score framing",
+          "weight": 0.25,
+          "overrides": {
+            "button_text": "Get My Application Silence Score →"
+          }
+        },
+        {
+          "id": "variant_c",
+          "name": "Variant C — Diagnostic action",
+          "weight": 0.25,
+          "overrides": {
+            "button_text": "Diagnose My Applications Free →"
+          }
+        },
+        {
+          "id": "variant_d",
+          "name": "Variant D — Shortlist framing",
+          "weight": 0.25,
+          "overrides": {
+            "button_text": "See Why I'm Not Being Shortlisted →"
+          }
+        }
+      ],
+      "primary_metric": "cta_click_rate",
+      "started_at": "2026-06-01",
+      "min_sample_per_variant": 150
+    },
+
+    {
+      "id": "home_faq_order",
+      "name": "Home FAQ — question order",
+      "status": "active",
+      "page": "home",
+      "dimension": "faq_order",
+      "traffic_split": 1.0,
+      "variants": [
+        {
+          "id": "control",
+          "name": "Control — Channel/ghost/ATS order (current)",
+          "weight": 0.5,
+          "overrides": {
+            "faq_order": ["silence", "channel", "ghost_jobs", "ats", "networking", "recruiter", "hidden_market"]
+          }
+        },
+        {
+          "id": "variant_b",
+          "name": "Variant B — Start with the most-searched question",
+          "weight": 0.5,
+          "overrides": {
+            "faq_order": ["100_apps", "silence", "ghost_jobs", "channel", "ats", "recruiter", "networking"]
+          }
+        }
+      ],
+      "primary_metric": "faq_expansion_rate",
+      "secondary_metrics": ["cta_click_rate"],
+      "started_at": "2026-06-01",
+      "min_sample_per_variant": 300
+    },
+
+    {
+      "id": "home_hero_subheadline",
+      "name": "Home hero subheadline",
+      "status": "active",
+      "page": "home",
+      "dimension": "hero_subheadline",
+      "traffic_split": 1.0,
+      "variants": [
+        {
+          "id": "control",
+          "name": "Control — Channel diagnosis (current)",
+          "weight": 0.34,
+          "overrides": {
+            "hero_subheadline": "That's not bad luck — it's the wrong channel."
+          }
+        },
+        {
+          "id": "variant_b",
+          "name": "Variant B — Empathy-first",
+          "weight": 0.33,
+          "overrides": {
+            "hero_subheadline": "It's not you. It's how the market actually works."
+          }
+        },
+        {
+          "id": "variant_c",
+          "name": "Variant C — Direct diagnosis",
+          "weight": 0.33,
+          "overrides": {
+            "hero_subheadline": "Your profile is invisible to the recruiters who would hire you."
+          }
+        }
+      ],
+      "primary_metric": "scroll_depth_50",
+      "secondary_metrics": ["cta_click_rate"],
+      "started_at": "2026-06-01",
+      "min_sample_per_variant": 200
+    },
+
+    {
+      "id": "ghost_jobs_direct_answer",
+      "name": "Ghost Jobs page — direct-answer copy",
+      "status": "active",
+      "page": "ghost-jobs",
+      "dimension": "direct_answer",
+      "traffic_split": 1.0,
+      "variants": [
+        {
+          "id": "control",
+          "name": "Control — Research-led (current)",
+          "weight": 0.5,
+          "overrides": {}
+        },
+        {
+          "id": "variant_b",
+          "name": "Variant B — Personal impact framing",
+          "weight": 0.5,
+          "overrides": {
+            "direct_answer_text": "Ghost jobs are real and likely cost you interviews. Research finds 62% of hiring managers admit posting one (Resume Builder), and one 2025 analysis found ~27% of U.S. LinkedIn listings were likely ghost jobs (ResumeUp.AI). Applying to them wastes application effort on roles that will never be filled. Job Genie screens listings in real time so you apply only to roles that are actually open."
+          }
+        }
+      ],
+      "primary_metric": "cta_click_rate",
+      "started_at": "2026-06-01",
+      "min_sample_per_variant": 150
+    },
+
+    {
+      "id": "why_no_responses_cta",
+      "name": "Why-no-responses page — CTA button text",
+      "status": "active",
+      "page": "why-no-responses-after-100-applications",
+      "dimension": "cta_button_text",
+      "traffic_split": 1.0,
+      "variants": [
+        {
+          "id": "control",
+          "name": "Control — Autopsy framing (current)",
+          "weight": 0.5,
+          "overrides": {}
+        },
+        {
+          "id": "variant_b",
+          "name": "Variant B — Score framing",
+          "weight": 0.5,
+          "overrides": {
+            "button_text": "Get My Application Silence Score Free →"
+          }
+        }
+      ],
+      "primary_metric": "cta_click_rate",
+      "started_at": "2026-06-01",
+      "min_sample_per_variant": 150
+    }
+  ],
+
+  "archived": [
+    {
+      "id": "home_headline_test",
+      "name": "Home Headline A/B Test (migrated from experiments.json)",
+      "status": "archived",
+      "archived_reason": "Migrated to home_h1_framing with C variant added",
+      "winner": "variant_b",
+      "archived_at": "2026-06-17",
+      "original_data_file": "artifacts/job-genie/src/data/experiments.json"
+    }
+  ]
+}
