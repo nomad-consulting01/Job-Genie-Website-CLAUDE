@@ -20,12 +20,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const ROUTES = [
   '/',
-  '/why-job-applications-go-silent',
-  '/application-silence-score',
-  '/resume-not-getting-interviews',
-  '/recruiter-fit-gap',
+  '/why-no-responses-after-100-applications',
   '/ghost-jobs',
-  '/hidden-job-market',
+  '/glossary',
+  '/for/mid-career-professionals',
+  '/for/senior-engineers',
+  '/for/career-changers',
+  '/job-genie-vs-auto-apply',
 ];
 
 async function main() {
