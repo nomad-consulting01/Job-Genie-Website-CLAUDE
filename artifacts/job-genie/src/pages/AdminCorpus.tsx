@@ -64,7 +64,7 @@ interface Loop2Asset {
   question: { id: number; normalisedQuestion: string };
 }
 
-type Tab = "overview" | "questions" | "answers" | "content" | "blog" | "runs";
+type Tab = "overview" | "questions" | "answers" | "content" | "blog" | "geo" | "runs";
 
 const CHANNEL_LABELS: Record<string, string> = {
   newsletter: "📧 Newsletter",
@@ -155,7 +155,9 @@ export default function AdminCorpus() {
   const [loop1Status, setLoop1Status] = useState<string | null>(null);
   const [loop2Status, setLoop2Status] = useState<string | null>(null);
   const [loop3Status, setLoop3Status] = useState<string | null>(null);
+  const [loop4Status, setLoop4Status] = useState<string | null>(null);
   const [blogPosts, setBlogPosts] = useState<Array<{ id: number; slug: string; seoTitle: string; readTimeMinutes: number | null; publishedAt: string | null }>>([]);
+  const [answerPages, setAnswerPages] = useState<Array<{ id: number; slug: string; title: string; painPointTags: string[]; publishedAt: string | null }>>([]);
   const [scraperStatus, setScraperStatus] = useState<string | null>(null);
 
   const [seedText, setSeedText] = useState("");
@@ -214,11 +216,16 @@ export default function AdminCorpus() {
     if (r.ok) { const d = await r.json() as { posts: typeof blogPosts }; setBlogPosts(d.posts); }
   }, []);
 
+  const fetchAnswerPages = useCallback(async () => {
+    const r = await fetch(`${API_BASE}/api/answers?limit=100`);
+    if (r.ok) { const d = await r.json() as { answers: typeof answerPages }; setAnswerPages(d.answers); }
+  }, []);
+
   useEffect(() => {
     if (!token) return;
     setLoading(true);
-    Promise.all([fetchStats(), fetchQuestions(), fetchAnswers(), fetchRuns(), fetchLoop2Assets(), fetchBlogPosts()]).finally(() => setLoading(false));
-  }, [token, fetchStats, fetchQuestions, fetchAnswers, fetchRuns, fetchLoop2Assets, fetchBlogPosts]);
+    Promise.all([fetchStats(), fetchQuestions(), fetchAnswers(), fetchRuns(), fetchLoop2Assets(), fetchBlogPosts(), fetchAnswerPages()]).finally(() => setLoading(false));
+  }, [token, fetchStats, fetchQuestions, fetchAnswers, fetchRuns, fetchLoop2Assets, fetchBlogPosts, fetchAnswerPages]);
 
   const updateQStatus = async (id: number, status: string) => {
     await fetch(`${API_BASE}/api/admin/corpus/questions/${id}/status`, {
@@ -312,6 +319,18 @@ export default function AdminCorpus() {
     }
   };
 
+  const triggerLoop4 = async () => {
+    setLoop4Status("triggering…");
+    const r = await fetch(`${API_BASE}/api/admin/loops/loop4/run`, { method: "POST", headers: authHeaders() });
+    if (r.ok) {
+      setLoop4Status("running — GEO pages, Reddit, Email, LinkedIn in progress…");
+      setTimeout(async () => { await fetchRuns(); await fetchAnswerPages(); }, 5000);
+    } else {
+      const d = await r.json() as { error?: string };
+      setLoop4Status(`Error: ${d.error ?? "unknown"}`);
+    }
+  };
+
   const triggerLoop3 = async () => {
     setLoop3Status("triggering…");
     const r = await fetch(`${API_BASE}/api/admin/loops/loop3/run`, { method: "POST", headers: authHeaders() });
@@ -376,6 +395,7 @@ export default function AdminCorpus() {
   const loop1Runs = runs.filter((r) => r.loop === "loop1");
 
   const loop3Runs = runs.filter((r) => r.loop === "loop3");
+  const loop4Runs = runs.filter((r) => r.loop === "loop4");
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "overview", label: "Overview" },
@@ -383,6 +403,7 @@ export default function AdminCorpus() {
     { id: "answers", label: `Answers (${answers.length})` },
     { id: "content", label: `Content (${questionIds2.length} q)` },
     { id: "blog", label: `Blog (${blogPosts.length})` },
+    { id: "geo", label: `GEO Answers (${answerPages.length})` },
     { id: "runs", label: `Loop Runs (${runs.length})` },
   ];
 
@@ -451,6 +472,8 @@ export default function AdminCorpus() {
                 <span className="bg-amber-900/20 text-amber-300 border border-amber-700/30 px-3 py-1 rounded-full">🕓 4AM — Loop 2 (Content × 2)</span>
                 <span className="text-gray-600">→</span>
                 <span className="bg-teal-900/20 text-teal-300 border border-teal-700/30 px-3 py-1 rounded-full">🕔 5AM — Loop 3 (Blog Publication)</span>
+                <span className="text-gray-600">→</span>
+                <span className="bg-blue-900/20 text-blue-300 border border-blue-700/30 px-3 py-1 rounded-full">🕕 6AM — Loop 4 (Distribution)</span>
               </div>
             </div>
 
@@ -598,6 +621,42 @@ export default function AdminCorpus() {
                 ▶ Trigger Loop 2 Now
               </button>
               {loop2Status && <p className="mt-3 text-sm text-amber-300">{loop2Status}</p>}
+            </div>
+
+            {/* Loop 4 */}
+            <div className="bg-white/5 border border-blue-700/20 rounded-xl p-6">
+              <div className="flex items-center gap-3 mb-1">
+                <h2 className="text-lg font-semibold text-white">Loop 4 — Distribution Engine</h2>
+                <span className="text-xs bg-blue-900/30 text-blue-300 border border-blue-700/40 px-2 py-0.5 rounded-full">NEW</span>
+              </div>
+              <p className="text-sm text-gray-400 mb-2">
+                Distributes assets across 4 channels simultaneously. Runs at <strong className="text-gray-200">6 AM</strong> daily.
+              </p>
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                {[
+                  { label: "🌐 GEO Pages", desc: "web_aeo → /answers/:slug", color: "text-blue-300" },
+                  { label: "🤖 Reddit", desc: "Reply to source threads", color: "text-orange-300" },
+                  { label: "📧 Email", desc: "Newsletter via Resend", color: "text-green-300" },
+                  { label: "💼 LinkedIn", desc: "Queue for posting", color: "text-sky-300" },
+                ].map(({ label, desc, color }) => (
+                  <div key={label} className="bg-white/5 rounded-lg p-2.5 border border-white/8">
+                    <p className={`text-xs font-semibold ${color} mb-0.5`}>{label}</p>
+                    <p className="text-xs text-gray-500">{desc}</p>
+                  </div>
+                ))}
+              </div>
+              {loop4Runs[0] && (
+                <p className="text-xs text-gray-500 mb-4">
+                  Last run: {new Date(loop4Runs[0].startedAt).toLocaleString()} · <StatusBadge status={loop4Runs[0].status} /> · {loop4Runs[0].itemsProcessed} items · {answerPages.length} GEO pages live
+                </p>
+              )}
+              <div className="flex flex-wrap items-center gap-3">
+                <button onClick={triggerLoop4} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-semibold">
+                  ▶ Trigger Loop 4 Now
+                </button>
+                <span className="text-xs text-gray-600">Reddit/Email skip gracefully if credentials not set</span>
+              </div>
+              {loop4Status && <p className="mt-3 text-sm text-blue-300">{loop4Status}</p>}
             </div>
 
             {/* Loop 3 */}
@@ -848,6 +907,45 @@ export default function AdminCorpus() {
           </div>
         )}
 
+        {/* GEO ANSWERS — Loop 4 published answer pages */}
+        {tab === "geo" && (
+          <div className="space-y-4">
+            {answerPages.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-4xl mb-4">🤖</p>
+                <p className="text-gray-400 mb-6">No GEO answer pages yet — trigger Loop 4 to publish them.</p>
+                <button onClick={triggerLoop4} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-semibold">
+                  ▶ Trigger Loop 4 Now
+                </button>
+                {loop4Status && <p className="mt-3 text-sm text-blue-300">{loop4Status}</p>}
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-gray-400">{answerPages.length} GEO answer page{answerPages.length !== 1 ? "s" : ""} indexed</p>
+                  <a href="/answers" target="_blank" className="text-xs text-blue-400 hover:underline">View /answers index →</a>
+                </div>
+                {answerPages.map((a) => (
+                  <div key={a.id} className="bg-white/5 border border-white/8 rounded-xl p-4 flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-white truncate">{a.title}</p>
+                      <p className="text-xs text-gray-500 font-mono mt-0.5">/answers/{a.slug}</p>
+                      <div className="flex flex-wrap gap-1.5 mt-1.5">
+                        {(a.painPointTags ?? []).slice(0, 3).map((t: string) => (
+                          <span key={t} className="text-xs px-1.5 py-0.5 rounded-full bg-blue-900/30 text-blue-300 border border-blue-700/30">{t.replace(/_/g, " ")}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <a href={`/answers/${a.slug}`} target="_blank" className="flex-shrink-0 text-xs bg-blue-900/30 text-blue-300 border border-blue-700/40 px-3 py-1 rounded-lg hover:bg-blue-900/50 transition-colors whitespace-nowrap">
+                      View →
+                    </a>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        )}
+
         {/* BLOG — Loop 3 published posts */}
         {tab === "blog" && (
           <div className="space-y-4">
@@ -900,7 +998,7 @@ export default function AdminCorpus() {
                   <div>
                     <div className="flex items-center gap-3 mb-1">
                       <span className={`text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded ${
-                        r.loop === "loop3" ? "bg-teal-900/30 text-teal-300" : r.loop === "loop2" ? "bg-amber-900/30 text-amber-300" : r.loop === "loop1" ? "bg-purple-900/30 text-purple-300" : "bg-orange-900/30 text-orange-300"
+                        r.loop === "loop4" ? "bg-blue-900/30 text-blue-300" : r.loop === "loop3" ? "bg-teal-900/30 text-teal-300" : r.loop === "loop2" ? "bg-amber-900/30 text-amber-300" : r.loop === "loop1" ? "bg-purple-900/30 text-purple-300" : "bg-orange-900/30 text-orange-300"
                       }`}>
                         {r.loop}
                       </span>

@@ -1,6 +1,10 @@
 export type Loop2Channel = "newsletter" | "blog_post" | "linkedin" | "email_nurture";
 
 export interface EngineConfig {
+  loop4: {
+    cronSchedule: string;
+    maxItemsPerChannel: number;
+  };
   loop3: {
     cronSchedule: string;
     maxPostsPerRun: number;
@@ -29,6 +33,10 @@ export interface EngineConfig {
 }
 
 export const engineConfig: EngineConfig = {
+  loop4: {
+    cronSchedule: process.env["LOOP4_CRON"] ?? "0 6 * * *",
+    maxItemsPerChannel: parseInt(process.env["LOOP4_MAX_ITEMS"] ?? "20"),
+  },
   loop3: {
     cronSchedule: process.env["LOOP3_CRON"] ?? "0 5 * * *",
     maxPostsPerRun: parseInt(process.env["LOOP3_MAX_POSTS"] ?? "5"),

@@ -11,6 +11,8 @@ import AdminCorpus from "./pages/AdminCorpus";
 import AEOPage from "./pages/AEOPage";
 import BlogIndex from "./pages/BlogIndex";
 import BlogPost from "./pages/BlogPost";
+import AnswerIndex from "./pages/AnswerIndex";
+import AnswerPage from "./pages/AnswerPage";
 import "./styles/brand.css";
 
 const queryClient = new QueryClient();
@@ -41,6 +43,9 @@ function Router() {
       {/* Blog — must be before /:slug wildcard */}
       <Route path="/blog" component={BlogIndex} />
       <Route path="/blog/:slug" component={BlogPost} />
+      {/* GEO answer pages */}
+      <Route path="/answers" component={AnswerIndex} />
+      <Route path="/answers/:slug" component={AnswerPage} />
       {/* Legacy landing page variants */}
       <Route path="/:slug" component={LandingPage} />
       <Route component={NotFound} />

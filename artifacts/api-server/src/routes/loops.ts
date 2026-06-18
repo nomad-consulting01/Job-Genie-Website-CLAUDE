@@ -6,6 +6,7 @@ const router = Router();
 let loop1Running = false;
 let loop2Running = false;
 let loop3Running = false;
+let loop4Running = false;
 let scraperRunning = false;
 
 function requireAdmin(req: Request, res: Response, next: NextFunction): void {
@@ -88,6 +89,27 @@ router.post("/loop3/run", async (_req, res) => {
       logger.error({ err }, "Manual Loop 3 run failed");
     } finally {
       loop3Running = false;
+    }
+  });
+});
+
+router.post("/loop4/run", async (_req, res) => {
+  if (loop4Running) {
+    res.status(409).json({ error: "Loop 4 is already running" });
+    return;
+  }
+  loop4Running = true;
+  res.json({ message: "Loop 4 triggered — running in background", status: "started" });
+
+  setImmediate(async () => {
+    try {
+      const { run } = await import("../loops/loop4/index.js");
+      const result = await run();
+      logger.info({ result }, "Manual Loop 4 run completed");
+    } catch (err) {
+      logger.error({ err }, "Manual Loop 4 run failed");
+    } finally {
+      loop4Running = false;
     }
   });
 });

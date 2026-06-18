@@ -11,6 +11,9 @@ let loop2Running = false;
 let loop3Task: cron.ScheduledTask | null = null;
 let loop3Running = false;
 
+let loop4Task: cron.ScheduledTask | null = null;
+let loop4Running = false;
+
 let scraperTask: cron.ScheduledTask | null = null;
 let scraperRunning = false;
 
@@ -99,7 +102,28 @@ export function startScheduler(): void {
     }
   });
 
-  logger.info("Scheduler started (scraper 2AM → Loop1 3AM → Loop2 4AM → Loop3 5AM)");
+  // 6 AM — Loop 4 (Distribution: GEO pages, Reddit, Email, LinkedIn)
+  const loop4Schedule = engineConfig.loop4.cronSchedule;
+  logger.info({ schedule: loop4Schedule }, "Scheduler: scheduling Loop 4");
+
+  loop4Task = cron.schedule(loop4Schedule, async () => {
+    if (loop4Running) {
+      logger.warn("Loop 4 already running — skipping scheduled trigger");
+      return;
+    }
+    loop4Running = true;
+    try {
+      logger.info("Scheduler: triggering Loop 4");
+      const { run } = await import("../loops/loop4/index.js");
+      await run();
+    } catch (err) {
+      logger.error({ err }, "Scheduler: Loop 4 failed");
+    } finally {
+      loop4Running = false;
+    }
+  });
+
+  logger.info("Scheduler started (scraper 2AM → Loop1 3AM → Loop2 4AM → Loop3 5AM → Loop4 6AM)");
 }
 
 export function stopScheduler(): void {
@@ -107,6 +131,7 @@ export function stopScheduler(): void {
   loop1Task?.stop();
   loop2Task?.stop();
   loop3Task?.stop();
+  loop4Task?.stop();
   logger.info("Scheduler stopped");
 }
 
@@ -129,6 +154,10 @@ export function getSchedulerStatus() {
     loop3: {
       schedule: engineConfig.loop3.cronSchedule,
       running: loop3Running,
+    },
+    loop4: {
+      schedule: engineConfig.loop4.cronSchedule,
+      running: loop4Running,
     },
   };
 }

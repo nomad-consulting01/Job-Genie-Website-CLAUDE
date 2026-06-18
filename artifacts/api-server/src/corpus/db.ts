@@ -231,6 +231,107 @@ export async function listLoop2Assets(limit = 100) {
     .limit(limit);
 }
 
+// ─── Loop 4 queries ──────────────────────────────────────────────────────────
+
+/** web_aeo assets not yet published as GEO pages (externalId IS NULL) */
+export async function listUnpublishedWebAeoAssets(limit = 20) {
+  return db
+    .select({ asset: contentAssets, answer: answers, question: questions })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(and(eq(contentAssets.channel, "web_aeo"), eq(contentAssets.variant, "standard"), isNull(contentAssets.externalId)))
+    .orderBy(desc(contentAssets.publishedAt))
+    .limit(limit);
+}
+
+/** newsletter/standard assets not yet sent (externalId IS NULL) */
+export async function listUnpublishedNewsletterAssets(limit = 10) {
+  return db
+    .select({ asset: contentAssets, answer: answers, question: questions })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(and(eq(contentAssets.channel, "newsletter"), eq(contentAssets.variant, "standard"), isNull(contentAssets.externalId)))
+    .orderBy(desc(contentAssets.publishedAt))
+    .limit(limit);
+}
+
+/** linkedin/standard assets not yet queued (externalId IS NULL) */
+export async function listUnpublishedLinkedInAssets(limit = 10) {
+  return db
+    .select({ asset: contentAssets, answer: answers, question: questions })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(and(eq(contentAssets.channel, "linkedin"), eq(contentAssets.variant, "standard"), isNull(contentAssets.externalId)))
+    .orderBy(desc(contentAssets.publishedAt))
+    .limit(limit);
+}
+
+/** answers whose question has a Reddit sourceUrl and whose web_aeo asset externalId is already set (i.e. GEO published) */
+export async function listAnswersWithRedditSource(limit = 10) {
+  return db
+    .select({ answer: answers, question: questions })
+    .from(answers)
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(sql`${questions.sourceUrl} LIKE '%reddit.com%'`)
+    .orderBy(desc(answers.id))
+    .limit(limit);
+}
+
+/** Get the web_aeo standard asset for a given answerId */
+export async function getWebAeoAssetForAnswer(answerId: number) {
+  const [row] = await db
+    .select({ asset: contentAssets, answer: answers, question: questions })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(and(eq(contentAssets.answerId, answerId), eq(contentAssets.channel, "web_aeo"), eq(contentAssets.variant, "standard")));
+  return row ?? null;
+}
+
+/** Mark an asset as distributed by setting externalId and optionally updating engagementMetricsJson */
+export async function markAssetDistributed(
+  id: number,
+  externalId: string,
+  channel: string,
+  meta?: Record<string, unknown>
+) {
+  await db
+    .update(contentAssets)
+    .set({
+      externalId,
+      scheduledFor: new Date(),
+      ...(meta ? { engagementMetricsJson: meta } : {}),
+    })
+    .where(eq(contentAssets.id, id));
+}
+
+/** List all published GEO answer pages (web_aeo, externalId set), newest first */
+export async function listPublishedAnswerPages(limit = 50, offset = 0) {
+  return db
+    .select({ asset: contentAssets, answer: answers, question: questions })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(and(eq(contentAssets.channel, "web_aeo"), eq(contentAssets.variant, "standard"), isNotNull(contentAssets.externalId)))
+    .orderBy(desc(contentAssets.scheduledFor))
+    .limit(limit)
+    .offset(offset);
+}
+
+/** Get a single GEO answer page by slug */
+export async function getAnswerPageBySlug(slug: string) {
+  const [row] = await db
+    .select({ asset: contentAssets, answer: answers, question: questions })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(and(eq(contentAssets.channel, "web_aeo"), eq(contentAssets.variant, "standard"), eq(contentAssets.externalId, slug)));
+  return row ?? null;
+}
+
 // ─── Loop 3 queries ──────────────────────────────────────────────────────────
 
 /**
