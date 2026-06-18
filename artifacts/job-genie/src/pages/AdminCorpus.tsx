@@ -78,6 +78,7 @@ export default function AdminCorpus() {
   const [runs, setRuns] = useState<LoopRun[]>([]);
   const [loading, setLoading] = useState(false);
   const [loop1Status, setLoop1Status] = useState<string | null>(null);
+  const [scraperStatus, setScraperStatus] = useState<string | null>(null);
   const [seedText, setSeedText] = useState("");
   const [seedUrl, setSeedUrl] = useState("");
   const [seedSource, setSeedSource] = useState<"manual" | "quora" | "linkedin">("manual");
@@ -180,6 +181,18 @@ export default function AdminCorpus() {
       setScrapeError(e instanceof Error ? e.message : "Network error");
     } finally {
       setIngestLoading(false);
+    }
+  };
+
+  const triggerListingScraper = async () => {
+    setScraperStatus("triggering…");
+    const r = await fetch(`${API_BASE}/api/admin/loops/scrape-listings/run`, { method: "POST", headers: authHeaders() });
+    if (r.ok) {
+      setScraperStatus("running in background — scraping 8 subreddits with 2 s between each (≈3 min total)");
+      setTimeout(async () => { await fetchQuestions(); await fetchStats(); }, 60000);
+    } else {
+      const d = await r.json() as { error?: string };
+      setScraperStatus(`Error: ${d.error ?? "unknown"}`);
     }
   };
 
@@ -379,6 +392,38 @@ export default function AdminCorpus() {
                     ))}
                   </div>
                 </div>
+              )}
+            </div>
+
+            {/* Listing Scraper */}
+            <div className="bg-white/5 border border-white/8 rounded-xl p-6">
+              <h2 className="text-lg font-semibold text-white mb-1">Reddit Listing Scraper</h2>
+              <p className="text-sm text-gray-400 mb-2">
+                Automatically scrapes top posts from all configured subreddits and adds them to the pending queue.
+                Runs daily at <strong className="text-gray-200">2 AM</strong> — trigger manually here.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {[
+                  "r/jobs (year)",
+                  "r/jobs (month)",
+                  "r/careerguidance (year)",
+                  "r/careerguidance (month)",
+                  "r/cscareerquestions (year)",
+                  "r/recruitinghell (year)",
+                  "r/resumes (year)",
+                  "r/jobsearchhacks (year)",
+                ].map((s) => (
+                  <span key={s} className="text-xs bg-orange-900/20 text-orange-300 border border-orange-700/30 px-2 py-0.5 rounded-full">{s}</span>
+                ))}
+              </div>
+              <button
+                onClick={triggerListingScraper}
+                className="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2 rounded-lg text-sm font-semibold"
+              >
+                ▶ Run Scraper Now
+              </button>
+              {scraperStatus && (
+                <p className="mt-3 text-sm text-orange-300">{scraperStatus}</p>
               )}
             </div>
 

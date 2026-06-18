@@ -4,6 +4,7 @@ import { logger } from "../lib/logger.js";
 
 const router = Router();
 let loop1Running = false;
+let scraperRunning = false;
 
 function requireAdmin(req: Request, res: Response, next: NextFunction): void {
   const ADMIN_TOKEN = process.env["ADMIN_TOKEN"];
@@ -43,6 +44,33 @@ router.post("/loop1/run", async (_req, res) => {
       logger.error({ err }, "Manual Loop 1 run failed");
     } finally {
       loop1Running = false;
+    }
+  });
+});
+
+router.post("/scrape-listings/run", async (req, res) => {
+  if (scraperRunning) {
+    res.status(409).json({ error: "Listing scraper is already running" });
+    return;
+  }
+  scraperRunning = true;
+
+  const { urls } = (req.body as { urls?: string[] }) ?? {};
+  res.json({
+    message: "Listing scraper triggered — running in background",
+    status: "started",
+    urls: urls ?? "default config",
+  });
+
+  setImmediate(async () => {
+    try {
+      const { runListingScraper } = await import("../loops/scrape-listings/index.js");
+      const result = await runListingScraper(urls);
+      logger.info({ result }, "Manual listing scraper run completed");
+    } catch (err) {
+      logger.error({ err }, "Manual listing scraper run failed");
+    } finally {
+      scraperRunning = false;
     }
   });
 });

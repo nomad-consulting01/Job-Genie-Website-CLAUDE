@@ -61,7 +61,26 @@ export function isListingUrl(url: string): boolean {
   const u = url.split("?")[0].replace(/\/$/, "");
   if (/\/comments\//.test(u)) return false;
   if (/\/r\/[^/]+\/s\//.test(u)) return false;
+  if (/\/search\/?$/.test(u)) return true; // reddit search URLs
   return /\/r\/[^/]+(\/(?:top|hot|new|rising|best))?$/.test(u);
+}
+
+// Convert a reddit.com/search/?q=r+SUBREDDIT URL to a subreddit listing URL
+function resolveSearchUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (!parsed.pathname.includes("/search")) return url;
+    const q = parsed.searchParams.get("q") ?? "";
+    const parts = q.split(/[+\s]+/).filter(Boolean);
+    // Expected format: r SUBREDDIT [subreddit]
+    if (parts[0]?.toLowerCase() === "r" && parts[1]) {
+      const subreddit = parts[1];
+      const sort = parsed.searchParams.get("sort") ?? "top";
+      const time = parsed.searchParams.get("t") ?? "year";
+      return `https://www.reddit.com/r/${subreddit}/${sort}/?t=${time}`;
+    }
+  } catch {}
+  return url;
 }
 
 interface ParsedListing {
@@ -72,7 +91,9 @@ interface ParsedListing {
 }
 
 function parseListingUrl(url: string): ParsedListing {
-  const parsed = new URL(url);
+  // Resolve search URLs first
+  const resolvedUrl = resolveSearchUrl(url);
+  const parsed = new URL(resolvedUrl);
   const pathParts = parsed.pathname.replace(/\/$/, "").split("/").filter(Boolean);
   const subreddit = pathParts[1] ?? "jobs";
   const sortSegment = pathParts[2] ?? "top";
@@ -307,9 +328,10 @@ function extractRedditRssContent(rawContent: string): string {
 }
 
 async function fetchRssWithRetry(url: string, attempts = 3): Promise<Response | null> {
+  // Delays: 1s, 10s, 30s — gives Reddit time to cool off between retries
+  const delays = [1000, 10000, 30000];
   for (let i = 0; i < attempts; i++) {
-    const delay = i === 0 ? 600 : 2000 * i;
-    await new Promise((r) => setTimeout(r, delay));
+    await new Promise((r) => setTimeout(r, delays[i] ?? 30000));
     const resp = await fetch(url, {
       headers: { "User-Agent": USER_AGENT, Accept: "application/rss+xml, application/xml, text/xml" },
     });

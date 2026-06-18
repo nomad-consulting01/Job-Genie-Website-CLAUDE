@@ -1,1 +1,2 @@
 - [Reddit scraping constraints](reddit-scraping.md) — Reddit JSON API 403 from Replit IPs; use RSS feed for server-side ingest instead.
+- [Reddit RSS rate limiting](reddit-rss-rate-limiting.md) — RSS feeds cap at 100 posts; burst testing causes 429s that only clear after ~10+ min; scheduled daily runs are unaffected.
