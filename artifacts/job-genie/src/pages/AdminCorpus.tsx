@@ -84,6 +84,17 @@ export default function AdminCorpus() {
   const [seedError, setSeedError] = useState<string | null>(null);
   const [seedSuccess, setSeedSuccess] = useState(false);
 
+  const [redditUrl, setRedditUrl] = useState("");
+  const [scrapeLoading, setScrapeLoading] = useState(false);
+  const [scrapeResult, setScrapeResult] = useState<{
+    title: string; subreddit: string; totalComments: number;
+    postText: string; postScore: number; postUrl: string;
+    comments: Array<{ text: string; score: number; url: string }>;
+  } | null>(null);
+  const [scrapeError, setScrapeError] = useState<string | null>(null);
+  const [ingestLoading, setIngestLoading] = useState(false);
+  const [ingestResult, setIngestResult] = useState<{ scraped: number; imported: number; skipped: number } | null>(null);
+
   const saveToken = (t: string) => {
     setToken(t);
     localStorage.setItem("admin_token", t);
@@ -123,6 +134,49 @@ export default function AdminCorpus() {
     });
     await fetchQuestions();
     await fetchStats();
+  };
+
+  const scrapeRedditUrl = async () => {
+    setScrapeError(null);
+    setScrapeResult(null);
+    setIngestResult(null);
+    if (!redditUrl.trim()) { setScrapeError("Enter a Reddit URL"); return; }
+    setScrapeLoading(true);
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/corpus/scrape-url`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ url: redditUrl.trim() }),
+      });
+      const d = await r.json() as { error?: string } & typeof scrapeResult;
+      if (!r.ok) { setScrapeError((d as { error?: string }).error ?? "Scrape failed"); return; }
+      setScrapeResult(d as typeof scrapeResult);
+    } catch (e) {
+      setScrapeError(e instanceof Error ? e.message : "Network error");
+    } finally {
+      setScrapeLoading(false);
+    }
+  };
+
+  const ingestRedditUrl = async () => {
+    setIngestResult(null);
+    setIngestLoading(true);
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/corpus/ingest-url`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ url: redditUrl.trim() }),
+      });
+      const d = await r.json() as { scraped: number; imported: number; skipped: number; error?: string };
+      if (!r.ok) { setScrapeError(d.error ?? "Ingest failed"); return; }
+      setIngestResult(d);
+      await fetchQuestions();
+      await fetchStats();
+    } catch (e) {
+      setScrapeError(e instanceof Error ? e.message : "Network error");
+    } finally {
+      setIngestLoading(false);
+    }
   };
 
   const triggerLoop1 = async () => {
@@ -243,6 +297,76 @@ export default function AdminCorpus() {
                 ))}
               </div>
             )}
+
+            {/* Reddit URL Scraper */}
+            <div className="bg-white/5 border border-white/8 rounded-xl p-6">
+              <h2 className="text-lg font-semibold text-white mb-1">Scrape Reddit Thread</h2>
+              <p className="text-sm text-gray-400 mb-4">
+                Paste any Reddit link — including Share button links — to preview and import all comments as corpus questions.
+                No API credentials required.
+              </p>
+              <div className="flex gap-3 mb-4">
+                <input
+                  value={redditUrl}
+                  onChange={(e) => { setRedditUrl(e.target.value); setScrapeResult(null); setScrapeError(null); setIngestResult(null); }}
+                  onKeyDown={(e) => e.key === "Enter" && scrapeRedditUrl()}
+                  placeholder="https://www.reddit.com/r/jobs/s/…"
+                  className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm text-white outline-none focus:border-orange-500 font-mono"
+                />
+                <button
+                  onClick={scrapeRedditUrl}
+                  disabled={scrapeLoading}
+                  className="bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap"
+                >
+                  {scrapeLoading ? "Scraping…" : "🔍 Scrape"}
+                </button>
+              </div>
+
+              {scrapeError && <p className="text-red-400 text-sm mb-3">{scrapeError}</p>}
+
+              {scrapeResult && (
+                <div className="space-y-3">
+                  <div className="bg-white/5 border border-orange-700/30 rounded-lg p-4">
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                      <div>
+                        <p className="text-sm font-semibold text-white">{scrapeResult.title}</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          r/{scrapeResult.subreddit} · {scrapeResult.totalComments} comments total · {scrapeResult.comments.length} scraped · ↑{scrapeResult.postScore}
+                        </p>
+                      </div>
+                      <button
+                        onClick={ingestRedditUrl}
+                        disabled={ingestLoading}
+                        className="bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap flex-shrink-0"
+                      >
+                        {ingestLoading ? "Importing…" : `↓ Import ${scrapeResult.comments.length + 1} items`}
+                      </button>
+                    </div>
+                    {ingestResult && (
+                      <p className="mt-3 text-sm text-teal-300">
+                        ✓ Imported {ingestResult.imported} new · {ingestResult.skipped} duplicates skipped
+                      </p>
+                    )}
+                  </div>
+
+                  {scrapeResult.postText && (
+                    <div className="bg-white/3 border border-white/8 rounded-lg p-3">
+                      <p className="text-xs text-orange-400 font-medium mb-1">Original post</p>
+                      <p className="text-xs text-gray-300 line-clamp-4">{scrapeResult.postText}</p>
+                    </div>
+                  )}
+
+                  <div className="max-h-72 overflow-y-auto space-y-2">
+                    {scrapeResult.comments.map((c, i) => (
+                      <div key={i} className="bg-white/3 border border-white/8 rounded-lg px-3 py-2">
+                        <p className="text-xs text-gray-300 line-clamp-3">{c.text}</p>
+                        <p className="text-xs text-gray-600 mt-1">↑{c.score}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Loop 1 trigger */}
             <div className="bg-white/5 border border-white/8 rounded-xl p-6">

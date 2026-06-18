@@ -8,8 +8,11 @@ import {
   getCorpusStats,
   updateContentAssetStatus,
   listPublishedQAs,
+  insertQuestion,
+  getAllNormalisedQuestions,
 } from "../corpus/db.js";
 import { seedManualQuestion } from "../loops/loop1/ingest.js";
+import { scrapeRedditPost, ingestFromRedditUrl } from "../integrations/reddit.js";
 import { logger } from "../lib/logger.js";
 
 const router = Router();
@@ -143,6 +146,94 @@ router.get("/loop-runs", async (req, res) => {
   } catch (err) {
     logger.error({ err }, "GET /corpus/loop-runs failed");
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/scrape-url", async (req, res) => {
+  try {
+    const { url } = req.body as { url?: string };
+    if (!url || typeof url !== "string" || !url.includes("reddit.com")) {
+      res.status(400).json({ error: "A valid reddit.com URL is required" });
+      return;
+    }
+    const scraped = await scrapeRedditPost(url.trim());
+    res.json({
+      title: scraped.title,
+      subreddit: scraped.subreddit,
+      totalComments: scraped.totalComments,
+      postText: scraped.post.rawText,
+      postUrl: scraped.post.sourceUrl,
+      postScore: scraped.post.engagementSignal,
+      comments: scraped.comments.slice(0, 100).map((c) => ({
+        text: c.rawText,
+        score: c.engagementSignal,
+        url: c.sourceUrl,
+      })),
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    logger.error({ err: msg }, "POST /corpus/scrape-url failed");
+    res.status(500).json({ error: msg });
+  }
+});
+
+function deriveNormalisedQuestion(rawText: string): string {
+  const first = rawText.split(/[\n.!?]/)[0]?.trim() ?? rawText;
+  return first.slice(0, 200) || rawText.slice(0, 200);
+}
+
+function cosineLike(a: string, b: string): number {
+  const ta = new Set(a.toLowerCase().split(/\s+/));
+  const tb = new Set(b.toLowerCase().split(/\s+/));
+  const intersection = [...ta].filter((t) => tb.has(t)).length;
+  return intersection / Math.sqrt(ta.size * tb.size);
+}
+
+router.post("/ingest-url", async (req, res) => {
+  try {
+    const { url } = req.body as { url?: string };
+    if (!url || typeof url !== "string" || !url.includes("reddit.com")) {
+      res.status(400).json({ error: "A valid reddit.com URL is required" });
+      return;
+    }
+
+    const items = await ingestFromRedditUrl(url.trim());
+    const existing = await getAllNormalisedQuestions();
+
+    let imported = 0;
+    let skipped = 0;
+    const errors: string[] = [];
+
+    for (const item of items) {
+      const normQ = deriveNormalisedQuestion(item.rawText);
+      const isDupe = existing.some((e) => cosineLike(normQ, e) >= 0.75);
+      if (isDupe) { skipped++; continue; }
+
+      try {
+        await insertQuestion({
+          source: item.source,
+          sourceUrl: item.sourceUrl,
+          rawText: item.rawText,
+          normalisedQuestion: normQ,
+          painPointTags: [],
+          engagementSignal: item.engagementSignal,
+          status: "pending",
+        });
+        existing.push(normQ);
+        imported++;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        errors.push(msg);
+        if (errors.length >= 5) break;
+      }
+    }
+
+    logger.info({ url, scraped: items.length, imported, skipped }, "Reddit URL ingest complete");
+    res.json({ scraped: items.length, imported, skipped, errors });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    logger.error({ err: msg }, "POST /corpus/ingest-url failed");
+    res.status(500).json({ error: msg });
   }
 });
 

@@ -1,2 +1,1 @@
-- [Loop 1 engine](loop1-engine.md) — corpus schema + Reddit→Claude→AEO pipeline; ADMIN_TOKEN set; lib/db needs npx tsc after schema changes
-- [AEO page architecture](aeo-page-architecture.md) — Q&A pages: /api/qa/:slug (JSON+HTML), /qa/:slug (React); api-server serves branded HTML with FAQPage JSON-LD
+- [Reddit scraping constraints](reddit-scraping.md) — Reddit JSON API 403 from Replit IPs; use RSS feed for server-side ingest instead.
