@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { SEO } from "@/components/SEO";
 
 const API_BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
-const SITE_URL = "https://job-genie.ai";
+const SITE_URL = "https://www.job-genie.ai";
 
 interface AnswerCard {
   id: number;
@@ -15,11 +15,31 @@ interface AnswerCard {
   publishedAt: string | null;
 }
 
-function TagPill({ tag }: { tag: string }) {
+const TAG_LABELS: Record<string, string> = {
+  career_advice: "Career Advice",
+  job_board_futility: "Job Boards",
+  hidden_job_market: "Hidden Market",
+  application_silence: "Application Silence",
+  resume_screening: "Resume & CV",
+  interview_ghosting: "Ghosting",
+  recruiter_outreach: "Recruiter Outreach",
+  ghost_jobs: "Ghost Jobs",
+  age_discrimination: "Age & Bias",
+  salary_negotiation: "Salary",
+};
+
+function TagPill({ tag, active, onClick }: { tag: string; active?: boolean; onClick?: () => void }) {
   return (
-    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-900/30 text-blue-300 border border-blue-700/30">
-      {tag.replace(/_/g, " ")}
-    </span>
+    <button
+      onClick={onClick}
+      className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+        active
+          ? "bg-blue-600/40 text-blue-200 border-blue-500/60"
+          : "bg-blue-900/20 text-blue-400 border-blue-800/40 hover:bg-blue-900/40"
+      }`}
+    >
+      {TAG_LABELS[tag] ?? tag.replace(/_/g, " ")}
+    </button>
   );
 }
 
@@ -32,7 +52,11 @@ function Card({ a }: { a: AnswerCard }) {
       <p className="text-xs text-gray-400 leading-relaxed line-clamp-2 mb-3">{a.answerFirstBlock}</p>
       {a.painPointTags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          {a.painPointTags.slice(0, 3).map((t) => <TagPill key={t} tag={t} />)}
+          {a.painPointTags.slice(0, 3).map((t) => (
+            <span key={t} className="text-xs px-1.5 py-0.5 rounded-full bg-blue-900/20 text-blue-400 border border-blue-800/30">
+              {TAG_LABELS[t] ?? t.replace(/_/g, " ")}
+            </span>
+          ))}
         </div>
       )}
     </Link>
@@ -43,6 +67,7 @@ export default function AnswerIndex() {
   const [answers, setAnswers] = useState<AnswerCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTag, setActiveTag] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/answers?limit=100`)
@@ -55,13 +80,41 @@ export default function AnswerIndex() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Count answers per tag — only tags that appear in the data
+  const tagCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const a of answers) {
+      for (const t of a.painPointTags) {
+        counts[t] = (counts[t] ?? 0) + 1;
+      }
+    }
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .filter(([, c]) => c >= 2);
+  }, [answers]);
+
+  const filtered = useMemo(
+    () => (activeTag ? answers.filter((a) => a.painPointTags.includes(activeTag)) : answers),
+    [answers, activeTag]
+  );
+
   const schema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: "Job Search Q&A — Job Genie Answers",
-    description: "AI-generated answers to real job-search questions from Reddit communities.",
+    description: "AI-generated answers to real job-search questions from Reddit communities, optimised for AI search engines.",
     url: `${SITE_URL}/answers`,
-    publisher: { "@type": "Organization", name: "Job Genie", url: SITE_URL },
+    publisher: {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: "Job Genie",
+      url: SITE_URL,
+    },
+    hasPart: answers.slice(0, 10).map((a) => ({
+      "@type": "QAPage",
+      name: a.title,
+      url: `${SITE_URL}/answers/${a.slug}`,
+    })),
   };
 
   return (
@@ -86,16 +139,40 @@ export default function AnswerIndex() {
         </header>
 
         <main className="max-w-5xl mx-auto px-6 py-16">
-          <div className="mb-10">
+          <div className="mb-8">
             <p className="text-blue-400 text-sm font-medium tracking-wide uppercase mb-3">GEO — AI Search Intelligence</p>
             <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
               Job search questions,<br />answered directly
             </h1>
             <p className="text-lg text-gray-400 max-w-2xl leading-relaxed">
-              Structured answers optimised for AI search engines — Perplexity, ChatGPT, Google AI Overviews.
-              Every answer sourced from real job-seeker questions.
+              Structured answers optimised for AI search engines — Perplexity, ChatGPT,
+              Google AI Overviews. Every answer sourced from real job-seeker questions.
             </p>
           </div>
+
+          {/* Topic filter */}
+          {!loading && tagCounts.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-8">
+              <button
+                onClick={() => setActiveTag(null)}
+                className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                  !activeTag
+                    ? "bg-white/15 text-white border-white/20"
+                    : "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10"
+                }`}
+              >
+                All ({answers.length})
+              </button>
+              {tagCounts.map(([tag, count]) => (
+                <TagPill
+                  key={tag}
+                  tag={tag}
+                  active={activeTag === tag}
+                  onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+                />
+              ))}
+            </div>
+          )}
 
           {loading && (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -115,18 +192,26 @@ export default function AnswerIndex() {
             </div>
           )}
 
-          {!loading && !error && answers.length === 0 && (
+          {!loading && !error && filtered.length === 0 && (
             <div className="text-center py-20">
               <p className="text-5xl mb-4">🤖</p>
-              <p className="text-gray-400">No answers published yet — trigger Loop 4 from the admin panel.</p>
+              <p className="text-gray-400">No answers found{activeTag ? " for this topic" : ""}.</p>
+              {activeTag && (
+                <button onClick={() => setActiveTag(null)} className="mt-3 text-blue-400 text-sm hover:underline">
+                  Clear filter
+                </button>
+              )}
             </div>
           )}
 
-          {!loading && answers.length > 0 && (
+          {!loading && filtered.length > 0 && (
             <>
-              <p className="text-xs text-gray-600 mb-6">{answers.length} answer{answers.length !== 1 ? "s" : ""} indexed</p>
+              <p className="text-xs text-gray-600 mb-4">
+                {filtered.length} answer{filtered.length !== 1 ? "s" : ""}
+                {activeTag ? ` in "${TAG_LABELS[activeTag] ?? activeTag.replace(/_/g, " ")}"` : " indexed"}
+              </p>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {answers.map((a) => <Card key={a.id} a={a} />)}
+                {filtered.map((a) => <Card key={a.id} a={a} />)}
               </div>
             </>
           )}

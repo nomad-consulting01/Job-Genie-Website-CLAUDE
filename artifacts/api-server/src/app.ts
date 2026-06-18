@@ -8,6 +8,7 @@ import loopsRouter from "./routes/loops.js";
 import qaRouter from "./routes/qa.js";
 import blogRouter from "./routes/blog.js";
 import answersRouter from "./routes/answers.js";
+import sitemapRouter from "./routes/sitemap.js";
 import { logger } from "./lib/logger.js";
 import { startScheduler } from "./scheduler/index.js";
 
@@ -43,6 +44,9 @@ app.use("/api/admin/loops", loopsRouter);
 app.use("/api/qa", qaRouter);
 app.use("/api/blog", blogRouter);
 app.use("/api/answers", answersRouter);
+
+// Dynamic sitemap.xml and llms.txt — served at /api/sitemap.xml and /api/llms.txt
+app.use("/api", sitemapRouter);
 
 if (process.env["NODE_ENV"] !== "test") {
   startScheduler();

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { listPublishedAnswerPages, getAnswerPageBySlug } from "../corpus/db.js";
 import { logger } from "../lib/logger.js";
 
+
 const router = Router();
 
 router.get("/", async (req, res) => {
@@ -32,13 +33,41 @@ router.get("/", async (req, res) => {
 router.get("/:slug", async (req, res) => {
   try {
     const slug = req.params["slug"] ?? "";
-    const row = await getAnswerPageBySlug(slug);
+    const [row, allPages] = await Promise.all([
+      getAnswerPageBySlug(slug),
+      listPublishedAnswerPages(200, 0),
+    ]);
     if (!row) {
       res.status(404).json({ error: "Answer page not found" });
       return;
     }
     const { asset, answer, question } = row;
     const payload = (asset.payloadJson ?? {}) as Record<string, unknown>;
+    const publishedAt = asset.scheduledFor ?? asset.publishedAt;
+
+    // Related answers by shared pain_point_tags (scored by overlap count)
+    const currentTags = new Set((question.painPointTags as string[] | null) ?? []);
+    const related = allPages
+      .filter(({ asset: a }) => a.externalId !== slug)
+      .map(({ asset: a, answer: ans, question: q }) => {
+        const p = (a.payloadJson ?? {}) as Record<string, unknown>;
+        const sharedCount = ((q.painPointTags as string[] | null) ?? []).filter((t) => currentTags.has(t)).length;
+        return {
+          slug: a.externalId,
+          title: String(p["title"] ?? q.normalisedQuestion),
+          answerFirstBlock: ans.answerFirstBlock,
+          painPointTags: q.painPointTags,
+          _score: sharedCount,
+        };
+      })
+      .filter((r) => r._score > 0)
+      .sort((a, b) => b._score - a._score)
+      .slice(0, 4)
+      .map(({ _score: _s, ...rest }) => rest);
+
+    if (publishedAt) {
+      res.setHeader("Last-Modified", new Date(publishedAt).toUTCString());
+    }
     res.json({
       answer: {
         id: asset.id,
@@ -47,7 +76,7 @@ router.get("/:slug", async (req, res) => {
         answerMd: String(payload["answer_md"] ?? answer.answerMd),
         answerFirstBlock: answer.answerFirstBlock,
         sourceUrl: question.sourceUrl,
-        publishedAt: asset.scheduledFor ?? asset.publishedAt,
+        publishedAt,
       },
       question: {
         id: question.id,
@@ -55,6 +84,7 @@ router.get("/:slug", async (req, res) => {
         painPointTags: question.painPointTags,
         sourceUrl: question.sourceUrl,
       },
+      related,
     });
   } catch (err) {
     logger.error({ err }, "GET /answers/:slug failed");
