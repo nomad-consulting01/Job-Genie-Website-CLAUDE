@@ -1,8 +1,13 @@
 uploads = []
-generated = []
 
 [[outputs]]
 id = "7Y_KX-czfi4xE13rh-zCL"
 uri = "file://corpus-topic-analysis.md"
 type = "text"
 title = "Reddit Corpus — Topic Analysis"
+
+[[generated]]
+id = "ilmEsTvgvI4GRiih--FjQ"
+uri = "file://artifacts/job-genie/public/og-image.png"
+type = "image"
+title = "job genie og image"

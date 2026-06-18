@@ -2,6 +2,7 @@ import { createPortal } from 'react-dom';
 
 const SITE_URL = 'https://job-genie.ai';
 const SITE_NAME = 'Job Genie';
+const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 const ORG_SCHEMA = {
   '@context': 'https://schema.org',
@@ -196,9 +197,14 @@ export function SEO({
       <meta property="og:url" content={canonical} />
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:type" content="website" />
+      <meta property="og:image" content={OG_IMAGE} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content="Job Genie — Free Application Autopsy. Reach the Hidden Job Market." />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={OG_IMAGE} />
       <link rel="canonical" href={canonical} />
       {robots && <meta name="robots" content={robots} />}
       {schemas.map((schema, i) => (
