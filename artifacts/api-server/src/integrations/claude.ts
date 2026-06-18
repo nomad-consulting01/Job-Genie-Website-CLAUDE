@@ -207,6 +207,100 @@ Return JSON only (no markdown fences):
   };
 }
 
+// ─── Loop 3: Blog SEO metadata generation ────────────────────────────────────
+
+export interface BlogMetaResult {
+  slug: string;
+  seoTitle: string;
+  metaDescription: string;
+  readTimeMinutes: number;
+  faqJsonLd: Record<string, unknown>;
+  tokensUsed: number;
+}
+
+export async function generateBlogMeta(
+  question: string,
+  answerFirstBlock: string,
+  blogContent: string
+): Promise<BlogMetaResult> {
+  const client = getClient();
+  const wordCount = blogContent.split(/\s+/).length;
+  const estimatedReadTime = Math.max(1, Math.round(wordCount / 230));
+
+  const message = await client.messages.create({
+    model: ANSWER_MODEL,
+    max_tokens: 2048,
+    system: "You are an SEO specialist for Job-Genie. Generate precise, search-optimised metadata for blog posts. Return only valid JSON — no markdown fences.",
+    messages: [
+      {
+        role: "user",
+        content: `Generate SEO metadata for this Job-Genie blog post.
+
+QUESTION: ${question}
+
+ANSWER SUMMARY: ${answerFirstBlock.slice(0, 300)}
+
+BLOG CONTENT (first 800 chars): ${blogContent.slice(0, 800)}
+
+ESTIMATED READ TIME: ${estimatedReadTime} minutes
+
+Return JSON only (no markdown fences):
+{
+  "slug": "<url-safe slug, max 60 chars, derived from the question — lowercase, hyphens only, no stop words>",
+  "seo_title": "<50-65 char title ending with ' | Job Genie'>",
+  "meta_description": "<150-160 char compelling meta description — includes the core answer concept and a subtle CTA>",
+  "faq_json_ld": {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "<the question verbatim>",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "<the answer first block verbatim>"
+        }
+      }
+    ]
+  }
+}`,
+      },
+    ],
+  });
+
+  const raw = message.content[0]?.type === "text" ? message.content[0].text : "{}";
+  let parsed: {
+    slug?: string;
+    seo_title?: string;
+    meta_description?: string;
+    faq_json_ld?: Record<string, unknown>;
+  } = {};
+
+  try {
+    parsed = JSON.parse(raw) as typeof parsed;
+  } catch {
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try { parsed = JSON.parse(jsonMatch[0]) as typeof parsed; } catch { /* ignore */ }
+    }
+  }
+
+  const slug = (parsed.slug ?? question.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60));
+
+  return {
+    slug,
+    seoTitle: parsed.seo_title ?? `${question.slice(0, 50)} | Job Genie`,
+    metaDescription: parsed.meta_description ?? answerFirstBlock.slice(0, 155),
+    readTimeMinutes: estimatedReadTime,
+    faqJsonLd: parsed.faq_json_ld ?? {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [{ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answerFirstBlock } }],
+    },
+    tokensUsed: message.usage.input_tokens + message.usage.output_tokens,
+  };
+}
+
 // ─── Loop 2: Multi-channel content generation ───────────────────────────────
 
 export interface Loop2ContentResult {

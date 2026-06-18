@@ -64,7 +64,7 @@ interface Loop2Asset {
   question: { id: number; normalisedQuestion: string };
 }
 
-type Tab = "overview" | "questions" | "answers" | "content" | "runs";
+type Tab = "overview" | "questions" | "answers" | "content" | "blog" | "runs";
 
 const CHANNEL_LABELS: Record<string, string> = {
   newsletter: "📧 Newsletter",
@@ -154,6 +154,8 @@ export default function AdminCorpus() {
 
   const [loop1Status, setLoop1Status] = useState<string | null>(null);
   const [loop2Status, setLoop2Status] = useState<string | null>(null);
+  const [loop3Status, setLoop3Status] = useState<string | null>(null);
+  const [blogPosts, setBlogPosts] = useState<Array<{ id: number; slug: string; seoTitle: string; readTimeMinutes: number | null; publishedAt: string | null }>>([]);
   const [scraperStatus, setScraperStatus] = useState<string | null>(null);
 
   const [seedText, setSeedText] = useState("");
@@ -207,11 +209,16 @@ export default function AdminCorpus() {
     if (r.ok) { const d = await r.json() as { assets: Loop2Asset[] }; setLoop2Assets(d.assets); }
   }, []);
 
+  const fetchBlogPosts = useCallback(async () => {
+    const r = await fetch(`${API_BASE}/api/blog?limit=50`);
+    if (r.ok) { const d = await r.json() as { posts: typeof blogPosts }; setBlogPosts(d.posts); }
+  }, []);
+
   useEffect(() => {
     if (!token) return;
     setLoading(true);
-    Promise.all([fetchStats(), fetchQuestions(), fetchAnswers(), fetchRuns(), fetchLoop2Assets()]).finally(() => setLoading(false));
-  }, [token, fetchStats, fetchQuestions, fetchAnswers, fetchRuns, fetchLoop2Assets]);
+    Promise.all([fetchStats(), fetchQuestions(), fetchAnswers(), fetchRuns(), fetchLoop2Assets(), fetchBlogPosts()]).finally(() => setLoading(false));
+  }, [token, fetchStats, fetchQuestions, fetchAnswers, fetchRuns, fetchLoop2Assets, fetchBlogPosts]);
 
   const updateQStatus = async (id: number, status: string) => {
     await fetch(`${API_BASE}/api/admin/corpus/questions/${id}/status`, {
@@ -305,6 +312,18 @@ export default function AdminCorpus() {
     }
   };
 
+  const triggerLoop3 = async () => {
+    setLoop3Status("triggering…");
+    const r = await fetch(`${API_BASE}/api/admin/loops/loop3/run`, { method: "POST", headers: authHeaders() });
+    if (r.ok) {
+      setLoop3Status("running in background — generating slugs, SEO meta & FAQ JSON-LD");
+      setTimeout(async () => { await fetchRuns(); await fetchBlogPosts(); }, 5000);
+    } else {
+      const d = await r.json() as { error?: string };
+      setLoop3Status(`Error: ${d.error ?? "unknown"}`);
+    }
+  };
+
   const seedQuestion = async () => {
     setSeedError(null);
     setSeedSuccess(false);
@@ -356,11 +375,14 @@ export default function AdminCorpus() {
   const loop2Runs = runs.filter((r) => r.loop === "loop2");
   const loop1Runs = runs.filter((r) => r.loop === "loop1");
 
+  const loop3Runs = runs.filter((r) => r.loop === "loop3");
+
   const tabs: { id: Tab; label: string }[] = [
     { id: "overview", label: "Overview" },
     { id: "questions", label: `Questions (${questions.length})` },
     { id: "answers", label: `Answers (${answers.length})` },
     { id: "content", label: `Content (${questionIds2.length} q)` },
+    { id: "blog", label: `Blog (${blogPosts.length})` },
     { id: "runs", label: `Loop Runs (${runs.length})` },
   ];
 
@@ -427,6 +449,8 @@ export default function AdminCorpus() {
                 <span className="bg-purple-900/20 text-purple-300 border border-purple-700/30 px-3 py-1 rounded-full">🕒 3AM — Loop 1 (AEO)</span>
                 <span className="text-gray-600">→</span>
                 <span className="bg-amber-900/20 text-amber-300 border border-amber-700/30 px-3 py-1 rounded-full">🕓 4AM — Loop 2 (Content × 2)</span>
+                <span className="text-gray-600">→</span>
+                <span className="bg-teal-900/20 text-teal-300 border border-teal-700/30 px-3 py-1 rounded-full">🕔 5AM — Loop 3 (Blog Publication)</span>
               </div>
             </div>
 
@@ -574,6 +598,34 @@ export default function AdminCorpus() {
                 ▶ Trigger Loop 2 Now
               </button>
               {loop2Status && <p className="mt-3 text-sm text-amber-300">{loop2Status}</p>}
+            </div>
+
+            {/* Loop 3 */}
+            <div className="bg-white/5 border border-teal-700/20 rounded-xl p-6">
+              <div className="flex items-center gap-3 mb-1">
+                <h2 className="text-lg font-semibold text-white">Loop 3 — Blog Publication Engine</h2>
+                <span className="text-xs bg-teal-900/30 text-teal-300 border border-teal-700/40 px-2 py-0.5 rounded-full">NEW</span>
+              </div>
+              <p className="text-sm text-gray-400 mb-2">
+                Takes Loop 2 blog posts → generates slug, SEO title, meta description, read time & FAQ JSON-LD.
+                Posts appear live at <a href="/blog" target="_blank" className="text-teal-400 hover:underline">/blog</a>.
+                Runs at <strong className="text-gray-200">5 AM</strong> daily.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {["🔗 URL Slug", "🏷️ SEO Title", "📝 Meta Description", "⏱️ Read Time", "📋 FAQ JSON-LD"].map((item) => (
+                  <span key={item} className="text-xs bg-white/5 text-gray-300 border border-white/10 px-2 py-0.5 rounded-full">{item}</span>
+                ))}
+              </div>
+              {loop3Runs[0] && (
+                <p className="text-xs text-gray-500 mb-4">
+                  Last run: {new Date(loop3Runs[0].startedAt).toLocaleString()} ·{" "}
+                  <StatusBadge status={loop3Runs[0].status} /> · {loop3Runs[0].itemsProcessed} posts · {blogPosts.length} live
+                </p>
+              )}
+              <button onClick={triggerLoop3} className="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded-lg text-sm font-semibold">
+                ▶ Trigger Loop 3 Now
+              </button>
+              {loop3Status && <p className="mt-3 text-sm text-teal-300">{loop3Status}</p>}
             </div>
 
             {/* Manual seed */}
@@ -796,6 +848,48 @@ export default function AdminCorpus() {
           </div>
         )}
 
+        {/* BLOG — Loop 3 published posts */}
+        {tab === "blog" && (
+          <div className="space-y-4">
+            {blogPosts.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-4xl mb-4">📝</p>
+                <p className="text-gray-400 mb-6">No blog posts published yet — trigger Loop 3 to generate them.</p>
+                <button onClick={triggerLoop3} className="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded-lg text-sm font-semibold">
+                  ▶ Trigger Loop 3 Now
+                </button>
+                {loop3Status && <p className="mt-3 text-sm text-teal-300">{loop3Status}</p>}
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-gray-400">{blogPosts.length} post{blogPosts.length !== 1 ? "s" : ""} published</p>
+                  <a href="/blog" target="_blank" className="text-xs text-teal-400 hover:underline">View public blog →</a>
+                </div>
+                {blogPosts.map((p) => (
+                  <div key={p.id} className="bg-white/5 border border-white/8 rounded-xl p-4 flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-white truncate">{p.seoTitle}</p>
+                      <p className="text-xs text-gray-500 font-mono mt-0.5">/blog/{p.slug}</p>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
+                        {p.readTimeMinutes && <span>{p.readTimeMinutes} min read</span>}
+                        {p.publishedAt && <span>{new Date(p.publishedAt).toLocaleDateString()}</span>}
+                      </div>
+                    </div>
+                    <a
+                      href={`/blog/${p.slug}`}
+                      target="_blank"
+                      className="flex-shrink-0 text-xs bg-teal-900/30 text-teal-300 border border-teal-700/40 px-3 py-1 rounded-lg hover:bg-teal-900/50 transition-colors whitespace-nowrap"
+                    >
+                      View post →
+                    </a>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        )}
+
         {/* LOOP RUNS */}
         {tab === "runs" && (
           <div className="space-y-3">
@@ -806,7 +900,7 @@ export default function AdminCorpus() {
                   <div>
                     <div className="flex items-center gap-3 mb-1">
                       <span className={`text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded ${
-                        r.loop === "loop2" ? "bg-amber-900/30 text-amber-300" : r.loop === "loop1" ? "bg-purple-900/30 text-purple-300" : "bg-orange-900/30 text-orange-300"
+                        r.loop === "loop3" ? "bg-teal-900/30 text-teal-300" : r.loop === "loop2" ? "bg-amber-900/30 text-amber-300" : r.loop === "loop1" ? "bg-purple-900/30 text-purple-300" : "bg-orange-900/30 text-orange-300"
                       }`}>
                         {r.loop}
                       </span>

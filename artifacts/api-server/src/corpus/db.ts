@@ -1,6 +1,6 @@
 import { db } from "@workspace/db";
 import { questions, answers, contentAssets, loopRuns, type InsertQuestion, type InsertAnswer, type InsertContentAsset } from "@workspace/db";
-import { eq, desc, and, sql, notExists } from "drizzle-orm";
+import { eq, desc, and, sql, notExists, isNull, isNotNull } from "drizzle-orm";
 
 export async function insertQuestion(data: InsertQuestion) {
   const [row] = await db.insert(questions).values(data).returning();
@@ -229,6 +229,86 @@ export async function listLoop2Assets(limit = 100) {
     .where(sql`${contentAssets.channel} != 'web_aeo'`)
     .orderBy(desc(contentAssets.publishedAt))
     .limit(limit);
+}
+
+// ─── Loop 3 queries ──────────────────────────────────────────────────────────
+
+/**
+ * Blog post assets (standard variant) that have not yet been enriched with a slug.
+ */
+export async function listBlogPostsNotYetPublished(limit = 10) {
+  return db
+    .select({ asset: contentAssets, answer: answers, question: questions })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(
+      and(
+        eq(contentAssets.channel, "blog_post"),
+        eq(contentAssets.variant, "standard"),
+        isNull(contentAssets.externalId)
+      )
+    )
+    .orderBy(desc(contentAssets.publishedAt))
+    .limit(limit);
+}
+
+/**
+ * Store SEO metadata and slug on a blog_post asset.
+ */
+export async function updateBlogMeta(
+  id: number,
+  slug: string,
+  meta: { seoTitle: string; metaDescription: string; readTimeMinutes: number; faqJsonLd: Record<string, unknown> }
+) {
+  await db
+    .update(contentAssets)
+    .set({
+      externalId: slug,
+      engagementMetricsJson: meta,
+      scheduledFor: new Date(),
+    })
+    .where(eq(contentAssets.id, id));
+}
+
+/**
+ * List all published blog posts (standard variant, slug set), newest first.
+ */
+export async function listPublishedBlogPosts(limit = 20, offset = 0) {
+  return db
+    .select({ asset: contentAssets, answer: answers, question: questions })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(
+      and(
+        eq(contentAssets.channel, "blog_post"),
+        eq(contentAssets.variant, "standard"),
+        isNotNull(contentAssets.externalId)
+      )
+    )
+    .orderBy(desc(contentAssets.scheduledFor))
+    .limit(limit)
+    .offset(offset);
+}
+
+/**
+ * Get a single blog post by its slug.
+ */
+export async function getBlogPostBySlug(slug: string) {
+  const [row] = await db
+    .select({ asset: contentAssets, answer: answers, question: questions })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(
+      and(
+        eq(contentAssets.channel, "blog_post"),
+        eq(contentAssets.variant, "standard"),
+        eq(contentAssets.externalId, slug)
+      )
+    );
+  return row ?? null;
 }
 
 /**

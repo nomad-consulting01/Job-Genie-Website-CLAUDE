@@ -6,6 +6,7 @@ import adminRouter from "./routes/admin.js";
 import corpusRouter from "./routes/corpus.js";
 import loopsRouter from "./routes/loops.js";
 import qaRouter from "./routes/qa.js";
+import blogRouter from "./routes/blog.js";
 import { logger } from "./lib/logger.js";
 import { startScheduler } from "./scheduler/index.js";
 
@@ -39,6 +40,7 @@ app.use("/api/admin", adminRouter);
 app.use("/api/admin/corpus", corpusRouter);
 app.use("/api/admin/loops", loopsRouter);
 app.use("/api/qa", qaRouter);
+app.use("/api/blog", blogRouter);
 
 if (process.env["NODE_ENV"] !== "test") {
   startScheduler();

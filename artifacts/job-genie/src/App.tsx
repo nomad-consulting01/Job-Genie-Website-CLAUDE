@@ -9,6 +9,8 @@ import Admin from "./pages/Admin";
 import QAPage from "./pages/QAPage";
 import AdminCorpus from "./pages/AdminCorpus";
 import AEOPage from "./pages/AEOPage";
+import BlogIndex from "./pages/BlogIndex";
+import BlogPost from "./pages/BlogPost";
 import "./styles/brand.css";
 
 const queryClient = new QueryClient();
@@ -36,6 +38,9 @@ function Router() {
       <Route path="/for/senior-engineers" component={SeniorEngineersPage} />
       <Route path="/for/career-changers" component={CareerChangersPage} />
       <Route path="/job-genie-vs-auto-apply" component={VsAutoApplyPage} />
+      {/* Blog — must be before /:slug wildcard */}
+      <Route path="/blog" component={BlogIndex} />
+      <Route path="/blog/:slug" component={BlogPost} />
       {/* Legacy landing page variants */}
       <Route path="/:slug" component={LandingPage} />
       <Route component={NotFound} />
