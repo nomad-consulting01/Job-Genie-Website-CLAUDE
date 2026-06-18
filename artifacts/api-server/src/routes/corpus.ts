@@ -12,7 +12,7 @@ import {
   getAllNormalisedQuestions,
 } from "../corpus/db.js";
 import { seedManualQuestion } from "../loops/loop1/ingest.js";
-import { scrapeRedditPost, ingestFromRedditUrl } from "../integrations/reddit.js";
+import { scrapeRedditUrl, ingestFromRedditUrl } from "../integrations/reddit.js";
 import { logger } from "../lib/logger.js";
 
 const router = Router();
@@ -156,13 +156,14 @@ router.post("/scrape-url", async (req, res) => {
       res.status(400).json({ error: "A valid reddit.com URL is required" });
       return;
     }
-    const scraped = await scrapeRedditPost(url.trim());
+    const scraped = await scrapeRedditUrl(url.trim());
     res.json({
       title: scraped.title,
       subreddit: scraped.subreddit,
+      type: scraped.type,
       totalComments: scraped.totalComments,
-      postText: scraped.post.rawText,
-      postUrl: scraped.post.sourceUrl,
+      postText: scraped.type === "post" ? scraped.post.rawText : "",
+      postUrl: scraped.type === "post" ? scraped.post.sourceUrl : url.trim(),
       postScore: scraped.post.engagementSignal,
       comments: scraped.comments.slice(0, 100).map((c) => ({
         text: c.rawText,
@@ -191,13 +192,24 @@ function cosineLike(a: string, b: string): number {
 
 router.post("/ingest-url", async (req, res) => {
   try {
-    const { url } = req.body as { url?: string };
+    const { url, items: preScraped } = req.body as {
+      url?: string;
+      items?: Array<{ text: string; url: string; score: number }>;
+    };
     if (!url || typeof url !== "string" || !url.includes("reddit.com")) {
       res.status(400).json({ error: "A valid reddit.com URL is required" });
       return;
     }
 
-    const items = await ingestFromRedditUrl(url.trim());
+    // Use pre-scraped items if provided (avoids a second Reddit request / rate-limit)
+    const items = preScraped && preScraped.length > 0
+      ? preScraped.map((p) => ({
+          source: "reddit" as const,
+          sourceUrl: p.url,
+          rawText: p.text,
+          engagementSignal: p.score,
+        }))
+      : await ingestFromRedditUrl(url.trim());
     const existing = await getAllNormalisedQuestions();
 
     let imported = 0;

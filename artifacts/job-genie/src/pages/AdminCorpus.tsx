@@ -87,7 +87,7 @@ export default function AdminCorpus() {
   const [redditUrl, setRedditUrl] = useState("");
   const [scrapeLoading, setScrapeLoading] = useState(false);
   const [scrapeResult, setScrapeResult] = useState<{
-    title: string; subreddit: string; totalComments: number;
+    title: string; subreddit: string; type: "post" | "listing"; totalComments: number;
     postText: string; postScore: number; postUrl: string;
     comments: Array<{ text: string; score: number; url: string }>;
   } | null>(null);
@@ -165,7 +165,11 @@ export default function AdminCorpus() {
       const r = await fetch(`${API_BASE}/api/admin/corpus/ingest-url`, {
         method: "POST",
         headers: authHeaders(),
-        body: JSON.stringify({ url: redditUrl.trim() }),
+        body: JSON.stringify({
+          url: redditUrl.trim(),
+          // Send cached scrape data to avoid a second Reddit request
+          items: scrapeResult?.comments ?? [],
+        }),
       });
       const d = await r.json() as { scraped: number; imported: number; skipped: number; error?: string };
       if (!r.ok) { setScrapeError(d.error ?? "Ingest failed"); return; }
@@ -329,9 +333,19 @@ export default function AdminCorpus() {
                   <div className="bg-white/5 border border-orange-700/30 rounded-lg p-4">
                     <div className="flex items-start justify-between gap-3 flex-wrap">
                       <div>
-                        <p className="text-sm font-semibold text-white">{scrapeResult.title}</p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          r/{scrapeResult.subreddit} · {scrapeResult.totalComments} comments total · {scrapeResult.comments.length} scraped · ↑{scrapeResult.postScore}
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm font-semibold text-white">{scrapeResult.title}</p>
+                          <span className={`text-xs px-2 py-0.5 rounded-full border ${
+                            scrapeResult.type === "listing"
+                              ? "bg-blue-900/30 text-blue-300 border-blue-700/40"
+                              : "bg-orange-900/30 text-orange-300 border-orange-700/40"
+                          }`}>
+                            {scrapeResult.type === "listing" ? "subreddit listing" : "post + comments"}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-400">
+                          r/{scrapeResult.subreddit} · {scrapeResult.comments.length} {scrapeResult.type === "listing" ? "posts" : "comments"} scraped
+                          {scrapeResult.type === "post" && ` · ↑${scrapeResult.postScore}`}
                         </p>
                       </div>
                       <button
@@ -339,7 +353,7 @@ export default function AdminCorpus() {
                         disabled={ingestLoading}
                         className="bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap flex-shrink-0"
                       >
-                        {ingestLoading ? "Importing…" : `↓ Import ${scrapeResult.comments.length + 1} items`}
+                        {ingestLoading ? "Importing…" : `↓ Import ${scrapeResult.comments.length + (scrapeResult.type === "post" ? 1 : 0)} items`}
                       </button>
                     </div>
                     {ingestResult && (
