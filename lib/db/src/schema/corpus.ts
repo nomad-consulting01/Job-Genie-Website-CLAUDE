@@ -36,6 +36,7 @@ export const contentAssets = pgTable("content_assets", {
   id: serial("id").primaryKey(),
   answerId: integer("answer_id").references(() => answers.id).notNull(),
   channel: text("channel").notNull(),
+  variant: text("variant").notNull().default("standard"),
   payloadJson: jsonb("payload_json"),
   status: text("status").notNull().default("draft"),
   scheduledFor: timestamp("scheduled_for", { withTimezone: true }),

@@ -10,6 +10,8 @@ import {
   listPublishedQAs,
   insertQuestion,
   getAllNormalisedQuestions,
+  listLoop2Assets,
+  getLoop2AssetsForAnswer,
 } from "../corpus/db.js";
 import { seedManualQuestion } from "../loops/loop1/ingest.js";
 import { scrapeRedditUrl, ingestFromRedditUrl } from "../integrations/reddit.js";
@@ -145,6 +147,28 @@ router.get("/loop-runs", async (req, res) => {
     res.json({ runs });
   } catch (err) {
     logger.error({ err }, "GET /corpus/loop-runs failed");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/loop2-assets", async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(String(req.query["limit"] ?? "100")), 500);
+    const assets = await listLoop2Assets(limit);
+    res.json({ assets, total: assets.length });
+  } catch (err) {
+    logger.error({ err }, "GET /corpus/loop2-assets failed");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/loop2-assets/answer/:answerId", async (req, res) => {
+  try {
+    const answerId = parseInt(req.params["answerId"] ?? "0");
+    const assets = await getLoop2AssetsForAnswer(answerId);
+    res.json({ assets });
+  } catch (err) {
+    logger.error({ err }, "GET /corpus/loop2-assets/answer/:id failed");
     res.status(500).json({ error: "Internal server error" });
   }
 });

@@ -1,3 +1,5 @@
+export type Loop2Channel = "newsletter" | "blog_post" | "linkedin" | "email_nurture";
+
 export interface EngineConfig {
   loop1: {
     cronSchedule: string;
@@ -7,6 +9,12 @@ export interface EngineConfig {
     targetSubreddits: string[];
     searchQueries: string[];
     dedupeThreshold: number;
+  };
+  loop2: {
+    cronSchedule: string;
+    maxAnswersPerRun: number;
+    costBudgetUsd: number;
+    channels: Loop2Channel[];
   };
   listingScraper: {
     cronSchedule: string;
@@ -36,22 +44,22 @@ export const engineConfig: EngineConfig = {
     ],
     dedupeThreshold: 0.85,
   },
+  loop2: {
+    cronSchedule: process.env["LOOP2_CRON"] ?? "0 4 * * *",
+    maxAnswersPerRun: parseInt(process.env["LOOP2_MAX_ANSWERS"] ?? "5"),
+    costBudgetUsd: parseFloat(process.env["LOOP2_COST_BUDGET_USD"] ?? "3.00"),
+    channels: ["newsletter", "blog_post", "linkedin", "email_nurture"],
+  },
   listingScraper: {
     cronSchedule: process.env["LISTING_SCRAPER_CRON"] ?? "0 2 * * *",
     urls: (process.env["LISTING_SCRAPER_URLS"] ?? [
-      // r/jobs — confirmed by user
       "https://www.reddit.com/r/jobs/top/?t=year",
       "https://www.reddit.com/r/jobs/top/?t=month",
-      // r/careerguidance — user provided
       "https://www.reddit.com/search/?q=r+careerguidance+subreddit&type=posts&sort=top&t=year",
       "https://www.reddit.com/r/careerguidance/top/?t=month",
-      // r/cscareerquestions — user provided
       "https://www.reddit.com/search/?q=r+cscareerquestions&type=posts&sort=top&t=year",
-      // r/recruitinghell — user provided
       "https://www.reddit.com/search/?q=r+recruitinghell&type=posts&sort=top&t=year",
-      // r/resumes — user provided
       "https://www.reddit.com/search/?q=r+resumes&type=posts&sort=top&t=year",
-      // extras
       "https://www.reddit.com/r/jobsearchhacks/top/?t=year",
     ].join(",")).split(",").map((u) => u.trim()).filter(Boolean),
     dedupeThreshold: 0.75,

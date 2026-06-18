@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import type { Loop2Channel } from "../config/engine.js";
 
 let _client: Anthropic | null = null;
 
@@ -27,6 +28,28 @@ const JOB_GENIE_SYSTEM = `You are Job-Genie's content AI. Job-Genie is a recruit
 - Application Silence: the experience of sending applications and hearing nothing back
 
 Write concisely. Avoid fluff. Be factually careful — do not make up statistics unless you can cite them from the brand vocabulary above.`;
+
+const DIRECT_RESPONSE_SYSTEM = `You are a direct-response copywriter for Job-Genie — a recruiter-shortlist optimisation engine that helps job seekers escape Application Silence and reach the hidden job market.
+
+Every sentence must move the reader through: Attention → Curiosity → Belief Shift → Desire → Urgency → Action.
+
+Rules:
+- Bold, direct, commercially minded tone — not pleasant, not corporate
+- Short paragraphs (1–3 sentences max)
+- Direct address: "you," "your," "I"
+- Name a clear enemy: broken job boards, spray-and-pray applications, ATS black holes, ghost jobs
+- Reveal the hidden mechanism: specialist recruiters shortlist candidates who match the client brief, use the right keywords, quantify relevant evidence, and apply to active recruiter-held listings — not the biggest job boards
+- Never position Job-Genie as "just a tool." It's a recruiter-shortlist optimisation engine / mechanism / blueprint / system
+- No passive language. No vague advice. Every sentence earns its place
+- Include a CTA that creates mild urgency without being dishonest
+
+Job-Genie proprietary vocabulary:
+- Application Silence Score: quantifies why applications go unanswered
+- Recruiter-Fit Gap: the distance between how the candidate presents vs what a specialist recruiter actually needs to shortlist
+- Truth Layer: Job-Genie's shortlist optimisation rewrite system
+- Recruiter-Ready Brief: 3–5 sentence email in recruiter language produced alongside the rewritten CV
+- Ghost jobs: listings no longer actively being filled
+- Hidden job market: roles filled via recruiter shortlists before public posting`;
 
 export interface AnswerResult {
   answerFirstBlock: string;
@@ -180,6 +203,126 @@ Return JSON only (no markdown fences):
   return {
     normalisedQuestion: parsed.normalised_question ?? rawText.split("\n")[0]?.slice(0, 120) ?? rawText.slice(0, 120),
     painPointTags: parsed.pain_point_tags ?? [],
+    tokensUsed: message.usage.input_tokens + message.usage.output_tokens,
+  };
+}
+
+// ─── Loop 2: Multi-channel content generation ───────────────────────────────
+
+export interface Loop2ContentResult {
+  newsletter: string;
+  blog_post: string;
+  linkedin: string;
+  email_nurture: string;
+  tokensUsed: number;
+}
+
+const CHANNEL_INSTRUCTIONS_STANDARD = `
+Generate four content assets for the following job-search question and expert answer. Return valid JSON only (no markdown fences).
+
+QUESTION: {QUESTION}
+
+EXPERT ANSWER:
+{ANSWER}
+
+Produce these four assets:
+
+1. newsletter (150–250 words): An informative newsletter section. Start with the question as a bold heading. Answer clearly using Job-Genie vocabulary. End with a soft CTA to try Job-Genie.
+
+2. blog_post (600–900 words markdown): A full SEO blog post. Include: H1 title, intro paragraph, 3–4 ## subheadings with useful content, a "How Job-Genie helps" section, and a closing CTA. Use the expert answer as the factual foundation. No fluff.
+
+3. linkedin (100–200 words): A LinkedIn post. Bold first line (stops the scroll). Short punchy paragraphs. Insight from the question. Specific takeaway. End with a soft question to drive comments and a link mention.
+
+4. email_nurture (3-email drip sequence as JSON array): Each email has: subject, preview_text, body (150–200 words), cta_text, cta_url ("/"). Email 1: identify the pain. Email 2: reveal the mechanism. Email 3: present Job-Genie as the solution.
+
+Return:
+{
+  "newsletter": "...",
+  "blog_post": "...",
+  "linkedin": "...",
+  "email_nurture": [{ "subject": "...", "preview_text": "...", "body": "...", "cta_text": "...", "cta_url": "/" }, ...]
+}`;
+
+const CHANNEL_INSTRUCTIONS_DR = `
+Generate four DIRECT-RESPONSE content assets for the following job-search question and expert answer. Return valid JSON only (no markdown fences).
+
+QUESTION: {QUESTION}
+
+EXPERT ANSWER:
+{ANSWER}
+
+Apply these direct-response rules to ALL four assets:
+- Attention → Curiosity → Belief Shift → Desire → Urgency → Action
+- Name the enemy (broken job boards / ATS black holes / ghost jobs / spray-and-pray)
+- Reveal the hidden mechanism (specialist recruiters shortlist on brief match + keywords + quantified evidence)
+- Short paragraphs, direct address ("you", "your"), strong verbs
+- Never call Job-Genie "just a tool" — it's a recruiter-shortlist optimisation engine
+- Bold power phrases. No passive voice. No corporate tone.
+
+1. newsletter (150–250 words): Hook first line. Agitate the pain from the question. Reveal the mechanism. Introduce Job-Genie as the engine. CTA with mild urgency.
+
+2. blog_post (600–900 words markdown): H1 is a contrarian hook. Intro names the enemy and agitates. ## sections: name the real problem, expose why conventional advice fails, reveal the hidden mechanism, introduce Job-Genie as the system. Closing CTA with urgency.
+
+3. linkedin (100–200 words): First line stops the scroll with a bold claim or pattern interrupt. Agitate. Mechanism. Takeaway. CTA.
+
+4. email_nurture (3-email drip sequence as JSON array): Each email has: subject (curiosity-driven), preview_text, body (150–200 words), cta_text, cta_url ("/"). Email 1: agitate the pain. Email 2: destroy the false belief / reveal enemy. Email 3: present Job-Genie as the mechanism with urgency.
+
+Return:
+{
+  "newsletter": "...",
+  "blog_post": "...",
+  "linkedin": "...",
+  "email_nurture": [{ "subject": "...", "preview_text": "...", "body": "...", "cta_text": "...", "cta_url": "/" }, ...]
+}`;
+
+export async function generateLoop2Content(
+  question: string,
+  answerMd: string,
+  variant: "standard" | "direct_response"
+): Promise<Loop2ContentResult> {
+  const client = getClient();
+  const systemPrompt = variant === "direct_response" ? DIRECT_RESPONSE_SYSTEM : JOB_GENIE_SYSTEM;
+  const instructions = variant === "direct_response" ? CHANNEL_INSTRUCTIONS_DR : CHANNEL_INSTRUCTIONS_STANDARD;
+
+  const userPrompt = instructions
+    .replace("{QUESTION}", question)
+    .replace("{ANSWER}", answerMd.slice(0, 2000));
+
+  const message = await client.messages.create({
+    model: ANSWER_MODEL,
+    max_tokens: 8192,
+    system: systemPrompt,
+    messages: [{ role: "user", content: userPrompt }],
+  });
+
+  const raw = message.content[0]?.type === "text" ? message.content[0].text : "{}";
+  let parsed: {
+    newsletter?: string;
+    blog_post?: string;
+    linkedin?: string;
+    email_nurture?: unknown;
+  } = {};
+
+  try {
+    parsed = JSON.parse(raw) as typeof parsed;
+  } catch {
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try { parsed = JSON.parse(jsonMatch[0]) as typeof parsed; } catch { /* ignore */ }
+    }
+  }
+
+  const emailNurture = Array.isArray(parsed.email_nurture)
+    ? JSON.stringify(parsed.email_nurture)
+    : typeof parsed.email_nurture === "string"
+    ? parsed.email_nurture
+    : "[]";
+
+  return {
+    newsletter: parsed.newsletter ?? "",
+    blog_post: parsed.blog_post ?? "",
+    linkedin: parsed.linkedin ?? "",
+    email_nurture: emailNurture,
     tokensUsed: message.usage.input_tokens + message.usage.output_tokens,
   };
 }
