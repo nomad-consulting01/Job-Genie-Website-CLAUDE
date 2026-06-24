@@ -1,4 +1,5 @@
 import { listUnpublishedNewsletterAssets, markAssetDistributed } from "../../corpus/db.js";
+import { createBeehiivDraft, isBeehiivConfigured } from "../../integrations/beehiiv.js";
 import { logger } from "../../lib/logger.js";
 
 export interface EmailResult {
@@ -75,19 +76,27 @@ function buildEmailHtml(payload: Record<string, unknown>): string {
 }
 
 export async function runEmail(limit: number): Promise<EmailResult> {
-  const apiKey = process.env["RESEND_API_KEY"];
-  if (!apiKey) {
-    logger.info("Loop 4 Email: skipping — RESEND_API_KEY not configured");
-    return { processed: 0, succeeded: 0, failed: 0, skipped: 0, errors: ["No email provider configured — set RESEND_API_KEY to enable newsletter sending"] };
+  const beehiivEnabled = isBeehiivConfigured();
+  const resendKey = process.env["RESEND_API_KEY"];
+
+  if (!beehiivEnabled && !resendKey) {
+    logger.info("Loop 4 Email: skipping — neither BEEHIIV_API_KEY nor RESEND_API_KEY configured");
+    return {
+      processed: 0, succeeded: 0, failed: 0, skipped: 0,
+      errors: ["No email provider configured — set BEEHIIV_API_KEY (recommended) or RESEND_API_KEY"],
+    };
   }
 
-  if (SUBSCRIBER_LIST.length === 0) {
-    logger.info("Loop 4 Email: skipping — EMAIL_SUBSCRIBER_LIST is empty");
-    return { processed: 0, succeeded: 0, failed: 0, skipped: 0, errors: ["No subscribers configured — set EMAIL_SUBSCRIBER_LIST (comma-separated emails)"] };
+  if (!beehiivEnabled && SUBSCRIBER_LIST.length === 0) {
+    logger.info("Loop 4 Email: skipping — Resend mode but EMAIL_SUBSCRIBER_LIST is empty");
+    return {
+      processed: 0, succeeded: 0, failed: 0, skipped: 0,
+      errors: ["Resend mode requires EMAIL_SUBSCRIBER_LIST (comma-separated emails)"],
+    };
   }
 
   const pending = await listUnpublishedNewsletterAssets(limit);
-  logger.info({ count: pending.length }, "Loop 4 Email: newsletter assets to send");
+  logger.info({ count: pending.length, mode: beehiivEnabled ? "beehiiv" : "resend" }, "Loop 4 Email: newsletter assets to process");
 
   let succeeded = 0;
   let failed = 0;
@@ -98,17 +107,41 @@ export async function runEmail(limit: number): Promise<EmailResult> {
     const payload = (asset.payloadJson ?? {}) as Record<string, unknown>;
     const subject = String(payload["subject"] ?? `Job Search Intelligence: ${question.normalisedQuestion.slice(0, 60)}`);
     const html = buildEmailHtml(payload);
+    const subtitle = String(payload["previewText"] ?? payload["subtitle"] ?? question.normalisedQuestion);
 
     try {
-      const ok = await sendViaResend(subject, html, SUBSCRIBER_LIST);
-      if (ok) {
-        const dateKey = new Date().toISOString().split("T")[0];
-        await markAssetDistributed(asset.id, `email:sent:${dateKey}:${asset.id}`, "email");
-        succeeded++;
-        logger.info({ assetId: asset.id, subject, recipients: SUBSCRIBER_LIST.length }, "Loop 4 Email: newsletter sent");
+      if (beehiivEnabled) {
+        // Primary: push to Beehiiv as a draft newsletter post
+        const draft = await createBeehiivDraft({
+          title: subject,
+          subtitle,
+          htmlContent: html,
+          contentTags: (question.painPointTags ?? []).slice(0, 5),
+        });
+
+        if (draft) {
+          await markAssetDistributed(asset.id, `beehiiv:draft:${draft.id}`, "email");
+          succeeded++;
+          logger.info(
+            { assetId: asset.id, beehiivPostId: draft.id, webUrl: draft.webUrl },
+            "Loop 4 Email: Beehiiv draft created"
+          );
+        } else {
+          failed++;
+          errors.push(`Asset ${asset.id}: Beehiiv draft returned null`);
+        }
       } else {
-        failed++;
-        errors.push(`Asset ${asset.id}: Resend API returned error`);
+        // Fallback: send via Resend
+        const ok = await sendViaResend(subject, html, SUBSCRIBER_LIST);
+        if (ok) {
+          const dateKey = new Date().toISOString().split("T")[0];
+          await markAssetDistributed(asset.id, `email:sent:${dateKey}:${asset.id}`, "email");
+          succeeded++;
+          logger.info({ assetId: asset.id, subject, recipients: SUBSCRIBER_LIST.length }, "Loop 4 Email: newsletter sent via Resend");
+        } else {
+          failed++;
+          errors.push(`Asset ${asset.id}: Resend API returned error`);
+        }
       }
     } catch (err) {
       failed++;
