@@ -60,6 +60,42 @@ uri = "file://attached_assets/brand/social-media-warm.png"
 type = "image"
 title = "social media warm editorial"
 
+[[generated]]
+id = "ePGQrR5k0cLUoRcU2jb81"
+uri = "file://attached_assets/brand/newsletter-dark-teal.png"
+type = "image"
+title = "newsletter dark teal brand"
+
+[[generated]]
+id = "XyV-oIDdyXh0bdtfnFKcC"
+uri = "file://attached_assets/brand/newsletter-warm-editorial.png"
+type = "image"
+title = "newsletter warm editorial"
+
+[[generated]]
+id = "D3Ro-Wvq6I9JhYEn11_YL"
+uri = "file://attached_assets/brand/blog-og-dark-teal.png"
+type = "image"
+title = "blog OG dark teal brand"
+
+[[generated]]
+id = "wKXzhBDGgBEPHDdPa9kQb"
+uri = "file://attached_assets/brand/blog-og-warm-editorial.png"
+type = "image"
+title = "blog OG warm editorial"
+
+[[generated]]
+id = "VEDkc0MMcIVwTRUt8VinH"
+uri = "file://attached_assets/brand/social-dark-teal.png"
+type = "image"
+title = "social media dark teal brand"
+
+[[generated]]
+id = "lSGFCX3Hp5W4-bxEQbgiF"
+uri = "file://attached_assets/brand/social-warm-editorial.png"
+type = "image"
+title = "social media warm editorial"
+
 [[outputs]]
 id = "7Y_KX-czfi4xE13rh-zCL"
 uri = "file://corpus-topic-analysis.md"
@@ -117,5 +153,41 @@ title = "Social Media — Minimalist/Modern"
 [[outputs]]
 id = "yDLSiq_EsCG2qmn7Sqe9n"
 uri = "file://attached_assets/brand/social-media-warm.png"
+type = "image"
+title = "Social Media — Warm Editorial"
+
+[[outputs]]
+id = "XX-lKwoaR8uWO_6GWMzKV"
+uri = "file://attached_assets/brand/newsletter-dark-teal.png"
+type = "image"
+title = "Newsletter — Dark/Teal Brand"
+
+[[outputs]]
+id = "OrbFUVUNPglQzz7ZxvrBQ"
+uri = "file://attached_assets/brand/newsletter-warm-editorial.png"
+type = "image"
+title = "Newsletter — Warm Editorial"
+
+[[outputs]]
+id = "iX7iOwl2Wan1fAsEz8y3B"
+uri = "file://attached_assets/brand/blog-og-dark-teal.png"
+type = "image"
+title = "Blog OG — Dark/Teal Brand"
+
+[[outputs]]
+id = "Wv6d3Jno49tZg9rvQVkJT"
+uri = "file://attached_assets/brand/blog-og-warm-editorial.png"
+type = "image"
+title = "Blog OG — Warm Editorial"
+
+[[outputs]]
+id = "V6Cf5sN4Q3VtWpA1stIVT"
+uri = "file://attached_assets/brand/social-dark-teal.png"
+type = "image"
+title = "Social Media — Dark/Teal Brand"
+
+[[outputs]]
+id = "qc_rg2Z3HvZGPe0PST0OZ"
+uri = "file://attached_assets/brand/social-warm-editorial.png"
 type = "image"
 title = "Social Media — Warm Editorial"
