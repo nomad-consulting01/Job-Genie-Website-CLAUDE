@@ -227,6 +227,7 @@ export interface BlogPostSSRData {
     metaDescription: string;
     readTimeMinutes: number | null;
     faqJsonLd: Record<string, unknown> | null;
+    featuredImageUrl: string | null;
     content: string;
     publishedAt: string | null;
   };
@@ -306,7 +307,7 @@ export function getBlogPostHeadHtml(data: BlogPostSSRData): string {
   const canonical = `${SITE_URL}/blog/${post.slug}`;
   const title = post.seoTitle.includes('| Job Genie') ? post.seoTitle : `${post.seoTitle} | Job Genie`;
   const description = post.metaDescription;
-  const OG_IMAGE = `${SITE_URL}/og-image.png`;
+  const OG_IMAGE = post.featuredImageUrl ?? `${SITE_URL}/brand/blog-og-dark-teal.png`;
 
   const articleSchema = JSON.stringify({
     '@context': 'https://schema.org',

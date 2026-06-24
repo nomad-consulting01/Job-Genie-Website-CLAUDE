@@ -14,6 +14,28 @@ export interface Loop2GenerateResult {
 
 const CHANNELS: Loop2Channel[] = ["newsletter", "blog_post", "linkedin", "email_nurture"];
 
+const SITE_URL = "https://job-genie.ai";
+
+/** Brand image URLs (both styles) keyed by channel. */
+const CHANNEL_IMAGES: Record<Loop2Channel, { dark_teal: string; warm_editorial: string }> = {
+  blog_post: {
+    dark_teal:      `${SITE_URL}/brand/blog-og-dark-teal.png`,
+    warm_editorial: `${SITE_URL}/brand/blog-og-warm-editorial.png`,
+  },
+  newsletter: {
+    dark_teal:      `${SITE_URL}/brand/newsletter-dark-teal.png`,
+    warm_editorial: `${SITE_URL}/brand/newsletter-warm-editorial.png`,
+  },
+  linkedin: {
+    dark_teal:      `${SITE_URL}/brand/social-dark-teal.png`,
+    warm_editorial: `${SITE_URL}/brand/social-warm-editorial.png`,
+  },
+  email_nurture: {
+    dark_teal:      `${SITE_URL}/brand/newsletter-dark-teal.png`,
+    warm_editorial: `${SITE_URL}/brand/newsletter-warm-editorial.png`,
+  },
+};
+
 export async function generateAssetsForAnswer(
   answer: Answer,
   question: Question
@@ -83,19 +105,24 @@ function buildPayload(
   question: Question
 ): Record<string, unknown> {
   const contentMap: Record<Loop2Channel, string> = {
-    newsletter: result.newsletter,
-    blog_post: result.blog_post,
-    linkedin: result.linkedin,
+    newsletter:    result.newsletter,
+    blog_post:     result.blog_post,
+    linkedin:      result.linkedin,
     email_nurture: result.email_nurture,
   };
+
+  const imgs = CHANNEL_IMAGES[channel];
 
   return {
     channel,
     variant,
-    question: question.normalisedQuestion,
-    pain_point_tags: question.painPointTags,
-    source_url: question.sourceUrl ?? null,
-    content: contentMap[channel],
-    generated_at: new Date().toISOString(),
+    question:               question.normalisedQuestion,
+    pain_point_tags:        question.painPointTags,
+    source_url:             question.sourceUrl ?? null,
+    content:                contentMap[channel],
+    generated_at:           new Date().toISOString(),
+    // Brand images — use either style when publishing/rendering
+    image_dark_teal_url:      imgs.dark_teal,
+    image_warm_editorial_url: imgs.warm_editorial,
   };
 }

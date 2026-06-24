@@ -14,6 +14,7 @@ interface BlogPostData {
     metaDescription: string;
     readTimeMinutes: number | null;
     faqJsonLd: Record<string, unknown> | null;
+    featuredImageUrl: string | null;
     content: string;
     publishedAt: string | null;
   };
@@ -100,6 +101,7 @@ export default function BlogPost() {
         slug={post.slug}
         aeoQuestion={question.normalisedQuestion}
         schemas={extraSchemas}
+        ogImage={post.featuredImageUrl ?? undefined}
       />
 
       <div className="min-h-screen bg-[#080b14] text-white">

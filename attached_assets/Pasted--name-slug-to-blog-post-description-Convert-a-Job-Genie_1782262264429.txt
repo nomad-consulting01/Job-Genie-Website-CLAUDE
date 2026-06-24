@@ -1,0 +1,60 @@
+---
+name: slug-to-blog-post
+description: Convert a Job Genie website slug (or a /blog/{slug} or /answers/{slug} URL) into a complete, professionally designed, AEO-optimized blog post as a single self-contained HTML file with engaging custom imagery. Use this whenever the user gives a slug, an answers URL, or a blog URL and wants it turned into a finished post, a "real article," a designed page, or publishable HTML — and also when they hand over a batch of slugs to build out. Make sure to reach for this skill any time the input is a hyphenated question-shaped slug for Job Genie and the desired output is a styled, on-brand, citation-ready article, even if they don't say the word "skill."
+---
+
+# Slug → Blog Post
+
+Turn a slug like `how-do-i-find-a-job-when-homeless-with-no-stable-address-or-private-space` into a finished, on-brand, answer-first article that AI answer engines will cite and humans will actually read. The slug *is* the brief: it encodes the exact question the post must answer.
+
+The output is one self-contained `.html` file — body, CSS, fonts, imagery, and structured data all inline — so it renders correctly even on a client that doesn't run JavaScript, and so crawlers see the full article on first fetch.
+
+## When the input is a URL
+If given a `…/blog/{slug}` or `…/answers/{slug}` URL, extract the trailing slug. Try fetching the live page for any existing copy worth preserving, but do **not** block on it — these pages are client-rendered, so a fetch often returns only `<head>` metadata. When the body is missing, treat the slug as the sole brief and write the article fresh.
+
+## Workflow
+
+1. **Parse the slug into a question and title.** Run `scripts/slug_to_title.py "<slug>"` to get a clean H1 (e.g. "How Do I Find a Job When Homeless With No Stable Address or Private Space?"). The slug also becomes the canonical path: `https://job-genie.ai/blog/{slug}` (or keep `/answers/{slug}` if that's the source section).
+
+2. **Read the two reference files before writing.** `references/aeo-style.md` defines the content structure, the answer-first rule, the proprietary entity glossary, the schema blocks, and the editorial-sensitivity rules. `references/brand.md` defines the exact design tokens, fonts, and component CSS. Both are load-bearing — the output is "on-brand and citation-worthy" only if you follow them.
+
+3. **Plan the article (briefly, in your head or notes):**
+   - The single question the slug asks, restated as the reader would.
+   - A 2–3 sentence direct answer for the "Short answer" callout — this leads the page (answer-first; see aeo-style).
+   - 4–7 question-shaped H2 sections that fully resolve the topic.
+   - 3–6 FAQ entries (distinct from the H2s) for the FAQPage schema.
+   - Which proprietary Job Genie concepts genuinely fit (weave them in only where true; never force them).
+   - The editorial register: for sensitive subjects (homelessness, layoff grief, disability, financial hardship), apply the dignity-first rules in aeo-style.
+
+4. **Build the imagery.** "Engaging images" means custom inline SVG, not stock photos — it's always on-brand, license-clean, and avoids depicting real or vulnerable people. Create one hero motif and 1–2 section spot illustrations using the gradient/geometry language in `references/brand.md`. For sensitive topics, keep imagery abstract and hopeful (paths, doorways, horizons, light), never literal depictions of distress.
+
+5. **Assemble from the template.** Copy `assets/template.html` and fill every `{{PLACEHOLDER}}`. Do not delete the structural sections — they encode the AEO layout (hero → short answer → body → FAQ → CTA) and the SEO/AEO head requirements.
+
+6. **Verify before delivering** (this maps directly to the indexability rules — outputs must not reproduce the homepage-canonical / empty-body bug):
+   - Canonical is self-referential (`/blog/{slug}`), **never** the homepage.
+   - `<title>`, meta description, OG, and Twitter tags are post-specific.
+   - The full article text is present in the raw HTML (it is — there's no client rendering here).
+   - `Article` (or `BlogPosting`) **and** `FAQPage` JSON-LD are present and valid JSON.
+   - There is exactly one `<h1>`, and H2s are question-shaped.
+
+7. **Save** the file as `{slug}.html` in the outputs directory and present it.
+
+## Batch mode
+If given several slugs, process each independently through the workflow and produce one file per slug. Keep the brand and structure identical across the set so the blog reads as a coherent library; only the content and imagery motif change per topic.
+
+## Output template (non-negotiable section order)
+```
+<head>  → per-post meta, self canonical, OG/Twitter, Article + FAQPage JSON-LD, inline CSS
+<hero>  → eyebrow/category · H1 question · answer-preview subhead · meta row · hero SVG
+<short-answer callout>  → the direct 2–3 sentence answer, first thing after the hero
+<article body>  → question-shaped H2s, prose, stat/quote callouts, spot SVG
+<faq>  → 3–6 Q/A pairs matching the FAQPage schema
+<cta>  → 100-Application Autopsy block
+<footer>
+```
+
+## Reference files
+- `references/brand.md` — design tokens, fonts, component CSS, SVG imagery language.
+- `references/aeo-style.md` — answer-first rules, proprietary glossary, schema templates, CTA copy, sensitivity rules.
+- `scripts/slug_to_title.py` — deterministic slug → human title/question.
+- `assets/template.html` — the HTML skeleton to fill.

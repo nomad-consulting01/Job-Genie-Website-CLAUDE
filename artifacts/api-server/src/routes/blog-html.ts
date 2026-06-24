@@ -100,6 +100,7 @@ function buildBlogPostHtml(opts: {
   painPointTags: string[];
   faqJsonLd: Record<string, unknown> | null;
   postDataJson: string;
+  featuredImageUrl?: string | null;
 }): string {
   const canonical = `${SITE_URL}/blog/${opts.slug}`;
   const displayTitle = opts.title.includes("| Job Genie") ? opts.title : `${opts.title} | Job Genie`;
@@ -156,13 +157,13 @@ function buildBlogPostHtml(opts: {
   <meta property="og:url" content="${esc(canonical)}" />
   <meta property="og:site_name" content="${esc(SITE_NAME)}" />
   <meta property="og:type" content="article" />
-  <meta property="og:image" content="${OG_IMAGE}" />
+  <meta property="og:image" content="${opts.featuredImageUrl ?? OG_IMAGE}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${esc(displayTitle)}" />
   <meta name="twitter:description" content="${esc(opts.description)}" />
-  <meta name="twitter:image" content="${OG_IMAGE}" />
+  <meta name="twitter:image" content="${opts.featuredImageUrl ?? OG_IMAGE}" />
   <script type="application/ld+json">${articleSchema}</script>
   <script type="application/ld+json">${breadcrumbSchema}</script>
   <script type="application/ld+json">${questionSchema}</script>
@@ -232,6 +233,7 @@ router.get("/:slug", async (req, res) => {
     const metaDescription = String(meta["metaDescription"] ?? "");
     const readTimeMinutes = (meta["readTimeMinutes"] as number | null) ?? null;
     const faqJsonLd = (meta["faqJsonLd"] as Record<string, unknown> | null) ?? null;
+    const featuredImageUrl = (meta["featuredImageUrl"] as string | undefined) ?? null;
     const content = String(payload["content"] ?? "");
     const publishedAt = (asset.scheduledFor ?? asset.publishedAt)?.toISOString() ?? null;
 
@@ -243,6 +245,7 @@ router.get("/:slug", async (req, res) => {
         metaDescription,
         readTimeMinutes,
         faqJsonLd,
+        featuredImageUrl,
         content,
         publishedAt,
       },
@@ -268,6 +271,7 @@ router.get("/:slug", async (req, res) => {
       normalisedQuestion: question.normalisedQuestion,
       painPointTags: question.painPointTags,
       faqJsonLd,
+      featuredImageUrl,
       postDataJson: JSON.stringify(postData),
     });
 

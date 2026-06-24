@@ -89,6 +89,7 @@ router.get("/:slug", async (req, res) => {
         metaDescription: meta["metaDescription"] ?? "",
         readTimeMinutes: meta["readTimeMinutes"] ?? null,
         faqJsonLd: meta["faqJsonLd"] ?? null,
+        featuredImageUrl: (meta["featuredImageUrl"] as string | undefined) ?? null,
         content: payload["content"] ?? "",
         publishedAt: asset.scheduledFor ?? asset.publishedAt,
       },
