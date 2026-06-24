@@ -24,6 +24,42 @@ uri = "file://attached_assets/brand/social-media-square.png"
 type = "image"
 title = "social media square"
 
+[[generated]]
+id = "n3uK13ftkDJ_PSvtwY-wB"
+uri = "file://attached_assets/brand/newsletter-hero-minimal.png"
+type = "image"
+title = "newsletter minimal modern"
+
+[[generated]]
+id = "w5jPtiiIwgRNJNCYsud1n"
+uri = "file://attached_assets/brand/newsletter-hero-warm.png"
+type = "image"
+title = "newsletter warm editorial"
+
+[[generated]]
+id = "ogfNNV0EnnzK8t-xNoesS"
+uri = "file://attached_assets/brand/blog-og-minimal.png"
+type = "image"
+title = "blog OG minimal"
+
+[[generated]]
+id = "OibSxs105Vw9Ik4cGbZ4N"
+uri = "file://attached_assets/brand/blog-og-warm.png"
+type = "image"
+title = "blog OG warm editorial"
+
+[[generated]]
+id = "rUMdz74uc5OndOHCagyrI"
+uri = "file://attached_assets/brand/social-media-minimal.png"
+type = "image"
+title = "social media minimal"
+
+[[generated]]
+id = "frr2pXbcOojtF2Xv11mg6"
+uri = "file://attached_assets/brand/social-media-warm.png"
+type = "image"
+title = "social media warm editorial"
+
 [[outputs]]
 id = "7Y_KX-czfi4xE13rh-zCL"
 uri = "file://corpus-topic-analysis.md"
@@ -47,3 +83,39 @@ id = "Uq2guWketwrt4Yl0SN9a7"
 uri = "file://attached_assets/brand/social-media-square.png"
 type = "image"
 title = "Social Media Square (1:1)"
+
+[[outputs]]
+id = "ouzXq-VfRux7DX8zVTamT"
+uri = "file://attached_assets/brand/newsletter-hero-minimal.png"
+type = "image"
+title = "Newsletter — Minimalist/Modern"
+
+[[outputs]]
+id = "ezYYIXaUXiv48IOkenwIt"
+uri = "file://attached_assets/brand/newsletter-hero-warm.png"
+type = "image"
+title = "Newsletter — Warm Editorial"
+
+[[outputs]]
+id = "TRxBtJZzNLr-hp74jlCG8"
+uri = "file://attached_assets/brand/blog-og-minimal.png"
+type = "image"
+title = "Blog OG — Minimalist/Modern"
+
+[[outputs]]
+id = "3FnBoa0NazeYhdaiSl3VN"
+uri = "file://attached_assets/brand/blog-og-warm.png"
+type = "image"
+title = "Blog OG — Warm Editorial"
+
+[[outputs]]
+id = "otbRujj7FBHOG5EPA_4Kr"
+uri = "file://attached_assets/brand/social-media-minimal.png"
+type = "image"
+title = "Social Media — Minimalist/Modern"
+
+[[outputs]]
+id = "yDLSiq_EsCG2qmn7Sqe9n"
+uri = "file://attached_assets/brand/social-media-warm.png"
+type = "image"
+title = "Social Media — Warm Editorial"
