@@ -115,7 +115,98 @@ async function main() {
     console.log(`[prerender] ✓ Written → ${outFile}`);
   }
 
-  console.log('[prerender] Done — all routes pre-rendered with route-specific head.');
+  console.log('[prerender] Done — all static routes pre-rendered with route-specific head.');
+
+  // ── Blog posts ─────────────────────────────────────────────────────────────
+  // Dynamically fetch all published internal blog posts from the running API
+  // server and generate a per-post static HTML file in dist/public/blog/:slug/.
+  //
+  // Gracefully skips if the API server is unreachable (cold first-build) — those
+  // posts will be served by the api-server dynamic SSR fallback instead.
+
+  const API_BASE = process.env['BLOG_PRERENDER_API'] ?? 'http://localhost:8080';
+  let blogPosts = [];
+
+  try {
+    console.log(`[prerender] Fetching blog post list from ${API_BASE}/api/blog…`);
+    const listResp = await fetch(`${API_BASE}/api/blog?limit=500&offset=0`, {
+      signal: AbortSignal.timeout(8000),
+    });
+    if (listResp.ok) {
+      const listData = await listResp.json();
+      blogPosts = (listData.posts ?? []).filter((p) => p.source === 'internal');
+      console.log(`[prerender] ${blogPosts.length} internal blog posts to pre-render`);
+    } else {
+      console.warn(`[prerender] API returned ${listResp.status} — skipping blog prerender`);
+    }
+  } catch (err) {
+    console.warn('[prerender] Could not reach API — skipping blog prerender:', err.message);
+  }
+
+  // Import blog-specific render functions from the SSR bundle built above
+  const { renderBlogPost, getBlogPostHeadHtml } = await import('./dist/server/entry-server.mjs');
+
+  for (const postSummary of blogPosts) {
+    const slug = postSummary.slug;
+    console.log(`[prerender] Rendering /blog/${slug}…`);
+
+    try {
+      const postResp = await fetch(`${API_BASE}/api/blog/${slug}`, {
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!postResp.ok) {
+        console.warn(`[prerender]   /api/blog/${slug} → ${postResp.status} — skipping`);
+        continue;
+      }
+      const postData = await postResp.json();
+
+      // 1. Render article body via SSR
+      const appHtml = renderBlogPost(postData);
+
+      // 2. Build per-post head HTML fragment
+      const headHtml = getBlogPostHeadHtml(postData);
+
+      // 3. Start from the shared index.html template
+      let html = template;
+
+      // 4. Strip homepage-level meta tags (same pattern as static routes)
+      html = html.replace(/<meta name="description"[^>]*(\/?>)/g, '');
+      html = html.replace(/<meta name="robots"[^>]*(\/?>)/g, '');
+      html = html.replace(/<link rel="canonical"[^>]*(\/?>)/g, '');
+      html = html.replace(/<meta property="og:title"[^>]*(\/?>)/g, '');
+      html = html.replace(/<meta property="og:description"[^>]*(\/?>)/g, '');
+      html = html.replace(/<meta property="og:url"[^>]*(\/?>)/g, '');
+      html = html.replace(/<meta property="og:site_name"[^>]*(\/?>)/g, '');
+      html = html.replace(/<meta property="og:type"[^>]*(\/?>)/g, '');
+      html = html.replace(/<meta name="twitter:card"[^>]*(\/?>)/g, '');
+      html = html.replace(/<meta name="twitter:title"[^>]*(\/?>)/g, '');
+      html = html.replace(/<meta name="twitter:description"[^>]*(\/?>)/g, '');
+
+      // 5. Replace <title> with per-post head block
+      html = html.replace(
+        /<title>[^<]*<\/title>/,
+        `<!-- Blog post head for /blog/${slug} -->\n    ${headHtml}\n    <!-- End blog post head -->`
+      );
+
+      // 6. Inject SSR-rendered article body into #root
+      html = html.replace(
+        '<div id="root"></div>',
+        `<div id="root" data-ssr="true">${appHtml}</div>`
+      );
+
+      // 7. Write to dist/public/blog/:slug/index.html
+      const outFile = path.resolve(__dirname, `dist/public/blog/${slug}/index.html`);
+      fs.mkdirSync(path.dirname(outFile), { recursive: true });
+      fs.writeFileSync(outFile, html, 'utf-8');
+      console.log(`[prerender] ✓ /blog/${slug}`);
+    } catch (err) {
+      console.warn(`[prerender] Failed /blog/${slug}:`, err.message);
+    }
+  }
+
+  if (blogPosts.length > 0) {
+    console.log(`[prerender] Blog posts done — ${blogPosts.length} posts pre-rendered.`);
+  }
 }
 
 main().catch((err) => {

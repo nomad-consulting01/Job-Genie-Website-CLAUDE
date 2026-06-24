@@ -12,6 +12,7 @@ import Home from './pages/Home';
 import LandingPage from './pages/LandingPage';
 import AEOPage from './pages/AEOPage';
 import variantsData from './data/variants.json';
+import ReactMarkdown from 'react-markdown';
 
 const SITE_URL = 'https://job-genie.ai';
 const SITE_NAME = 'Job Genie';
@@ -215,6 +216,166 @@ export function buildHeadHtml(head: RouteHead): string {
 
   return lines.filter(Boolean).join('\n    ');
 }
+
+// ─── Blog Post SSR ───────────────────────────────────────────────────────────
+
+export interface BlogPostSSRData {
+  post: {
+    id: number;
+    slug: string;
+    seoTitle: string;
+    metaDescription: string;
+    readTimeMinutes: number | null;
+    faqJsonLd: Record<string, unknown> | null;
+    content: string;
+    publishedAt: string | null;
+  };
+  question: {
+    normalisedQuestion: string;
+    painPointTags: string[];
+    sourceUrl: string | null;
+  };
+  answer: {
+    id: number;
+    answerFirstBlock: string;
+  };
+}
+
+function StaticBlogPost({ post, question, answer }: BlogPostSSRData) {
+  const date = post.publishedAt
+    ? new Date(post.publishedAt).toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'long', year: 'numeric',
+      })
+    : null;
+
+  return (
+    <div>
+      <header>
+        <div>
+          <a href="/">Job Genie</a>
+          <a href="/blog">← All posts</a>
+        </div>
+      </header>
+      <main>
+        <nav aria-label="breadcrumb">
+          <a href="/">Home</a> › <a href="/blog">Blog</a> ›{' '}
+          <span>{post.seoTitle.replace(' | Job Genie', '')}</span>
+        </nav>
+        <div>
+          {date && <time dateTime={post.publishedAt ?? undefined}>{date}</time>}
+          {post.readTimeMinutes && <span>{post.readTimeMinutes} min read</span>}
+        </div>
+        <h1>{post.seoTitle.replace(' | Job Genie', '')}</h1>
+        {answer.answerFirstBlock && (
+          <section aria-label="Quick Answer">
+            <p>{answer.answerFirstBlock}</p>
+          </section>
+        )}
+        <article>
+          <ReactMarkdown>{post.content}</ReactMarkdown>
+        </article>
+        {question.painPointTags.length > 0 && (
+          <footer>
+            <ul aria-label="Topics">
+              {question.painPointTags.map((t) => (
+                <li key={t}>{t.replace(/_/g, ' ')}</li>
+              ))}
+            </ul>
+          </footer>
+        )}
+      </main>
+    </div>
+  );
+}
+
+/** Renders a blog post to an HTML string for SSR prerender. */
+export function renderBlogPost(data: BlogPostSSRData): string {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+  });
+  return renderToString(
+    <QueryClientProvider client={queryClient}>
+      <StaticBlogPost {...data} />
+    </QueryClientProvider>
+  );
+}
+
+/** Returns the full <head> HTML fragment for a blog post, ready to inject into index.html. */
+export function getBlogPostHeadHtml(data: BlogPostSSRData): string {
+  const { post, question } = data;
+  const canonical = `${SITE_URL}/blog/${post.slug}`;
+  const title = post.seoTitle.includes('| Job Genie') ? post.seoTitle : `${post.seoTitle} | Job Genie`;
+  const description = post.metaDescription;
+  const OG_IMAGE = `${SITE_URL}/og-image.png`;
+
+  const articleSchema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    '@id': `${canonical}#article`,
+    headline: post.seoTitle.replace(' | Job Genie', ''),
+    description,
+    url: canonical,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+    datePublished: post.publishedAt ?? undefined,
+    dateModified: post.publishedAt ?? undefined,
+    author: { '@type': 'Organization', '@id': `${SITE_URL}/#organization`, name: SITE_NAME },
+    publisher: { '@id': `${SITE_URL}/#organization` },
+    inLanguage: 'en-GB',
+    about: question.painPointTags.map((tag) => ({
+      '@type': 'Thing',
+      name: tag.replace(/_/g, ' '),
+    })),
+  });
+
+  const breadcrumbSchema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE_URL}/blog` },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: post.seoTitle.replace(' | Job Genie', ''),
+        item: canonical,
+      },
+    ],
+  });
+
+  const questionSchema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Question',
+    name: question.normalisedQuestion,
+    acceptedAnswer: { '@type': 'Answer', text: description },
+  });
+
+  const faqSchema = post.faqJsonLd ? JSON.stringify(post.faqJsonLd) : null;
+
+  const lines: (string | null)[] = [
+    `<title>${esc(title)}</title>`,
+    `<meta name="description" content="${esc(description)}" />`,
+    `<meta name="robots" content="index, follow" />`,
+    `<link rel="canonical" href="${esc(canonical)}" />`,
+    `<meta property="og:title" content="${esc(title)}" />`,
+    `<meta property="og:description" content="${esc(description)}" />`,
+    `<meta property="og:url" content="${esc(canonical)}" />`,
+    `<meta property="og:site_name" content="${esc(SITE_NAME)}" />`,
+    `<meta property="og:type" content="article" />`,
+    `<meta property="og:image" content="${OG_IMAGE}" />`,
+    `<meta name="twitter:card" content="summary_large_image" />`,
+    `<meta name="twitter:title" content="${esc(title)}" />`,
+    `<meta name="twitter:description" content="${esc(description)}" />`,
+    `<meta name="twitter:image" content="${OG_IMAGE}" />`,
+    `<script type="application/ld+json">${articleSchema}</script>`,
+    `<script type="application/ld+json">${breadcrumbSchema}</script>`,
+    `<script type="application/ld+json">${questionSchema}</script>`,
+    faqSchema ? `<script type="application/ld+json">${faqSchema}</script>` : null,
+  ];
+
+  return lines.filter(Boolean).join('\n    ');
+}
+
+// ─── Original render ──────────────────────────────────────────────────────────
 
 /** Renders the React app for a given URL to an HTML string. */
 export function render(url: string): string {

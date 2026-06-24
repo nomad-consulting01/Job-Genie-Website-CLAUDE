@@ -9,6 +9,7 @@ import qaRouter from "./routes/qa.js";
 import blogRouter from "./routes/blog.js";
 import answersRouter from "./routes/answers.js";
 import sitemapRouter from "./routes/sitemap.js";
+import blogHtmlRouter from "./routes/blog-html.js";
 import { logger } from "./lib/logger.js";
 import { startScheduler } from "./scheduler/index.js";
 
@@ -47,6 +48,11 @@ app.use("/api/answers", answersRouter);
 
 // Dynamic sitemap.xml and llms.txt — served at /api/sitemap.xml and /api/llms.txt
 app.use("/api", sitemapRouter);
+
+// Blog post server-side HTML — per-post canonical, metadata, and article body for crawlers.
+// Handles /blog/:slug with correct metadata.  Prerendered static files are served first
+// (if they exist); dynamic SSR is the fallback for posts added after the last build.
+app.use("/blog", blogHtmlRouter);
 
 if (process.env["NODE_ENV"] !== "test") {
   startScheduler();
