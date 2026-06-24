@@ -92,6 +92,54 @@ export async function createBeehiivDraft(opts: {
   };
 }
 
+/** Create a web-only post in Beehiiv (no email sent) — for blog post migration */
+export async function createBeehiivWebPost(opts: {
+  title: string;
+  subtitle: string;
+  htmlContent: string;
+  slug: string;
+  publishDate: number;
+  contentTags?: string[];
+  thumbnailUrl?: string;
+}): Promise<{ id: string; webUrl: string | null } | null> {
+  const c = creds();
+  if (!c) return null;
+
+  const resp = await fetch(`${BASE}/publications/${c.pub}/posts`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${c.key}`,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      title: opts.title,
+      subtitle: opts.subtitle,
+      status: "draft",
+      platform: "web",
+      audience: "all",
+      slug: opts.slug,
+      publish_date: opts.publishDate,
+      content_tags: opts.contentTags ?? [],
+      ...(opts.thumbnailUrl ? { thumbnail_url: opts.thumbnailUrl } : {}),
+      content: {
+        free_web_content: opts.htmlContent,
+      },
+    }),
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text();
+    throw new Error(`Beehiiv createWebPost ${resp.status}: ${text.slice(0, 200)}`);
+  }
+
+  const data = (await resp.json()) as { data?: Record<string, unknown> };
+  return {
+    id: String(data.data?.["id"] ?? ""),
+    webUrl: data.data?.["web_url"] ? String(data.data["web_url"]) : null,
+  };
+}
+
 /** Subscribe an email to the Beehiiv publication */
 export async function subscribeBeehiiv(opts: {
   email: string;

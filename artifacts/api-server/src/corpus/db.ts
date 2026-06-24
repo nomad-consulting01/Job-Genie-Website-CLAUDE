@@ -427,3 +427,36 @@ export async function getLoop2AssetsForAnswer(answerId: number) {
     )
     .orderBy(contentAssets.channel, contentAssets.variant);
 }
+
+/** Blog posts that have a slug (externalId set) but haven't been migrated to Beehiiv yet */
+export async function listUnmigratedBlogPosts(limit = 20) {
+  return db
+    .select({ asset: contentAssets, answer: answers, question: questions })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(
+      and(
+        eq(contentAssets.channel, "blog_post"),
+        eq(contentAssets.variant, "standard"),
+        isNotNull(contentAssets.externalId),
+        sql`${contentAssets.engagementMetricsJson}->>'beehiivPostId' IS NULL`
+      )
+    )
+    .orderBy(desc(contentAssets.scheduledFor))
+    .limit(limit);
+}
+
+/** Merge Beehiiv post ID + web URL into engagementMetricsJson (non-destructive) */
+export async function markBlogPostMigratedToBeehiiv(
+  id: number,
+  beehiivPostId: string,
+  beehiivWebUrl: string | null
+) {
+  await db
+    .update(contentAssets)
+    .set({
+      engagementMetricsJson: sql`COALESCE(${contentAssets.engagementMetricsJson}, '{}'::jsonb) || ${JSON.stringify({ beehiivPostId, beehiivWebUrl })}::jsonb`,
+    })
+    .where(eq(contentAssets.id, id));
+}
