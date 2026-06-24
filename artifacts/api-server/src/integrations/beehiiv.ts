@@ -53,6 +53,7 @@ export async function createBeehiivDraft(opts: {
   subtitle: string;
   htmlContent: string;
   contentTags?: string[];
+  thumbnailUrl?: string;
 }): Promise<{ id: string; webUrl: string | null } | null> {
   const c = creds();
   if (!c) return null;
@@ -71,6 +72,7 @@ export async function createBeehiivDraft(opts: {
       content_tags: opts.contentTags ?? [],
       platform: "both",
       audience: "all",
+      ...(opts.thumbnailUrl ? { thumbnail_url: opts.thumbnailUrl } : {}),
       content: {
         free_web_content: opts.htmlContent,
         free_email_content: opts.htmlContent,
