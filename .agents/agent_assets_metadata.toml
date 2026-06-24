@@ -1,13 +1,49 @@
 uploads = []
 
+[[generated]]
+id = "ilmEsTvgvI4GRiih--FjQ"
+uri = "file://artifacts/job-genie/public/og-image.png"
+type = "image"
+title = "job genie og image"
+
+[[generated]]
+id = "YWKf5OuSZa45pCZmtyB_z"
+uri = "file://attached_assets/brand/newsletter-hero.png"
+type = "image"
+title = "newsletter hero banner"
+
+[[generated]]
+id = "_35ZMJ0M0naLvdK2AOxGf"
+uri = "file://attached_assets/brand/blog-og-image.png"
+type = "image"
+title = "blog OG featured image"
+
+[[generated]]
+id = "0RMGjbij5IbpjuES-MELv"
+uri = "file://attached_assets/brand/social-media-square.png"
+type = "image"
+title = "social media square"
+
 [[outputs]]
 id = "7Y_KX-czfi4xE13rh-zCL"
 uri = "file://corpus-topic-analysis.md"
 type = "text"
 title = "Reddit Corpus — Topic Analysis"
 
-[[generated]]
-id = "ilmEsTvgvI4GRiih--FjQ"
-uri = "file://artifacts/job-genie/public/og-image.png"
+[[outputs]]
+id = "FAHEELc2PNzpNQkOoGEs6"
+uri = "file://attached_assets/brand/newsletter-hero.png"
 type = "image"
-title = "job genie og image"
+title = "Newsletter Hero Banner (16:9)"
+
+[[outputs]]
+id = "TGPTpeJvQfVFtpSwFJ6jy"
+uri = "file://attached_assets/brand/blog-og-image.png"
+type = "image"
+title = "Blog OG / Featured Image (16:9)"
+
+[[outputs]]
+id = "Uq2guWketwrt4Yl0SN9a7"
+uri = "file://attached_assets/brand/social-media-square.png"
+type = "image"
+title = "Social Media Square (1:1)"
