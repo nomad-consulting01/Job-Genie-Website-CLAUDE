@@ -460,3 +460,20 @@ export async function markBlogPostMigratedToBeehiiv(
     })
     .where(eq(contentAssets.id, id));
 }
+
+/** Get a blog_post asset by its numeric ID */
+export async function getBlogPostById(id: number) {
+  const [row] = await db
+    .select({ asset: contentAssets, answer: answers, question: questions })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(
+      and(
+        eq(contentAssets.channel, "blog_post"),
+        eq(contentAssets.variant, "standard"),
+        eq(contentAssets.id, id)
+      )
+    );
+  return row ?? null;
+}

@@ -73,10 +73,8 @@ export async function createBeehiivDraft(opts: {
       platform: "both",
       audience: "all",
       ...(opts.thumbnailUrl ? { thumbnail_url: opts.thumbnailUrl } : {}),
-      content: {
-        free_web_content: opts.htmlContent,
-        free_email_content: opts.htmlContent,
-      },
+      free_web_content: opts.htmlContent,
+      free_email_content: opts.htmlContent,
     }),
   });
 
@@ -116,15 +114,12 @@ export async function createBeehiivWebPost(opts: {
       title: opts.title,
       subtitle: opts.subtitle,
       status: "draft",
-      platform: "web",
+      platform: "both",
       audience: "all",
-      slug: opts.slug,
-      publish_date: opts.publishDate,
       content_tags: opts.contentTags ?? [],
       ...(opts.thumbnailUrl ? { thumbnail_url: opts.thumbnailUrl } : {}),
-      content: {
-        free_web_content: opts.htmlContent,
-      },
+      free_web_content: opts.htmlContent,
+      free_email_content: opts.htmlContent,
     }),
   });
 

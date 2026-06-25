@@ -11,7 +11,7 @@ const SITE_URL = "https://job-genie.ai";
 // ---------------------------------------------------------------------------
 // Build Beehiiv web-post HTML from a blog_post asset
 // ---------------------------------------------------------------------------
-function buildBlogWebHtml(opts: {
+export function buildBlogWebHtml(opts: {
   slug: string;
   seoTitle: string;
   content: string;

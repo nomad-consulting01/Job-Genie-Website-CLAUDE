@@ -3,9 +3,10 @@ import { logger } from "../lib/logger.js";
 import {
   listUnpublishedNewsletterAssets,
   listUnmigratedBlogPosts,
+  getBlogPostById,
 } from "../corpus/db.js";
 import { publishNewsletterAsset } from "../publishers/newsletter.js";
-import { migrateBlogPostToBeehiiv } from "../publishers/blog-migrator.js";
+import { migrateBlogPostToBeehiiv, buildBlogWebHtml } from "../publishers/blog-migrator.js";
 import { isBeehiivConfigured } from "../integrations/beehiiv.js";
 
 const router = Router();
@@ -142,6 +143,88 @@ router.post("/admin/publish/blog/batch", async (req, res) => {
     const msg = err instanceof Error ? err.message : String(err);
     logger.error({ err }, "publish/blog/batch failed");
     res.status(500).json({ ok: false, error: msg });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// GET /api/admin/publish/blog/preview/:assetId
+// Returns a full standalone HTML page for copy-pasting into Beehiiv's HTML block
+// ---------------------------------------------------------------------------
+router.get("/admin/publish/blog/preview/:assetId", async (req, res) => {
+  const assetId = Number(req.params["assetId"]);
+  if (!assetId) { res.status(400).send("Invalid assetId"); return; }
+
+  try {
+    const row = await getBlogPostById(assetId);
+    if (!row) { res.status(404).send("Blog post not found"); return; }
+
+    const { asset, question } = row;
+    const payload = (asset.payloadJson ?? {}) as Record<string, unknown>;
+    const meta = (asset.engagementMetricsJson ?? {}) as Record<string, unknown>;
+
+    const slug = String(asset.externalId ?? "");
+    const seoTitle = String(meta["seoTitle"] ?? question.normalisedQuestion);
+    const content = String(payload["content"] ?? "");
+    const painPointTags = Array.isArray(payload["pain_point_tags"])
+      ? (payload["pain_point_tags"] as string[])
+      : question.painPointTags ?? [];
+    const imageUrl = String(
+      meta["featuredImageUrl"] ?? payload["image_dark_teal_url"] ?? "https://job-genie.ai/brand/blog-og-dark-teal.png"
+    );
+
+    const bodyHtml = buildBlogWebHtml({ slug, seoTitle, content, painPointTags, imageUrl });
+
+    const page = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>${seoTitle} — Beehiiv Preview</title>
+  <style>
+    body { background: #f0f0f0; margin: 0; padding: 32px 16px; font-family: sans-serif; }
+    .toolbar {
+      max-width: 720px; margin: 0 auto 16px;
+      background: #1e1e2e; color: #cdd6f4; border-radius: 10px;
+      padding: 12px 18px; font-size: 13px; display: flex; gap: 12px; align-items: center;
+    }
+    .toolbar strong { flex: 1; }
+    .toolbar a { color: #89b4fa; text-decoration: none; }
+    .card { max-width: 720px; margin: 0 auto; background: #fff; border-radius: 14px; padding: 40px 48px; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+    .copy-btn {
+      background: #7C83FF; color: #fff; border: none; border-radius: 8px;
+      padding: 8px 16px; cursor: pointer; font-size: 13px; font-weight: 600;
+    }
+    .copy-btn:hover { background: #6570f0; }
+    textarea#raw { width:100%; height:180px; font-family:monospace; font-size:11px; border-radius:8px; border:1px solid #ddd; padding:10px; resize:vertical; margin-top:12px; }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <strong>📋 Beehiiv Preview — ${seoTitle}</strong>
+    <a href="https://job-genie.ai/blog/${slug}" target="_blank">View live post →</a>
+    <button class="copy-btn" onclick="copyHtml()">Copy HTML</button>
+  </div>
+  <div class="card" id="preview">${bodyHtml}</div>
+  <div style="max-width:720px;margin:16px auto 0">
+    <p style="font-size:12px;color:#666;margin-bottom:4px">Raw HTML (paste into Beehiiv → Add block → HTML block):</p>
+    <textarea id="raw" readonly>${bodyHtml.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</textarea>
+  </div>
+  <script>
+    function copyHtml() {
+      const raw = document.getElementById('raw');
+      raw.select(); document.execCommand('copy');
+      document.querySelector('.copy-btn').textContent = 'Copied!';
+      setTimeout(() => document.querySelector('.copy-btn').textContent = 'Copy HTML', 2000);
+    }
+  </script>
+</body>
+</html>`;
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(page);
+  } catch (err) {
+    logger.error({ err, assetId }, "publish/blog/preview failed");
+    res.status(500).send("Internal server error");
   }
 });
 
