@@ -96,6 +96,96 @@ uri = "file://attached_assets/brand/social-warm-editorial.png"
 type = "image"
 title = "social media warm editorial"
 
+[[generated]]
+id = "CizoWvD2ESB3ZmQSIOs-2"
+uri = "file://artifacts/job-genie/public/brand/posts/stay-motivated-applying-jobs-months-unemployment.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "Vd-_b8iIZccBBQDw4e1N0"
+uri = "file://artifacts/job-genie/public/brand/posts/employers-require-costumes-props-job-interview.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "8mqhq1u6nct3djdvVHhqF"
+uri = "file://artifacts/job-genie/public/brand/posts/recruiters-cameras-on-video-interviews.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "isUxAkCHU2rJEh50u_j4i"
+uri = "file://artifacts/job-genie/public/brand/posts/ai-adoption-workplace-impact-job-seekers-job-market.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "Pw_BbTc8b_1ZN7LZ5SrxA"
+uri = "file://artifacts/job-genie/public/brand/posts/find-job-after-six-months-unemployment.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "HVBXZdvE-HDSExwykx7nx"
+uri = "file://artifacts/job-genie/public/brand/posts/find-job-after-50-age-discrimination.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "4-v520i7Fs6YQg76Jn7rm"
+uri = "file://artifacts/job-genie/public/brand/posts/minimum-wage-rejection-job-search-salary-expectations.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "dt-Pl4we2uobd3qAM1hxk"
+uri = "file://artifacts/job-genie/public/brand/posts/verbal-job-offer-legally-binding.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "sWreLgJQ1Zrgex9zVON-4"
+uri = "file://artifacts/job-genie/public/brand/posts/how-long-does-it-take-to-find-job-after-layoff.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "qxq6Nl_KPL9pMIn5i9Qgz"
+uri = "file://artifacts/job-genie/public/brand/posts/improve-eye-contact-recall-remote-video-interviews.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "gCJce5PTZdJJsVSurRmMP"
+uri = "file://artifacts/job-genie/public/brand/posts/stay-motivated-job-search-after-rejection.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "-h8m65Qh9cC1U44JNW7h_"
+uri = "file://artifacts/job-genie/public/brand/posts/minimum-wage-rejection-oklahoma-job-seekers.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "e1Px4xsb3Mez67Vj3QXnN"
+uri = "file://artifacts/job-genie/public/brand/posts/how-long-to-find-job-after-layoff.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "Xquin4mpZdCJfc05J8yqf"
+uri = "file://artifacts/job-genie/public/brand/posts/employers-make-employees-share-hotel-rooms-business-trips.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "wrFD1crN3JBFoFhnUc9AS"
+uri = "file://artifacts/job-genie/public/brand/posts/stop-overperforming-work-application-silence.png"
+type = "image"
+title = "generated_image"
+
 [[outputs]]
 id = "7Y_KX-czfi4xE13rh-zCL"
 uri = "file://corpus-topic-analysis.md"
