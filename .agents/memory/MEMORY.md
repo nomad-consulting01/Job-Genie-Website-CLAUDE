@@ -2,3 +2,4 @@
 - [Reddit RSS rate limiting](reddit-rss-rate-limiting.md) — RSS feeds cap at 100 posts; burst testing causes 429s that only clear after ~10+ min; scheduled daily runs are unaffected.
 - [Blog SEO prerender pattern](blog-seo-prerender.md) — blog posts need prerender.mjs + api-server /blog/:slug route to get correct canonical/metadata; ReactMarkdown works fine in SSR.
 - [Vite build env vars](vite-build-env.md) — job-genie build requires PORT and BASE_PATH; use `PORT=19806 BASE_PATH=/ pnpm --filter @workspace/job-genie run build`.
+- [API server path resolution](api-server-path-resolution.md) — esbuild bundles all TS into a single dist/index.mjs; __dirname in route files resolves to dist/, use 3x ../ (not 4x) to reach workspace root.

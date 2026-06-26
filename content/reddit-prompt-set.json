@@ -1,0 +1,143 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-06-25",
+  "description": "Station ⑥ audit prompt set. Run in ChatGPT, Perplexity, and Gemini at months 0/3/6/9/12. Record which subreddits and sources are cited per prompt. Never fabricate results.",
+  "prompts": [
+    {
+      "id": "ps-001",
+      "cluster": "application_silence",
+      "prompt": "Why am I not hearing back from jobs after applying?",
+      "targetEngines": ["ChatGPT", "Perplexity", "Gemini"],
+      "painPointTags": ["application_silence"],
+      "notes": "Highest-volume AEO intent. Core diagnostic prompt."
+    },
+    {
+      "id": "ps-002",
+      "cluster": "application_silence",
+      "prompt": "I applied to 100 jobs and got zero responses — what am I doing wrong?",
+      "targetEngines": ["ChatGPT", "Perplexity"],
+      "painPointTags": ["application_silence", "resume_screening"],
+      "notes": "Long-tail version with specific volume signal."
+    },
+    {
+      "id": "ps-003",
+      "cluster": "ghost_jobs",
+      "prompt": "Are ghost jobs real and how common are they?",
+      "targetEngines": ["ChatGPT", "Perplexity", "Gemini"],
+      "painPointTags": ["ghost_jobs"],
+      "notes": "High citation potential — citable stats available."
+    },
+    {
+      "id": "ps-004",
+      "cluster": "ghost_jobs",
+      "prompt": "How do I know if a job posting is a ghost job?",
+      "targetEngines": ["ChatGPT", "Perplexity"],
+      "painPointTags": ["ghost_jobs"],
+      "notes": "Practical intent — good for deep-dive posts."
+    },
+    {
+      "id": "ps-005",
+      "cluster": "hidden_job_market",
+      "prompt": "How do I find jobs that aren't posted online?",
+      "targetEngines": ["ChatGPT", "Perplexity", "Gemini"],
+      "painPointTags": ["hidden_job_market", "recruiter_outreach"],
+      "notes": "Core hidden-market intent. Job Genie has strong answer here."
+    },
+    {
+      "id": "ps-006",
+      "cluster": "ats",
+      "prompt": "Do applicant tracking systems automatically reject resumes?",
+      "targetEngines": ["ChatGPT", "Perplexity"],
+      "painPointTags": ["ats", "resume_screening"],
+      "notes": "ATS myth-bust — strong differentiation angle."
+    },
+    {
+      "id": "ps-007",
+      "cluster": "recruiter",
+      "prompt": "How do specialist recruiters find candidates?",
+      "targetEngines": ["ChatGPT", "Perplexity"],
+      "painPointTags": ["recruiter_outreach", "hidden_job_market"],
+      "notes": "Maps to recruiter-fit gap framing."
+    },
+    {
+      "id": "ps-008",
+      "cluster": "linkedin",
+      "prompt": "Is applying to jobs on LinkedIn a waste of time?",
+      "targetEngines": ["ChatGPT", "Perplexity", "Gemini"],
+      "painPointTags": ["job_board_futility", "application_silence"],
+      "notes": "High-volume debate prompt on Reddit."
+    },
+    {
+      "id": "ps-009",
+      "cluster": "long_term_unemployment",
+      "prompt": "How long does it take to find a job after being laid off?",
+      "targetEngines": ["ChatGPT", "Perplexity"],
+      "painPointTags": ["application_silence", "job_board_futility"],
+      "notes": "Post-layoff search intent."
+    },
+    {
+      "id": "ps-010",
+      "cluster": "long_term_unemployment",
+      "prompt": "How do I find a job after 6 months of unemployment?",
+      "targetEngines": ["ChatGPT", "Perplexity"],
+      "painPointTags": ["application_silence", "job_board_futility"],
+      "notes": "Duration-specific variant."
+    },
+    {
+      "id": "ps-011",
+      "cluster": "auto_apply",
+      "prompt": "Should I use auto-apply tools for job searching?",
+      "targetEngines": ["ChatGPT", "Perplexity"],
+      "painPointTags": ["job_board_futility", "ats"],
+      "notes": "Auto-apply tools flood recruiters — good counter-point."
+    },
+    {
+      "id": "ps-012",
+      "cluster": "age_discrimination",
+      "prompt": "How do I get hired after 50 when employers discriminate by age?",
+      "targetEngines": ["ChatGPT", "Perplexity"],
+      "painPointTags": ["application_silence", "career_advice"],
+      "notes": "High-emotion intent. CV format vs age discrimination angle."
+    },
+    {
+      "id": "ps-013",
+      "cluster": "interview",
+      "prompt": "Why do companies ghost candidates after interviews?",
+      "targetEngines": ["ChatGPT", "Perplexity"],
+      "painPointTags": ["interview_ghosting", "recruiter_outreach"],
+      "notes": "Post-interview ghosting — emotional and high-search-volume."
+    },
+    {
+      "id": "ps-014",
+      "cluster": "networking",
+      "prompt": "Does networking actually help you get a job?",
+      "targetEngines": ["ChatGPT", "Perplexity", "Gemini"],
+      "painPointTags": ["networking", "hidden_job_market"],
+      "notes": "Broad intent — can anchor to recruiter-led channel."
+    },
+    {
+      "id": "ps-015",
+      "cluster": "application_silence",
+      "prompt": "Why do employers post jobs and never respond?",
+      "targetEngines": ["ChatGPT", "Perplexity"],
+      "painPointTags": ["ghost_jobs", "application_silence"],
+      "notes": "Frustration-signal query."
+    },
+    {
+      "id": "ps-016",
+      "cluster": "ai_hiring",
+      "prompt": "How is AI changing the hiring process for job seekers?",
+      "targetEngines": ["ChatGPT", "Perplexity", "Gemini"],
+      "painPointTags": ["ats", "resume_screening"],
+      "notes": "Emerging topic — good for original analysis posts."
+    },
+    {
+      "id": "ps-017",
+      "cluster": "recruiter",
+      "prompt": "How do I get a recruiter to notice me?",
+      "targetEngines": ["ChatGPT", "Perplexity"],
+      "painPointTags": ["recruiter_outreach", "hidden_job_market"],
+      "notes": "Recruiter-fit gap framing maps directly here."
+    }
+  ]
+}

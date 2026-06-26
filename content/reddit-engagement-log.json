@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "description": "Station ③ cadence tracker. Log each comment/post per account per week. Used to compute 80/20 help-to-mention ratio and streak health.",
+  "schema": {
+    "id": "string — unique log entry ID (e.g. eng-001)",
+    "date": "ISO date string",
+    "accountHandle": "string — Reddit username",
+    "subreddit": "string — e.g. r/jobs",
+    "threadUrl": "string — full Reddit thread URL",
+    "type": "comment | post | reply",
+    "category": "help | mention | defence",
+    "summary": "string — one-sentence description of what was said (no verbatim content)",
+    "mentionedJobGenie": "boolean",
+    "disclosureIncluded": "boolean — only relevant when mentionedJobGenie is true",
+    "engagementOutcome": "upvoted | neutral | downvoted | removed | unknown",
+    "notes": "string — optional"
+  },
+  "entries": []
+}

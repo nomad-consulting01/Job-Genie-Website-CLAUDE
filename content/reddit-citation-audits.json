@@ -1,0 +1,23 @@
+{
+  "version": "1.0",
+  "description": "Station ⑥ citation-lift data. Run prompt set at months 0/3/6/9/12. Each run records which sources AI engines cited. Trends not snapshots — always compare to baseline. Never fabricate results.",
+  "schema": {
+    "runId": "string — e.g. audit-m0, audit-m3",
+    "month": "number — 0, 3, 6, 9, or 12",
+    "runDate": "ISO date string",
+    "conductedBy": "string — name of human who ran the audit",
+    "results": [
+      {
+        "promptId": "string — matches reddit-prompt-set.json id",
+        "engine": "ChatGPT | Perplexity | Gemini | other",
+        "sourcesCited": ["string — subreddit or domain cited"],
+        "jobGenieCited": "boolean",
+        "teamAuthoredThreadCited": "boolean",
+        "jobGenieUrl": "string | null — URL cited if jobGenieCited is true",
+        "notes": "string"
+      }
+    ]
+  },
+  "baseline": null,
+  "runs": []
+}

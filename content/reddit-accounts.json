@@ -1,0 +1,5 @@
+{
+  "version": "1.0",
+  "description": "Station ② accounts registry. Handles only — no passwords. One real named human per active account. Accounts must have disclosure bio set before any product-relevant comment.",
+  "accounts": []
+}

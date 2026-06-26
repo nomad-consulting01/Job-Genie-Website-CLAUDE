@@ -1,0 +1,73 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-06-25",
+  "description": "Station ① subreddit priority tracker. Updated quarterly. Humans run the prompt set and record which subs get cited; this file ranks them so humans pick the top 2–3 to focus on.",
+  "candidates": [
+    {
+      "subreddit": "r/jobs",
+      "subscribers": 4200000,
+      "moderationStrictness": "medium",
+      "relevanceScore": 5,
+      "citationHitsObserved": 0,
+      "chosen": true,
+      "assignedHuman": null,
+      "notes": "Highest-volume general job-search community. Strong match for application_silence and ghost_jobs prompts. Moderate self-promotion tolerance if participation is substantive.",
+      "lastReviewed": "2026-06-25"
+    },
+    {
+      "subreddit": "r/careerguidance",
+      "subscribers": 1800000,
+      "moderationStrictness": "low",
+      "relevanceScore": 5,
+      "citationHitsObserved": 0,
+      "chosen": true,
+      "assignedHuman": null,
+      "notes": "Broad career advice community. Strong for long-term unemployment and post-layoff threads. More tolerant of nuanced product-relevant answers than r/jobs.",
+      "lastReviewed": "2026-06-25"
+    },
+    {
+      "subreddit": "r/recruitinghell",
+      "subscribers": 1200000,
+      "moderationStrictness": "low",
+      "relevanceScore": 4,
+      "citationHitsObserved": 0,
+      "chosen": false,
+      "assignedHuman": null,
+      "notes": "High frustration, high engagement. Excellent for ghost-job and ATS myth-bust threads. Risk: audience is cynical — purely helpful answers with zero promotion work best here.",
+      "lastReviewed": "2026-06-25"
+    },
+    {
+      "subreddit": "r/cscareerquestions",
+      "subscribers": 1100000,
+      "moderationStrictness": "high",
+      "relevanceScore": 3,
+      "citationHitsObserved": 0,
+      "chosen": false,
+      "assignedHuman": null,
+      "notes": "Tech-specific ICP. High moderation — product mentions rarely survive. Best used for pure help, not disclosure. Confirm via prompt-set audit whether AI cites this sub for Job Genie's prompts.",
+      "lastReviewed": "2026-06-25"
+    },
+    {
+      "subreddit": "r/resumes",
+      "subscribers": 530000,
+      "moderationStrictness": "medium",
+      "relevanceScore": 3,
+      "citationHitsObserved": 0,
+      "chosen": false,
+      "assignedHuman": null,
+      "notes": "Resume critique focus. Niche — ATS myth-bust and recruiter-fit gap framing are relevant. Lower priority until citation audit confirms presence.",
+      "lastReviewed": "2026-06-25"
+    },
+    {
+      "subreddit": "r/jobsearchhacks",
+      "subscribers": 210000,
+      "moderationStrictness": "low",
+      "relevanceScore": 4,
+      "citationHitsObserved": 0,
+      "chosen": false,
+      "assignedHuman": null,
+      "notes": "Smaller but highly engaged. Hidden job market and recruiter-outreach topics resonate well. Validate citation frequency before committing.",
+      "lastReviewed": "2026-06-25"
+    }
+  ]
+}

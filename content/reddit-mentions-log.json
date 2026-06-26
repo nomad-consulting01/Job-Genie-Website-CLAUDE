@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "description": "Station ⑤ mention and criticism monitor. Log all observed Job Genie mentions on Reddit — positive, neutral, or critical. Humans respond; system tracks triage status.",
+  "schema": {
+    "id": "string — unique entry ID (e.g. mnt-001)",
+    "discoveredAt": "ISO date string",
+    "threadUrl": "string — full Reddit URL",
+    "subreddit": "string",
+    "mentionType": "positive | neutral | criticism | question",
+    "severity": "low | medium | high — only relevant for criticism",
+    "summary": "string — one-sentence description of the mention/criticism",
+    "assignedResponder": "string — account handle of human assigned to respond",
+    "responseStatus": "pending | responded | resolved | no_action",
+    "responseUrl": "string | null — URL of the response comment if posted",
+    "outcome": "resolved | escalated | ignored | monitoring",
+    "notes": "string — optional"
+  },
+  "entries": []
+}
