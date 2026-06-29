@@ -888,9 +888,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
         <div className="w">
           <div className="footi">
             <div className="footl">
-              <div style={{ background: "var(--inl)", width: "40px", height: "40px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--nn)" }}>
-                 <svg viewBox="0 0 24 24" fill="none" width="24" height="24" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" /></svg>
-              </div>
+              <img src="/logo.png" alt="Job Genie" style={{ width: 40, height: 40, objectFit: "contain", borderRadius: "8px" }} />
               <span style={{ fontFamily: "var(--fd)", fontWeight: 700, fontSize: "16px" }}>JobGenie</span>
             </div>
             <nav className="footlk" aria-label="Footer navigation">
