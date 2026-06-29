@@ -324,9 +324,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
 
       <nav className="nav" id="nav">
         <div className="nlogo">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="var(--inl)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <img src="/logo.png" alt="Job Genie" style={{ width: 36, height: 36, objectFit: "contain" }} />
           Job Genie
         </div>
         <ul className="nlinks">
