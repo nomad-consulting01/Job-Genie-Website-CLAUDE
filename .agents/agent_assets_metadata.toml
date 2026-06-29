@@ -281,3 +281,9 @@ id = "qc_rg2Z3HvZGPe0PST0OZ"
 uri = "file://attached_assets/brand/social-warm-editorial.png"
 type = "image"
 title = "Social Media — Warm Editorial"
+
+[[outputs]]
+id = "zEJK_A05lxCTvbCfctLL8"
+uri = "file://docs/content-engine-loops.docx"
+type = "word_document"
+title = "Content Engine — Loop 1 to Loop 4 (Word)"
