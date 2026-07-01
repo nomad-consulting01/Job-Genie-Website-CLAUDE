@@ -55,6 +55,11 @@ function Router() {
   );
 }
 
+const CANONICAL_HOST = "www.job-genie.ai";
+if (typeof window !== "undefined" && window.location.hostname !== CANONICAL_HOST && window.location.hostname !== "localhost") {
+  window.location.replace(`https://${CANONICAL_HOST}${window.location.pathname}${window.location.search}${window.location.hash}`);
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
