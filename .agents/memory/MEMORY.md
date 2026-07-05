@@ -4,3 +4,4 @@
 - [Vite build env vars](vite-build-env.md) — job-genie build requires PORT and BASE_PATH; use `PORT=19806 BASE_PATH=/ pnpm --filter @workspace/job-genie run build`.
 - [API server path resolution](api-server-path-resolution.md) — esbuild bundles all TS into a single dist/index.mjs; __dirname in route files resolves to dist/, use 3x ../ (not 4x) to reach workspace root.
 - [Stale static build on redeploy](stale-static-build-deploys.md) — editing public/ or index.html doesn't update dist/public; rebuild and verify before telling user to republish; favicon browser cache is separately sticky.
+- [Gemini-generated blog hero images](gemini-blog-hero-images.md) — server-side unique image gen per post via Gemini SDK + Object Storage, replacing static template rotation; set imageConfig.aspectRatio explicitly.

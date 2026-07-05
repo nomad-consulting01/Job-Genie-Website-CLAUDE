@@ -30,7 +30,7 @@ export async function generateBlogHeroImage(
   prompt: BlogHeroImagePrompt,
   slugHint: string
 ): Promise<string> {
-  const { b64_json, mimeType } = await generateImage(buildPrompt(prompt));
+  const { b64_json, mimeType } = await generateImage(buildPrompt(prompt), { aspectRatio: "16:9" });
   const buffer = Buffer.from(b64_json, "base64");
   const ext = mimeType.includes("png") ? "png" : "jpg";
   const safeSlug = slugHint.replace(/[^a-z0-9-]/gi, "-").slice(0, 60);
