@@ -114,6 +114,62 @@ router.post("/loop4/run", async (_req, res) => {
   });
 });
 
+let heroImageBackfillRunning = false;
+
+router.post("/backfill-hero-images/run", async (_req, res) => {
+  if (heroImageBackfillRunning) {
+    res.status(409).json({ error: "Hero image backfill is already running" });
+    return;
+  }
+  heroImageBackfillRunning = true;
+  res.json({ message: "Hero image backfill triggered — running in background", status: "started" });
+
+  setImmediate(async () => {
+    try {
+      const { listAllPublishedBlogPostsForImageGen, setFeaturedImageUrl } = await import("../corpus/db.js");
+      const { generateBlogHeroImage } = await import("../lib/blogImages.js");
+      const rows = await listAllPublishedBlogPostsForImageGen();
+      let success = 0;
+      let skipped = 0;
+      let failed = 0;
+
+      for (const row of rows) {
+        const slug = row.asset.externalId ?? `post-${row.asset.id}`;
+        const meta = row.asset.engagementMetricsJson as Record<string, unknown> | null;
+        const existingUrl = meta?.["featuredImageUrl"] as string | undefined;
+        if (existingUrl?.includes("/api/blog-images/")) {
+          skipped += 1;
+          continue;
+        }
+        try {
+          const url = await generateBlogHeroImage(
+            { title: row.question.normalisedQuestion, summary: row.answer.answerFirstBlock },
+            slug
+          );
+          await setFeaturedImageUrl(row.asset.id, url);
+          success += 1;
+          logger.info({ slug, assetId: row.asset.id, url }, "Backfilled hero image");
+        } catch (err) {
+          failed += 1;
+          logger.error(
+            { slug, assetId: row.asset.id, err: err instanceof Error ? err.message : String(err) },
+            "Failed to backfill hero image"
+          );
+        }
+      }
+      logger.info({ success, skipped, failed, total: rows.length }, "Hero image backfill completed");
+    } catch (err) {
+      logger.error({ err }, "Hero image backfill failed");
+    } finally {
+      heroImageBackfillRunning = false;
+    }
+  });
+});
+
+router.get("/backfill-hero-images/status", (_req, res) => {
+  res.json({ running: heroImageBackfillRunning });
+});
+
 router.post("/scrape-listings/run", async (req, res) => {
   if (scraperRunning) {
     res.status(409).json({ error: "Listing scraper is already running" });
