@@ -5,3 +5,4 @@
 - [API server path resolution](api-server-path-resolution.md) — esbuild bundles all TS into a single dist/index.mjs; __dirname in route files resolves to dist/, use 3x ../ (not 4x) to reach workspace root.
 - [Stale static build on redeploy](stale-static-build-deploys.md) — editing public/ or index.html doesn't update dist/public; rebuild and verify before telling user to republish; favicon browser cache is separately sticky.
 - [Gemini-generated blog hero images](gemini-blog-hero-images.md) — server-side unique image gen per post via Gemini SDK + Object Storage, replacing static template rotation; set imageConfig.aspectRatio explicitly.
+- [ReactMarkdown GFM tables](reactmarkdown-gfm-tables.md) — react-markdown needs remark-gfm (tables) + rehype-raw (raw HTML like <br/>) plugins; neither is on by default.

@@ -8,6 +8,8 @@ export default function DataDeletion() {
       title="Request Data Deletion"
       description="Request deletion of your personal data from Job-Genie.ai. CCPA and GDPR compliant, processed within 30 days."
       content={DATA_DELETION_MD}
+      badgeLabel="Your Data Rights"
+      accentColor="#f472b6"
     />
   );
 }

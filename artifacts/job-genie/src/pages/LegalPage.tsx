@@ -1,5 +1,7 @@
 import { Link } from "wouter";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import { SEO } from "@/components/SEO";
 
 const SITE_URL = "https://www.job-genie.ai";
@@ -10,7 +12,15 @@ interface LegalPageProps {
   description: string;
   content: string;
   toc?: string[];
+  badgeLabel?: string;
+  accentColor?: string;
 }
+
+const PILL_COLORS: Record<string, string> = {
+  deleted: "#f87171",
+  anonymized: "#fbbf24",
+  retained: "#94a3b8",
+};
 
 function slugify(text: string): string {
   return text
@@ -63,7 +73,15 @@ function extractHeadings(content: string): { id: string; text: string }[] {
   return headings;
 }
 
-export default function LegalPage({ slug, title, description, content, toc }: LegalPageProps) {
+export default function LegalPage({
+  slug,
+  title,
+  description,
+  content,
+  toc,
+  badgeLabel = "Legal",
+  accentColor = "#818cf8",
+}: LegalPageProps) {
   const canonicalUrl = `${SITE_URL}/${slug}`;
   const { meta, rest: body } = extractMeta(content);
   const rest = highlightSummary(body);
@@ -99,20 +117,19 @@ export default function LegalPage({ slug, title, description, content, toc }: Le
         <div
           className="text-center pt-16 pb-10 px-6"
           style={{
-            background:
-              "radial-gradient(600px 260px at 50% 0%, rgba(99,102,241,0.14), transparent 70%)",
+            background: `radial-gradient(600px 260px at 50% 0%, ${accentColor}26, transparent 70%)`,
           }}
         >
           <div className="max-w-6xl mx-auto">
             <span
               className="inline-block text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-6"
               style={{
-                background: "rgba(99,102,241,0.14)",
-                border: "1px solid rgba(99,102,241,0.35)",
-                color: "var(--indigo, #818cf8)",
+                background: `${accentColor}24`,
+                border: `1px solid ${accentColor}59`,
+                color: accentColor,
               }}
             >
-              Legal
+              {badgeLabel}
             </span>
             <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-5">{title}</h1>
             <p className="max-w-2xl mx-auto text-[15px] leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
@@ -126,7 +143,7 @@ export default function LegalPage({ slug, title, description, content, toc }: Le
               >
                 {metaParts.map((part, i) => (
                   <span key={i} className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--indigo, #818cf8)" }} />
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: accentColor }} />
                     {part}
                   </span>
                 ))}
@@ -191,9 +208,14 @@ export default function LegalPage({ slug, title, description, content, toc }: Le
               prose-blockquote:text-white/70
               prose-hr:border-white/10 prose-hr:my-8
               prose-code:text-teal-300 prose-code:bg-teal-500/10 prose-code:px-1 prose-code:rounded
-              prose-thead:border-white/10 prose-tr:border-white/10 prose-th:text-white prose-td:text-white/70"
+              prose-table:my-6 prose-table:w-full prose-table:border-collapse
+              prose-thead:border-white/10 prose-tr:border-white/10 prose-th:text-white prose-td:text-white/70
+              prose-th:text-[11px] prose-th:uppercase prose-th:tracking-wider prose-th:py-3 prose-th:px-4
+              prose-td:py-3 prose-td:px-4 prose-td:align-top"
             >
               <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
                 components={{
                   h2: ({ children, ...props }) => {
                     const { eyebrow, title: headingTitle } = splitHeading(String(children));
@@ -203,7 +225,7 @@ export default function LegalPage({ slug, title, description, content, toc }: Le
                         {eyebrow && (
                           <div
                             className="text-[11px] font-bold uppercase tracking-wider mt-10"
-                            style={{ color: "var(--indigo, #818cf8)" }}
+                            style={{ color: accentColor }}
                           >
                             {eyebrow}
                           </div>
@@ -213,6 +235,35 @@ export default function LegalPage({ slug, title, description, content, toc }: Le
                         </h2>
                       </>
                     );
+                  },
+                  thead: ({ children, ...props }) => (
+                    <thead
+                      {...props}
+                      style={{ background: `${accentColor}1F`, borderBottom: `1px solid ${accentColor}40` }}
+                    >
+                      {children}
+                    </thead>
+                  ),
+                  td: ({ children, ...props }) => {
+                    const text = String(children).trim().toLowerCase();
+                    const pillColor = PILL_COLORS[text];
+                    if (pillColor) {
+                      return (
+                        <td {...props}>
+                          <span
+                            className="inline-block text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full"
+                            style={{
+                              background: `${pillColor}26`,
+                              border: `1px solid ${pillColor}59`,
+                              color: pillColor,
+                            }}
+                          >
+                            {children}
+                          </span>
+                        </td>
+                      );
+                    }
+                    return <td {...props}>{children}</td>;
                   },
                 }}
               >

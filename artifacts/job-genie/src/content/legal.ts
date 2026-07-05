@@ -354,14 +354,16 @@ You have the right to request deletion of your personal data from Job-Genie.ai a
 
 When you submit a deletion request, we permanently remove all personal data tied to your account. Some limited data may be retained where required by law or for legitimate security purposes — this is clearly marked below.
 
-- **Resume / CV files** (all uploaded documents and parsed resume data) — Deleted within 7 days.
-- **Account profile** (name, email address, password hash, preferences) — Deleted within 14 days.
-- **Job preferences & search history** (role types, industries, salary, location filters) — Deleted within 14 days.
-- **Fit scores & audit results** (recruiter-fit scores, analysis outputs tied to your profile) — Deleted within 14 days.
-- **Email subscription (Beehiiv)** (newsletter subscription, email engagement history) — Deleted within 30 days.
-- **Usage & session logs** (browsing activity, feature usage, session data) — Anonymized within 30 days.
-- **Fraud & security logs** (IP address records used for abuse prevention) — Retained 90 days for legal obligation.
-- **Financial transaction records** (billing records if applicable, processed by payment provider) — Retained 7 years for tax & legal compliance.
+| Data Type | Action | Timeline |
+| --- | --- | --- |
+| **Resume / CV files**<br/>All uploaded documents and parsed resume data | Deleted | Within 7 days |
+| **Account profile**<br/>Name, email address, password hash, preferences | Deleted | Within 14 days |
+| **Job preferences & search history**<br/>Role types, industries, salary, location filters | Deleted | Within 14 days |
+| **Fit scores & audit results**<br/>Recruiter-fit scores, analysis outputs tied to your profile | Deleted | Within 14 days |
+| **Email subscription (Beehiiv)**<br/>Newsletter subscription, email engagement history | Deleted | Within 30 days |
+| **Usage & session logs**<br/>Browsing activity, feature usage, session data | Anonymized | Within 30 days |
+| **Fraud & security logs**<br/>IP address records used for abuse prevention | Retained | 90 days — legal obligation |
+| **Financial transaction records**<br/>Billing records if applicable, processed by payment provider | Retained | 7 years — tax & legal compliance |
 
 **Anonymized data is not personal data.** Usage data we anonymize cannot be linked back to you. It has no names, emails, or identifiers — it's used only for aggregate platform analytics (e.g., "X% of users viewed the fit score feature").
 
