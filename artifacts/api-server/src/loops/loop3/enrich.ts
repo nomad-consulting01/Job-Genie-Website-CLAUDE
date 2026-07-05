@@ -37,7 +37,8 @@ export async function enrichBlogPost(
     try {
       featuredImageUrl = await generateBlogHeroImage(
         { title: question.normalisedQuestion, summary: answer.answerFirstBlock },
-        meta.slug
+        meta.slug,
+        asset.id % 2 === 0 ? "dark_teal" : "warm_editorial"
       );
     } catch (imgErr) {
       logger.error(

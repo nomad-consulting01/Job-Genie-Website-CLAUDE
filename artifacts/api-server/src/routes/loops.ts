@@ -116,13 +116,14 @@ router.post("/loop4/run", async (_req, res) => {
 
 let heroImageBackfillRunning = false;
 
-router.post("/backfill-hero-images/run", async (_req, res) => {
+router.post("/backfill-hero-images/run", async (req, res) => {
   if (heroImageBackfillRunning) {
     res.status(409).json({ error: "Hero image backfill is already running" });
     return;
   }
+  const force = req.query["force"] === "true";
   heroImageBackfillRunning = true;
-  res.json({ message: "Hero image backfill triggered — running in background", status: "started" });
+  res.json({ message: "Hero image backfill triggered — running in background", status: "started", force });
 
   setImmediate(async () => {
     try {
@@ -137,14 +138,15 @@ router.post("/backfill-hero-images/run", async (_req, res) => {
         const slug = row.asset.externalId ?? `post-${row.asset.id}`;
         const meta = row.asset.engagementMetricsJson as Record<string, unknown> | null;
         const existingUrl = meta?.["featuredImageUrl"] as string | undefined;
-        if (existingUrl?.includes("/api/blog-images/")) {
+        if (!force && existingUrl?.includes("/api/blog-images/")) {
           skipped += 1;
           continue;
         }
         try {
           const url = await generateBlogHeroImage(
             { title: row.question.normalisedQuestion, summary: row.answer.answerFirstBlock },
-            slug
+            slug,
+            row.asset.id % 2 === 0 ? "dark_teal" : "warm_editorial"
           );
           await setFeaturedImageUrl(row.asset.id, url);
           success += 1;

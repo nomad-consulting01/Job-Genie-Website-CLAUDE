@@ -6,16 +6,30 @@ import { logger } from "./logger.js";
 const SITE_URL = "https://job-genie.ai";
 const BLOG_IMAGE_PREFIX = "blog-hero-images";
 
+export type BlogHeroImageStyle = "dark_teal" | "warm_editorial";
+
 export interface BlogHeroImagePrompt {
   title: string;
   summary?: string;
 }
 
-function buildPrompt({ title, summary }: BlogHeroImagePrompt): string {
+const STYLE_DESCRIPTIONS: Record<BlogHeroImageStyle, string> = {
+  dark_teal:
+    "Style: cinematic photorealistic photography, moody dark navy/black background, dramatic glowing teal-cyan light accents and rim lighting, subtle volumetric haze, high-end premium tech/SaaS advertising aesthetic, shot on a professional camera with shallow depth of field, realistic human subject if a person appears, no readable text or words anywhere in the image, no logos, no UI icons or infographic labels, no flat illustration or vector art, high quality, 16:9 widescreen composition suitable as a website article header.",
+  warm_editorial:
+    "Style: warm cinematic photorealistic photography, cozy golden-hour amber and honey-toned lighting, realistic office or lifestyle setting, shallow depth of field, editorial magazine photography aesthetic, realistic human subject if a person appears, no readable text or words anywhere in the image, no logos, no UI icons or infographic labels, no flat illustration or vector art, high quality, 16:9 widescreen composition suitable as a website article header.",
+};
+
+function buildPrompt(
+  { title, summary }: BlogHeroImagePrompt,
+  style: BlogHeroImageStyle
+): string {
   return [
-    `Create a modern, editorial hero illustration for a career-advice blog post titled "${title}".`,
+    "IMPORTANT: Do not render any text, words, letters, numbers, captions, labels, subtitles, or typography of any kind anywhere in the image, including on screens, signage, papers, or floating UI elements. The image must be purely visual with zero legible characters.",
+    `Create a striking, photorealistic hero photograph for a career-advice blog post titled "${title}".`,
     summary ? `Article context: ${summary}` : "",
-    "Style: clean flat-vector illustration with warm, professional colors (deep teal, cream, and coral accents), soft geometric shapes, no readable text or words anywhere in the image, no logos, high quality, 16:9 widescreen composition suitable as a website article header.",
+    STYLE_DESCRIPTIONS[style],
+    "Final reminder: absolutely no text, words, or writing of any kind should appear anywhere in the generated image.",
   ]
     .filter(Boolean)
     .join(" ");
@@ -28,9 +42,10 @@ function buildPrompt({ title, summary }: BlogHeroImagePrompt): string {
  */
 export async function generateBlogHeroImage(
   prompt: BlogHeroImagePrompt,
-  slugHint: string
+  slugHint: string,
+  style: BlogHeroImageStyle = "dark_teal"
 ): Promise<string> {
-  const { b64_json, mimeType } = await generateImage(buildPrompt(prompt), { aspectRatio: "16:9" });
+  const { b64_json, mimeType } = await generateImage(buildPrompt(prompt, style), { aspectRatio: "16:9" });
   const buffer = Buffer.from(b64_json, "base64");
   const ext = mimeType.includes("png") ? "png" : "jpg";
   const safeSlug = slugHint.replace(/[^a-z0-9-]/gi, "-").slice(0, 60);

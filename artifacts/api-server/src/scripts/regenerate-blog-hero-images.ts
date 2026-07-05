@@ -20,7 +20,8 @@ async function main() {
     try {
       const url = await generateBlogHeroImage(
         { title: row.question.normalisedQuestion, summary: row.answer.answerFirstBlock },
-        slug
+        slug,
+        row.asset.id % 2 === 0 ? "dark_teal" : "warm_editorial"
       );
       await setFeaturedImageUrl(row.asset.id, url);
       success += 1;
