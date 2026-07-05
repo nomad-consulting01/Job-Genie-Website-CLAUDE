@@ -899,6 +899,9 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
               <a href="#faq">FAQ</a>
               <a href="#price">Pricing</a>
               <a href="https://job-genie.ai/" target="_blank" rel="noopener noreferrer">Launch App</a>
+              <a href="/terms">Terms of Service</a>
+              <a href="/privacy">Privacy Policy</a>
+              <a href="/data-deletion">Request Data Deletion</a>
             </nav>
             <p className="footc">© 2026 Job-Genie.ai · Recruiter Visibility Intelligence · Not a job board · <time dateTime="2026-06-01">Updated June 2026</time></p>
           </div>

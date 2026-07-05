@@ -1,0 +1,103 @@
+Your Data Rights
+Request Data Deletion
+You have the right to request deletion of your personal data from Job-Genie.ai at any time. We'll process your request within 30 days and confirm when it's complete.
+
+CCPA & GDPR compliant
+30-day processing
+Email confirmation included
+What's covered
+What We Delete vs. What We Retain
+When you submit a deletion request, we permanently remove all personal data tied to your account. Some limited data may be retained where required by law or for legitimate security purposes — this is clearly marked below.
+
+Data Type	Action	Timeline
+Resume / CV files
+All uploaded documents and parsed resume data	Deleted	Within 7 days
+Account profile
+Name, email address, password hash, preferences	Deleted	Within 14 days
+Job preferences & search history
+Role types, industries, salary, location filters	Deleted	Within 14 days
+Fit scores & audit results
+Recruiter-fit scores, analysis outputs tied to your profile	Deleted	Within 14 days
+Email subscription (Beehiiv)
+Newsletter subscription, email engagement history	Deleted	Within 30 days
+Usage & session logs
+Browsing activity, feature usage, session data	Anonymized	Within 30 days
+Fraud & security logs
+IP address records used for abuse prevention	Retained 90 days	Legal obligation
+Financial transaction records
+Billing records if applicable (processed by payment provider)	Retained 7 years	Tax & legal compliance
+Anonymized data is not personal data
+Usage data we anonymize cannot be linked back to you. It has no names, emails, or identifiers — it's used only for aggregate platform analytics (e.g., "X% of users viewed the fit score feature").
+The process
+How Deletion Works
+Here's what happens after you submit a deletion request:
+
+Step 1 — Immediately
+Request received & acknowledged
+You'll receive an automated confirmation email to the address you provided. Keep this for your records — it includes your request reference number.
+Step 2 — Within 5 business days
+Identity verification (if needed)
+For security, we may send a follow-up email to verify that the request is coming from the account owner. This protects you from unauthorized deletion requests.
+Step 3 — Within 14 days
+Core data deleted from active systems
+Your resume files, account profile, job preferences, fit scores, and email subscription are permanently removed from our live databases.
+Step 4 — Within 30 days
+Data purged from backups & third-party systems
+Residual data in backup snapshots and third-party services (such as Beehiiv) is removed or expired. Usage logs are anonymized.
+Step 5 — Completion
+Deletion confirmed via email
+You'll receive a final confirmation email confirming that your data has been deleted, along with a summary of any data retained for legal purposes.
+Deletion is permanent and irreversible
+Once your data is deleted, it cannot be recovered. If you think you may want to use Job-Genie.ai again in the future, consider simply closing your account or unsubscribing from communications instead — you can reactivate any time.
+Submit your request
+Data Deletion Request Form
+Fill in the form below and we'll process your request within 30 days. All fields marked as required must be completed so we can verify and action your request.
+
+Submit a Deletion Request
+Your information is used only to locate and delete your account. It is not stored after processing.
+
+First Name *
+Jane
+Last Name *
+Smith
+Email Address on Account *
+jane@example.com
+Confirm Email Address *
+jane@example.com
+Deletion Scope *
+
+Select what you'd like deleted
+Reason for deletion (optional)
+ I no longer need the service
+ Privacy concern
+ I found a job — no longer searching
+ Legal / regulatory right (GDPR, CCPA)
+ Other
+Additional details or specific data to delete
+Optional — describe any specific files, dates, or data you want removed, or any other context that helps us process your request.
+ I understand that deletion is permanent and irreversible. I confirm I want my data removed from Job-Genie.ai.
+Submit Deletion Request →
+We'll send a confirmation to your email within 24 hours. Questions? Email privacy@job-genie.ai
+
+Before you go
+Alternatives to Full Deletion
+Deletion is permanent. If you're not sure, these options may address your concern without losing your data:
+
+Unsubscribe from emails — use the unsubscribe link in any Job-Genie.ai email to stop all marketing communications. Your account and resume data remain intact.
+Delete just your resume — log into your account and remove your uploaded resume files at any time from your profile settings. The rest of your account stays active.
+Pause your account — stop using the platform without deleting your data. You can return and reactivate whenever you need to.
+Request a data export first — before deleting, request a copy of your data so you have a record. Email privacy@job-genie.ai with "Data Export Request" in the subject line.
+Need help?
+Contact Our Privacy Team
+If you have questions about the deletion process, want to check the status of a request, or prefer to submit your request by email, reach out directly:
+
+Job-Genie.ai — Privacy Team
+Email: privacy@job-genie.ai
+
+Subject line for deletion requests: "Data Deletion Request — [your email]"
+
+Subject line for status checks: "Deletion Status — [your reference number]"
+
+Response time: Within 5 business days
+
+We process all requests in accordance with CCPA (California Consumer Privacy Act) and GDPR (EU General Data Protection Regulation) timelines — a maximum of 30 days from verified receipt.

@@ -14,6 +14,9 @@ import BlogIndex from "./pages/BlogIndex";
 import BlogPost from "./pages/BlogPost";
 import AnswerIndex from "./pages/AnswerIndex";
 import AnswerPage from "./pages/AnswerPage";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import DataDeletion from "./pages/DataDeletion";
 import "./styles/brand.css";
 
 const queryClient = new QueryClient();
@@ -48,6 +51,10 @@ function Router() {
       {/* GEO answer pages */}
       <Route path="/answers" component={AnswerIndex} />
       <Route path="/answers/:slug" component={AnswerPage} />
+      {/* Legal pages */}
+      <Route path="/terms" component={TermsOfService} />
+      <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/data-deletion" component={DataDeletion} />
       {/* Legacy landing page variants */}
       <Route path="/:slug" component={LandingPage} />
       <Route component={NotFound} />

@@ -109,6 +109,9 @@ function PageFooter({ page }: { page: LandingPage }) {
             <Link href="/ghost-jobs">Ghost Jobs</Link>
             <Link href="/glossary">Glossary</Link>
             <Link href="/job-genie-vs-auto-apply">vs Auto-Apply</Link>
+            <Link href="/terms">Terms of Service</Link>
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/data-deletion">Request Data Deletion</Link>
           </nav>
           <p className="footc">© 2026 Job-Genie.ai · <Link href="/glossary">Glossary</Link> · <Link href="/for/mid-career-professionals">Mid-Career</Link> · <Link href="/for/senior-engineers">Senior Engineers</Link> · <Link href="/for/career-changers">Career Changers</Link></p>
           <p className="footc" style={{ marginTop: "8px", fontSize: "11px", opacity: 0.4 }}>
