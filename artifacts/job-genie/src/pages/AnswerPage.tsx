@@ -113,7 +113,7 @@ export default function AnswerPage() {
     "@id": `${SITE_URL}/#organization`,
     name: "Job Genie",
     url: SITE_URL,
-    logo: `${SITE_URL}/favicon.svg`,
+    logo: `${SITE_URL}/apple-touch-icon.png`,
   };
 
   const faqSchema = {
@@ -162,7 +162,7 @@ export default function AnswerPage() {
       "@id": `${SITE_URL}/#organization`,
       name: "Job Genie",
       url: SITE_URL,
-      logo: { "@type": "ImageObject", url: `${SITE_URL}/favicon.svg` },
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/apple-touch-icon.png` },
     },
     mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl },
     keywords: (question.painPointTags ?? []).join(", "),
