@@ -76,6 +76,7 @@ function PageNav() {
         <li><Link href="/#how">How It Works</Link></li>
         <li><Link href="/#feat">Features</Link></li>
         <li><Link href="/glossary">Glossary</Link></li>
+        <li><Link href="/blog">Blog</Link></li>
         <li>
           <a
             href="https://modular-pipeline.replit.app/?upload=true"
