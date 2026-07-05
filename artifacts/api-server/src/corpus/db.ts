@@ -467,7 +467,29 @@ export async function markBlogPostMigratedToBeehiiv(
     .where(eq(contentAssets.id, id));
 }
 
-/** Get a blog_post asset by its numeric ID */
+/**
+ * One-time, idempotent backfill: fills engagement_metrics_json.featuredImageUrl
+ * for already-published blog_post assets that predate the featured-image feature.
+ * Alternates dark-teal/warm-editorial by asset id parity, same as Loop 3 enrichment.
+ * Safe to run on every server startup — only touches rows missing the field.
+ */
+export async function backfillMissingFeaturedImages(): Promise<number> {
+  const result = await db.execute(sql`
+    UPDATE content_assets
+    SET engagement_metrics_json = COALESCE(engagement_metrics_json, '{}'::jsonb) || jsonb_build_object(
+      'featuredImageUrl',
+      CASE WHEN id % 2 = 0
+        THEN payload_json->>'image_dark_teal_url'
+        ELSE payload_json->>'image_warm_editorial_url'
+      END
+    )
+    WHERE channel = 'blog_post' AND variant = 'standard' AND external_id IS NOT NULL
+      AND (engagement_metrics_json->>'featuredImageUrl' IS NULL)
+      AND payload_json IS NOT NULL
+  `);
+  return result.rowCount ?? 0;
+}
+
 export async function getBlogPostById(id: number) {
   const [row] = await db
     .select({ asset: contentAssets, answer: answers, question: questions })
