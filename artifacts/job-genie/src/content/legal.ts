@@ -7,7 +7,7 @@ _Effective: May 23, 2026 · Last Updated: May 23, 2026 · Jurisdiction: Florida,
 
 Job-Genie.ai is a tool to help you find specialist recruiter-held jobs. You own your data; we don't sell it or share your resume without your action. Use the platform honestly and legally. We're not a staffing agency and don't guarantee job placement. Either party can end the relationship at any time.
 
-## 01 — Overview & Acceptance of Terms
+## 01 — Overview::Overview & Acceptance of Terms
 
 These Terms of Service ("Terms") govern your access to and use of the Job-Genie.ai website, web application, and related services (collectively, the "Platform"), operated by Job-Genie.ai ("Job-Genie," "we," "us," or "our"), based in Margate, Florida, United States.
 
@@ -17,7 +17,7 @@ If you do not agree to these Terms, do not use the Platform.
 
 These Terms constitute a legally binding agreement between you and Job-Genie.ai. If you are using the Platform on behalf of an organization, you represent that you have authority to bind that organization to these Terms.
 
-## 02 — Eligibility
+## 02 — Eligibility::Eligibility
 
 To use the Platform, you must:
 
@@ -28,7 +28,7 @@ To use the Platform, you must:
 
 The Platform is intended for individual job seekers. Use by staffing firms, recruiters, employers, data aggregators, or competing platforms to scrape, monitor, or harvest listing data is expressly prohibited.
 
-## 03 — Accounts & Registration
+## 03 — Accounts::Accounts & Registration
 
 Certain features of the Platform require you to create an account. When registering, you agree to:
 
@@ -42,7 +42,7 @@ We reserve the right to refuse registration, cancel accounts, or remove or edit 
 
 You may only maintain one active account. Creating multiple accounts to circumvent restrictions or bans is a violation of these Terms.
 
-## 04 — Platform Description & Scope of Services
+## 04 — Platform::Platform Description & Scope of Services
 
 Job-Genie.ai is an AI-powered job search intelligence platform that provides the following services:
 
@@ -55,7 +55,7 @@ Job-Genie.ai is an AI-powered job search intelligence platform that provides the
 
 We make reasonable efforts to ensure listing accuracy and recruiter validation, but we do not guarantee that all listings are current, accurate, or available at any given time. Job market data changes rapidly, and listings may expire or be filled without notice.
 
-## 05 — Acceptable Use Policy
+## 05 — Acceptable Use::Acceptable Use Policy
 
 You agree to use the Platform only for lawful purposes and in accordance with these Terms. You agree not to:
 
@@ -73,7 +73,7 @@ You agree to use the Platform only for lawful purposes and in accordance with th
 
 Violation of this Acceptable Use Policy may result in immediate suspension or termination of your account without notice or refund.
 
-## 06 — Your Content & Data
+## 06 — Your Content::Your Content & Data
 
 **Ownership.** You retain full ownership of any content you upload to the Platform, including your resume, CV, and personal information ("Your Content"). These Terms do not transfer ownership of Your Content to Job-Genie.ai.
 
@@ -85,7 +85,7 @@ Violation of this Acceptable Use Policy may result in immediate suspension or te
 
 **Aggregate data.** We may use de-identified, aggregated data derived from Platform usage to improve our services, train and improve internal AI models, and publish market insights. This data cannot be used to identify you personally.
 
-## 07 — Intellectual Property
+## 07 — Intellectual Property::Intellectual Property
 
 **Our IP.** The Platform, including its design, features, algorithms, AI models, software, text, graphics, logos, and all other content created by Job-Genie.ai (excluding Your Content), is the exclusive property of Job-Genie.ai and is protected by United States and international copyright, trademark, and other intellectual property laws.
 
@@ -95,7 +95,7 @@ Violation of this Acceptable Use Policy may result in immediate suspension or te
 
 **Feedback.** If you submit feedback, suggestions, or ideas about the Platform, you grant us a perpetual, irrevocable, royalty-free license to use that feedback for any purpose without compensation to you.
 
-## 08 — Third-Party Services & Links
+## 08 — Third Parties::Third-Party Services & Links
 
 The Platform integrates with and may link to third-party services, including:
 
@@ -106,7 +106,7 @@ The Platform integrates with and may link to third-party services, including:
 
 Job-Genie.ai is not responsible for the content, privacy practices, or terms of any third-party service. Links to third-party sites do not constitute an endorsement. Your use of third-party services is at your own risk.
 
-## 09 — Disclaimers & Warranties
+## 09 — Disclaimers::Disclaimers & Warranties
 
 TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE PLATFORM IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO:
 
@@ -119,7 +119,7 @@ Job search outcomes depend on many factors outside our control, including your q
 
 **AI limitations.** Our AI-generated fit scores and resume analysis are tools to assist your job search — not definitive assessments of your qualifications. Recruiter decisions involve human judgment and factors our models cannot fully account for. Always apply your own judgment when acting on Platform outputs.
 
-## 10 — Limitation of Liability
+## 10 — Liability::Limitation of Liability
 
 TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, JOB-GENIE.AI AND ITS OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, AND LICENSORS SHALL NOT BE LIABLE FOR:
 
@@ -133,7 +133,7 @@ IN NO EVENT SHALL OUR TOTAL AGGREGATE LIABILITY TO YOU FOR ALL CLAIMS ARISING OU
 
 Some jurisdictions do not allow the exclusion or limitation of certain warranties or liabilities. In such jurisdictions, our liability is limited to the minimum extent permitted by law.
 
-## 11 — Indemnification
+## 11 — Indemnification::Indemnification
 
 You agree to defend, indemnify, and hold harmless Job-Genie.ai and its officers, directors, employees, agents, and licensors from and against any claims, liabilities, damages, losses, and expenses (including reasonable attorneys' fees) arising out of or in connection with:
 
@@ -142,7 +142,7 @@ You agree to defend, indemnify, and hold harmless Job-Genie.ai and its officers,
 - Your violation of any applicable law or regulation; or
 - Your interactions with any recruiter, employer, or third party facilitated by the Platform.
 
-## 12 — Termination
+## 12 — Termination::Termination
 
 **By you.** You may stop using the Platform and close your account at any time by contacting us at privacy@job-genie.ai or using the account deletion flow at job-genie.ai/data-deletion. Closing your account does not automatically delete all your data — please submit a formal data deletion request if you want your data removed.
 
@@ -154,7 +154,7 @@ You agree to defend, indemnify, and hold harmless Job-Genie.ai and its officers,
 - We may delete or retain your data in accordance with our Privacy Policy; and
 - Provisions of these Terms that by their nature should survive termination will do so, including Sections 7 (Intellectual Property), 9 (Disclaimers), 10 (Limitation of Liability), 11 (Indemnification), and 13 (Disputes).
 
-## 13 — Disputes & Governing Law
+## 13 — Disputes::Disputes & Governing Law
 
 **Governing law.** These Terms and any dispute arising from or related to them shall be governed by and construed in accordance with the laws of the State of Florida, United States, without regard to its conflict-of-law principles.
 
@@ -166,7 +166,7 @@ You agree to defend, indemnify, and hold harmless Job-Genie.ai and its officers,
 
 **Time limit.** Any claim arising from these Terms must be brought within one (1) year of the event giving rise to the claim, or it is permanently barred.
 
-## 14 — Changes to These Terms
+## 14 — Changes::Changes to These Terms
 
 We may update these Terms from time to time. When we make material changes, we will:
 
@@ -178,7 +178,7 @@ Your continued use of the Platform after updated Terms take effect constitutes y
 
 We recommend bookmarking this page and reviewing it periodically. Previous versions of these Terms are available on request.
 
-## 15 — Contact Us
+## 15 — Contact::Contact Us
 
 For questions, concerns, or notices regarding these Terms of Service, please contact us:
 
@@ -198,7 +198,7 @@ _Effective: May 23, 2026 · Last Updated: May 23, 2026 · Jurisdiction: United S
 
 How Job-Genie.ai collects, uses, and protects your information when you use our platform.
 
-## 01 — Who We Are & What This Policy Covers
+## 01 — Overview::Who We Are & What This Policy Covers
 
 Job-Genie.ai ("Job-Genie," "we," "us," or "our") is an AI-powered job search platform that connects candidates with specialist recruiter-held opportunities. We help you analyze your resume, assess your recruiter fit, and surface live job listings from staffing firms that match your profile.
 
@@ -206,7 +206,7 @@ This Privacy Policy applies to all information collected through our website at 
 
 **The short version:** We collect what you give us (your resume, email, preferences) and data generated by your use of the Platform. We use it to run the service and improve your results. We do not sell your personal data. Ever.
 
-## 02 — Information We Collect
+## 02 — Data Collection::Information We Collect
 
 We collect information in three ways: directly from you, automatically as you use the Platform, and from third-party sources when you connect them.
 
@@ -229,7 +229,7 @@ We collect information in three ways: directly from you, automatically as you us
 - **Beehiiv** — subscription status, email engagement metrics, and newsletter preferences if you subscribe to our newsletter.
 - **Recruiter listings** — publicly available job listing data sourced from specialist staffing firms and recruiter networks (this is not personal data about you).
 
-## 03 — How We Use Your Information
+## 03 — Use of Data::How We Use Your Information
 
 We use the information we collect for the following purposes:
 
@@ -244,7 +244,7 @@ We use the information we collect for the following purposes:
 
 We do not use your personal data to train third-party AI models or sell insights about individual users to advertisers or data brokers.
 
-## 04 — Data Sharing & Disclosure
+## 04 — Sharing::Data Sharing & Disclosure
 
 We do not sell, rent, or trade your personal information. We share your data only in the following limited circumstances:
 
@@ -256,7 +256,7 @@ We do not sell, rent, or trade your personal information. We share your data onl
 
 **We never share your resume with recruiters without your knowledge.** Job-Genie.ai surfaces recruiter-held listings and helps you identify fit. We do not forward your resume to recruiters or employers on your behalf without explicit action from you.
 
-## 05 — Data Retention
+## 05 — Retention::Data Retention
 
 We retain your personal data for as long as your account is active or as needed to provide the Platform. Specifically:
 
@@ -268,7 +268,7 @@ We retain your personal data for as long as your account is active or as needed 
 
 When we no longer have a legitimate need to retain your data, we securely delete or anonymize it.
 
-## 06 — Your Rights & Choices
+## 06 — Your Rights::Your Rights & Choices
 
 Depending on your location, you may have the following rights with respect to your personal data:
 
@@ -286,7 +286,7 @@ Depending on your location, you may have the following rights with respect to yo
 
 To exercise any of these rights, contact us using the details in the Contact section below. We will respond within 30 days.
 
-## 07 — Cookies & Tracking Technologies
+## 07 — Cookies::Cookies & Tracking Technologies
 
 We use cookies and similar technologies to operate and improve the Platform. Cookies are small text files stored on your device.
 
@@ -297,7 +297,7 @@ We use cookies and similar technologies to operate and improve the Platform. Coo
 
 You can manage or disable non-essential cookies through your browser settings. Note that disabling certain cookies may affect Platform functionality. We honor Global Privacy Control (GPC) signals where technically feasible.
 
-## 08 — Security
+## 08 — Security::Security
 
 We implement industry-standard technical and organizational measures to protect your personal data from unauthorized access, disclosure, alteration, or destruction. These include:
 
@@ -308,7 +308,7 @@ We implement industry-standard technical and organizational measures to protect 
 
 No system is completely secure. If you believe your account has been compromised, contact us immediately. In the event of a data breach that affects your rights and freedoms, we will notify you and applicable regulators as required by law.
 
-## 09 — Third-Party Services & Links
+## 09 — Third Parties::Third-Party Services & Links
 
 The Platform may contain links to third-party websites, recruiter firm pages, or job listing sources. These third parties have their own privacy policies, and we have no control over or responsibility for their practices. We encourage you to review the privacy policies of any third-party sites you visit.
 
@@ -318,11 +318,11 @@ Key third-party services integrated into the Platform include:
 - **Hosting & infrastructure providers** — cloud infrastructure for Platform operation.
 - **Analytics providers** — aggregated usage analytics to understand Platform performance.
 
-## 10 — Children's Privacy
+## 10 — Children::Children's Privacy
 
 The Platform is intended for users who are 18 years of age or older. We do not knowingly collect personal information from children under 13 (or under 16 in the EEA). If we learn that we have inadvertently collected data from a child under the applicable age threshold, we will delete it promptly. If you believe a child has provided us with personal data, please contact us immediately.
 
-## 11 — Changes to This Policy
+## 11 — Updates::Changes to This Policy
 
 We may update this Privacy Policy from time to time to reflect changes in our practices, legal requirements, or Platform features. When we make material changes, we will:
 
@@ -332,7 +332,7 @@ We may update this Privacy Policy from time to time to reflect changes in our pr
 
 Your continued use of the Platform after changes take effect constitutes your acceptance of the updated policy. We encourage you to review this policy periodically.
 
-## 12 — Contact Us
+## 12 — Contact::Contact Us
 
 If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please reach out:
 
@@ -350,7 +350,7 @@ You have the right to request deletion of your personal data from Job-Genie.ai a
 
 **CCPA & GDPR compliant · 30-day processing · Email confirmation included**
 
-## What We Delete vs. What We Retain
+## What's covered::What We Delete vs. What We Retain
 
 When you submit a deletion request, we permanently remove all personal data tied to your account. Some limited data may be retained where required by law or for legitimate security purposes — this is clearly marked below.
 
@@ -365,7 +365,7 @@ When you submit a deletion request, we permanently remove all personal data tied
 
 **Anonymized data is not personal data.** Usage data we anonymize cannot be linked back to you. It has no names, emails, or identifiers — it's used only for aggregate platform analytics (e.g., "X% of users viewed the fit score feature").
 
-## How Deletion Works
+## The process::How Deletion Works
 
 Here's what happens after you submit a deletion request:
 
@@ -377,7 +377,7 @@ Here's what happens after you submit a deletion request:
 
 **Deletion is permanent and irreversible.** Once your data is deleted, it cannot be recovered. If you think you may want to use Job-Genie.ai again in the future, consider simply closing your account or unsubscribing from communications instead — you can reactivate any time.
 
-## How to Submit a Deletion Request
+## Submit your request::How to Submit a Deletion Request
 
 To request deletion, email **privacy@job-genie.ai** with the subject line **"Data Deletion Request — [your email]"** and include:
 
@@ -388,7 +388,7 @@ To request deletion, email **privacy@job-genie.ai** with the subject line **"Dat
 
 We'll send a confirmation to your email within 24 hours, and complete the request within 30 days in accordance with CCPA and GDPR timelines.
 
-## Alternatives to Full Deletion
+## Before you go::Alternatives to Full Deletion
 
 Deletion is permanent. If you're not sure, these options may address your concern without losing your data:
 
@@ -397,7 +397,7 @@ Deletion is permanent. If you're not sure, these options may address your concer
 - **Pause your account** — stop using the platform without deleting your data. You can return and reactivate whenever you need to.
 - **Request a data export first** — before deleting, request a copy of your data so you have a record. Email privacy@job-genie.ai with "Data Export Request" in the subject line.
 
-## Contact Our Privacy Team
+## Need help?::Contact Our Privacy Team
 
 If you have questions about the deletion process, want to check the status of a request, or prefer to submit your request by email, reach out directly:
 

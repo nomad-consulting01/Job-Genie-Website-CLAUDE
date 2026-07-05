@@ -9,6 +9,22 @@ interface LegalPageProps {
   title: string;
   description: string;
   content: string;
+  toc?: string[];
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-");
+}
+
+function splitHeading(raw: string): { eyebrow: string | null; title: string } {
+  const parts = raw.split("::");
+  if (parts.length === 2) {
+    return { eyebrow: parts[0].trim(), title: parts[1].trim() };
+  }
+  return { eyebrow: null, title: raw.trim() };
 }
 
 function extractMeta(content: string): { meta: string | null; rest: string } {
@@ -23,14 +39,14 @@ function extractMeta(content: string): { meta: string | null; rest: string } {
 
 function highlightSummary(content: string): string {
   return content.replace(
-    /^##\s+Plain English Summary\s*\n+([\s\S]*?)(?=\n##\s|$)/m,
+    /^##\s+(?:Plain English Summary|The short version)(?:::.+)?\s*\n+([\s\S]*?)(?=\n##\s|$)/m,
     (_match, body: string) => {
       const quoted = body
         .trim()
         .split("\n")
         .map((line) => `> ${line}`)
         .join("\n");
-      return `> **Plain English Summary**\n>\n${quoted}\n\n`;
+      return `> **The short version**\n>\n${quoted}\n\n`;
     }
   );
 }
@@ -40,22 +56,22 @@ function extractHeadings(content: string): { id: string; text: string }[] {
   const headings: { id: string; text: string }[] = [];
   let match;
   while ((match = headingRegex.exec(content)) !== null) {
-    const text = match[1].replace(/^\d+\s*—\s*/, "").trim();
-    const id = text
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-");
-    headings.push({ id, text });
+    const { title } = splitHeading(match[1]);
+    if (/^(plain english summary|the short version)$/i.test(title)) continue;
+    headings.push({ id: slugify(title), text: title });
   }
   return headings;
 }
 
-export default function LegalPage({ slug, title, description, content }: LegalPageProps) {
+export default function LegalPage({ slug, title, description, content, toc }: LegalPageProps) {
   const canonicalUrl = `${SITE_URL}/${slug}`;
   const { meta, rest: body } = extractMeta(content);
   const rest = highlightSummary(body);
   const metaParts = meta ? meta.split("·").map((p) => p.trim()) : [];
-  const headings = extractHeadings(body).filter((h) => h.text.toLowerCase() !== "plain english summary");
+  const headings = extractHeadings(body);
+  const sidebarItems = toc && toc.length === headings.length
+    ? headings.map((h, i) => ({ id: h.id, text: toc[i] }))
+    : headings;
 
   return (
     <>
@@ -80,41 +96,49 @@ export default function LegalPage({ slug, title, description, content }: LegalPa
           </div>
         </header>
 
-        <div className="max-w-6xl mx-auto px-6 pt-16 pb-10 text-center">
-          <span
-            className="inline-block text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-6"
-            style={{
-              background: "rgba(99,102,241,0.12)",
-              border: "1px solid rgba(99,102,241,0.3)",
-              color: "var(--indigo, #818cf8)",
-            }}
-          >
-            Legal
-          </span>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-5">{title}</h1>
-          <p className="max-w-2xl mx-auto text-[15px] leading-relaxed" style={{ color: "rgba(255,255,255,0.6)" }}>
-            {description}
-          </p>
-
-          {metaParts.length > 0 && (
-            <div
-              className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-6 text-[13px]"
-              style={{ color: "rgba(255,255,255,0.45)" }}
+        <div
+          className="text-center pt-16 pb-10 px-6"
+          style={{
+            background:
+              "radial-gradient(600px 260px at 50% 0%, rgba(99,102,241,0.14), transparent 70%)",
+          }}
+        >
+          <div className="max-w-6xl mx-auto">
+            <span
+              className="inline-block text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-6"
+              style={{
+                background: "rgba(99,102,241,0.14)",
+                border: "1px solid rgba(99,102,241,0.35)",
+                color: "var(--indigo, #818cf8)",
+              }}
             >
-              {metaParts.map((part, i) => (
-                <span key={i} className="flex items-center gap-2">
-                  {i > 0 && <span className="w-1 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.3)" }} />}
-                  {part}
-                </span>
-              ))}
-            </div>
-          )}
+              Legal
+            </span>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-5">{title}</h1>
+            <p className="max-w-2xl mx-auto text-[15px] leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
+              {description}
+            </p>
+
+            {metaParts.length > 0 && (
+              <div
+                className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-6 text-[13px]"
+                style={{ color: "rgba(255,255,255,0.45)" }}
+              >
+                {metaParts.map((part, i) => (
+                  <span key={i} className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--indigo, #818cf8)" }} />
+                    {part}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="border-t" style={{ borderColor: "rgba(255,255,255,0.08)" }} />
 
         <main className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-[220px_1fr] gap-12">
-          {headings.length > 0 && (
+          {sidebarItems.length > 0 && (
             <aside className="hidden md:block">
               <div className="sticky top-8">
                 <div
@@ -124,7 +148,7 @@ export default function LegalPage({ slug, title, description, content }: LegalPa
                   On This Page
                 </div>
                 <nav className="flex flex-col gap-3">
-                  {headings.map((h) => (
+                  {sidebarItems.map((h) => (
                     <a
                       key={h.id}
                       href={`#${h.id}`}
@@ -152,7 +176,7 @@ export default function LegalPage({ slug, title, description, content }: LegalPa
               className="prose prose-sm max-w-none prose-invert
               prose-headings:font-semibold
               prose-h1:text-3xl prose-h1:mb-6 prose-h1:leading-tight
-              prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-white/10
+              prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4
               prose-h3:text-base prose-h3:mt-6 prose-h3:mb-2
               prose-p:leading-relaxed prose-p:my-4
               prose-p:text-white/70
@@ -161,10 +185,10 @@ export default function LegalPage({ slug, title, description, content }: LegalPa
               prose-ol:my-4 prose-ol:space-y-2 prose-ol:list-decimal prose-ol:pl-6
               prose-li:my-1 prose-li:leading-relaxed prose-li:text-white/70
               prose-a:text-teal-300 prose-a:no-underline hover:prose-a:underline
-              prose-blockquote:border-l-4 prose-blockquote:border-indigo-400
-              prose-blockquote:bg-[rgba(99,102,241,0.08)] prose-blockquote:rounded-r-xl
+              prose-blockquote:border-l-0 prose-blockquote:bg-white/[0.04]
+              prose-blockquote:border prose-blockquote:border-white/10 prose-blockquote:rounded-xl
               prose-blockquote:not-italic prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:my-6
-              prose-blockquote:text-white/80
+              prose-blockquote:text-white/70
               prose-hr:border-white/10 prose-hr:my-8
               prose-code:text-teal-300 prose-code:bg-teal-500/10 prose-code:px-1 prose-code:rounded
               prose-thead:border-white/10 prose-tr:border-white/10 prose-th:text-white prose-td:text-white/70"
@@ -172,15 +196,22 @@ export default function LegalPage({ slug, title, description, content }: LegalPa
               <ReactMarkdown
                 components={{
                   h2: ({ children, ...props }) => {
-                    const text = String(children).replace(/^\d+\s*—\s*/, "").trim();
-                    const id = text
-                      .toLowerCase()
-                      .replace(/[^a-z0-9\s-]/g, "")
-                      .replace(/\s+/g, "-");
+                    const { eyebrow, title: headingTitle } = splitHeading(String(children));
+                    const id = slugify(headingTitle);
                     return (
-                      <h2 id={id} {...props}>
-                        {children}
-                      </h2>
+                      <>
+                        {eyebrow && (
+                          <div
+                            className="text-[11px] font-bold uppercase tracking-wider mt-10"
+                            style={{ color: "var(--indigo, #818cf8)" }}
+                          >
+                            {eyebrow}
+                          </div>
+                        )}
+                        <h2 id={id} {...props} className={eyebrow ? "!mt-2" : undefined}>
+                          {headingTitle}
+                        </h2>
+                      </>
                     );
                   },
                 }}
