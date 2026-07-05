@@ -1,5 +1,6 @@
 import { generateBlogMeta } from "../../integrations/claude.js";
 import { updateBlogMeta } from "../../corpus/db.js";
+import { generateBlogHeroImage } from "../../lib/blogImages.js";
 import { logger } from "../../lib/logger.js";
 import type { Answer, Question, ContentAsset } from "@workspace/db";
 
@@ -19,8 +20,8 @@ export async function enrichBlogPost(
   const payload = asset.payloadJson as Record<string, unknown> | null;
   const blogContent = (payload?.["content"] as string) ?? "";
 
-  // Alternate warm-editorial / dark-teal styles across posts for visual variety.
-  const featuredImageUrl =
+  // Fallback brand templates, only used if unique image generation fails.
+  const fallbackImageUrl =
     asset.id % 2 === 0
       ? (payload?.["image_dark_teal_url"] as string | undefined)
       : (payload?.["image_warm_editorial_url"] as string | undefined);
@@ -32,12 +33,29 @@ export async function enrichBlogPost(
       blogContent
     );
 
+    let featuredImageUrl: string | null = fallbackImageUrl ?? null;
+    try {
+      featuredImageUrl = await generateBlogHeroImage(
+        { title: question.normalisedQuestion, summary: answer.answerFirstBlock },
+        meta.slug
+      );
+    } catch (imgErr) {
+      logger.error(
+        {
+          assetId: asset.id,
+          answerId: answer.id,
+          err: imgErr instanceof Error ? imgErr.message : String(imgErr),
+        },
+        "Loop 3: unique hero image generation failed, falling back to brand template"
+      );
+    }
+
     await updateBlogMeta(asset.id, meta.slug, {
       seoTitle: meta.seoTitle,
       metaDescription: meta.metaDescription,
       readTimeMinutes: meta.readTimeMinutes,
       faqJsonLd: meta.faqJsonLd,
-      featuredImageUrl: featuredImageUrl ?? null,
+      featuredImageUrl,
     });
 
     logger.info(

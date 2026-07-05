@@ -490,6 +490,36 @@ export async function backfillMissingFeaturedImages(): Promise<number> {
   return result.rowCount ?? 0;
 }
 
+/**
+ * List all published blog posts along with the fields needed to generate a
+ * unique hero image prompt (title/question + first block of answer text).
+ */
+export async function listAllPublishedBlogPostsForImageGen() {
+  return db
+    .select({ asset: contentAssets, answer: answers, question: questions })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(
+      and(
+        eq(contentAssets.channel, "blog_post"),
+        eq(contentAssets.variant, "standard"),
+        isNotNull(contentAssets.externalId)
+      )
+    )
+    .orderBy(desc(contentAssets.scheduledFor));
+}
+
+/** Overwrite featuredImageUrl on a blog_post asset's engagementMetricsJson (non-destructive merge). */
+export async function setFeaturedImageUrl(id: number, url: string) {
+  await db
+    .update(contentAssets)
+    .set({
+      engagementMetricsJson: sql`COALESCE(${contentAssets.engagementMetricsJson}, '{}'::jsonb) || ${JSON.stringify({ featuredImageUrl: url })}::jsonb`,
+    })
+    .where(eq(contentAssets.id, id));
+}
+
 export async function getBlogPostById(id: number) {
   const [row] = await db
     .select({ asset: contentAssets, answer: answers, question: questions })

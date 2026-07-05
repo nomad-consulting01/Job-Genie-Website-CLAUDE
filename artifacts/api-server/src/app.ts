@@ -13,7 +13,6 @@ import blogHtmlRouter from "./routes/blog-html.js";
 import redditAeoRouter from "./routes/reddit-aeo.js";
 import { logger } from "./lib/logger.js";
 import { startScheduler } from "./scheduler/index.js";
-import { backfillMissingFeaturedImages } from "./corpus/db.js";
 
 const app: Express = express();
 
@@ -59,16 +58,6 @@ app.use("/blog", blogHtmlRouter);
 
 if (process.env["NODE_ENV"] !== "test") {
   startScheduler();
-
-  backfillMissingFeaturedImages()
-    .then((count) => {
-      if (count > 0) {
-        logger.info({ count }, "Startup: backfilled featuredImageUrl on existing blog posts");
-      }
-    })
-    .catch((err) => {
-      logger.error({ err: err instanceof Error ? err.message : String(err) }, "Startup: featured image backfill failed");
-    });
 }
 
 export default app;
