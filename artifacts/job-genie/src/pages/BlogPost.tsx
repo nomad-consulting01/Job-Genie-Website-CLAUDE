@@ -187,14 +187,14 @@ export default function BlogPost() {
             prose-h1:text-3xl prose-h1:mb-6 prose-h1:leading-tight
             prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:text-gray-900
             prose-h3:text-base prose-h3:mt-6 prose-h3:mb-2 prose-h3:text-gray-800
-            prose-p:text-gray-700 prose-p:leading-relaxed prose-p:my-4
+            prose-p:text-gray-700 prose-p:leading-relaxed prose-p:my-6
             prose-strong:text-gray-900 prose-strong:font-semibold
-            prose-ul:text-gray-700 prose-ul:my-4 prose-ul:space-y-1
-            prose-ol:text-gray-700 prose-ol:my-4
+            prose-ul:text-gray-700 prose-ul:my-6 prose-ul:space-y-2
+            prose-ol:text-gray-700 prose-ol:my-6 prose-ol:space-y-2
             prose-li:my-1 prose-li:leading-relaxed
             prose-a:text-teal-600 prose-a:no-underline hover:prose-a:underline
-            prose-blockquote:border-teal-500 prose-blockquote:text-gray-500
-            prose-hr:border-gray-200
+            prose-blockquote:border-teal-500 prose-blockquote:text-gray-500 prose-blockquote:my-6
+            prose-hr:border-gray-200 prose-hr:my-8
             prose-code:text-teal-700 prose-code:bg-teal-50 prose-code:px-1 prose-code:rounded">
             <ReactMarkdown>{post.content}</ReactMarkdown>
           </article>
