@@ -16,7 +16,14 @@ export async function enrichBlogPost(
   answer: Answer,
   question: Question
 ): Promise<Loop3EnrichResult> {
-  const blogContent = (asset.payloadJson as Record<string, unknown> | null)?.["content"] as string ?? "";
+  const payload = asset.payloadJson as Record<string, unknown> | null;
+  const blogContent = (payload?.["content"] as string) ?? "";
+
+  // Alternate warm-editorial / dark-teal styles across posts for visual variety.
+  const featuredImageUrl =
+    asset.id % 2 === 0
+      ? (payload?.["image_dark_teal_url"] as string | undefined)
+      : (payload?.["image_warm_editorial_url"] as string | undefined);
 
   try {
     const meta = await generateBlogMeta(
@@ -30,6 +37,7 @@ export async function enrichBlogPost(
       metaDescription: meta.metaDescription,
       readTimeMinutes: meta.readTimeMinutes,
       faqJsonLd: meta.faqJsonLd,
+      featuredImageUrl: featuredImageUrl ?? null,
     });
 
     logger.info(

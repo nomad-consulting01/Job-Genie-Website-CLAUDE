@@ -360,7 +360,13 @@ export async function listBlogPostsNotYetPublished(limit = 10) {
 export async function updateBlogMeta(
   id: number,
   slug: string,
-  meta: { seoTitle: string; metaDescription: string; readTimeMinutes: number; faqJsonLd: Record<string, unknown> }
+  meta: {
+    seoTitle: string;
+    metaDescription: string;
+    readTimeMinutes: number;
+    faqJsonLd: Record<string, unknown>;
+    featuredImageUrl?: string | null;
+  }
 ) {
   await db
     .update(contentAssets)

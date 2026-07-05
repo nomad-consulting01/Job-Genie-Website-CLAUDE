@@ -144,6 +144,18 @@ export default function BlogPost() {
             )}
           </div>
 
+          {/* Featured image */}
+          {post.featuredImageUrl && (
+            <div className="mb-8 -mx-6 sm:mx-0 sm:rounded-2xl overflow-hidden">
+              <img
+                src={post.featuredImageUrl}
+                alt={post.seoTitle}
+                className="w-full h-auto object-cover"
+                loading="eager"
+              />
+            </div>
+          )}
+
           {/* Answer first block — AEO snippet */}
           {answer.answerFirstBlock && (
             <div className="bg-teal-900/20 border-l-4 border-teal-500 rounded-r-xl px-5 py-4 mb-8">
