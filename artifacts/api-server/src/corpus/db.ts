@@ -419,6 +419,41 @@ export async function getBlogPostBySlug(slug: string) {
 }
 
 /**
+ * Published blog posts (slug set) that have NOT yet been shared to Facebook.
+ * Checks for absence of facebookPostId in engagementMetricsJson.
+ */
+export async function listPublishedBlogPostsNotOnFacebook(limit = 5) {
+  return db
+    .select({ asset: contentAssets, answer: answers, question: questions })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(
+      and(
+        eq(contentAssets.channel, "blog_post"),
+        eq(contentAssets.variant, "standard"),
+        isNotNull(contentAssets.externalId),
+        sql`(${contentAssets.engagementMetricsJson}->>'facebookPostId') IS NULL`
+      )
+    )
+    .orderBy(desc(contentAssets.scheduledFor))
+    .limit(limit);
+}
+
+/**
+ * Merge facebookPostId into a blog_post's engagementMetricsJson without
+ * overwriting existing fields (seoTitle, featuredImageUrl, etc.).
+ */
+export async function markBlogPostFacebookShared(id: number, facebookPostId: string) {
+  await db
+    .update(contentAssets)
+    .set({
+      engagementMetricsJson: sql`${contentAssets.engagementMetricsJson} || ${JSON.stringify({ facebookPostId })}::jsonb`,
+    })
+    .where(eq(contentAssets.id, id));
+}
+
+/**
  * Get all Loop 2 assets for a specific answer, grouped by channel and variant.
  */
 export async function getLoop2AssetsForAnswer(answerId: number) {

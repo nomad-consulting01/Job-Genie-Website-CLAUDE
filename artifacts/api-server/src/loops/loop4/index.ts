@@ -2,6 +2,7 @@ import { runGeo } from "./geo.js";
 import { runReddit } from "./reddit.js";
 import { runEmail } from "./email.js";
 import { runLinkedIn } from "./linkedin.js";
+import { runFacebook } from "./facebook.js";
 import { startLoopRun, finishLoopRun } from "../../corpus/db.js";
 import { engineConfig } from "../../config/engine.js";
 import { logger } from "../../lib/logger.js";
@@ -22,6 +23,7 @@ export interface Loop4RunResult {
   reddit: Loop4SubResult;
   email: Loop4SubResult;
   linkedin: Loop4SubResult;
+  facebook: Loop4SubResult;
   totalSucceeded: number;
   totalFailed: number;
   errors: string[];
@@ -40,6 +42,7 @@ export async function run(): Promise<Loop4RunResult> {
   let reddit: Loop4SubResult = { processed: 0, succeeded: 0, failed: 0, skipped: 0, errors: [] };
   let email: Loop4SubResult = { processed: 0, succeeded: 0, failed: 0, skipped: 0, errors: [] };
   let linkedin: Loop4SubResult = { processed: 0, succeeded: 0, failed: 0, queued: 0, errors: [] };
+  let facebook: Loop4SubResult = { processed: 0, succeeded: 0, failed: 0, skipped: 0, errors: [] };
 
   try {
     // GEO — always runs, no external deps
@@ -70,6 +73,13 @@ export async function run(): Promise<Loop4RunResult> {
     totalFailed += linkedin.failed;
     if (linkedin.errors.length > 0) allErrors.push(...linkedin.errors.map((e) => `[linkedin] ${e}`));
 
+    // Facebook — graceful skip if no credentials
+    logger.info("Loop 4: running Facebook sub-engine");
+    facebook = await runFacebook(cfg.maxItemsPerChannel);
+    totalSucceeded += facebook.succeeded;
+    totalFailed += facebook.failed;
+    if (facebook.errors.length > 0) allErrors.push(...facebook.errors.map((e) => `[facebook] ${e}`));
+
     const hasErrors = totalFailed > 0;
     await finishLoopRun(run_.id, {
       itemsProcessed: totalSucceeded + totalFailed,
@@ -83,7 +93,7 @@ export async function run(): Promise<Loop4RunResult> {
       "Loop 4 completed"
     );
 
-    return { runId: run_.id, geo, reddit, email, linkedin, totalSucceeded, totalFailed, errors: allErrors };
+    return { runId: run_.id, geo, reddit, email, linkedin, facebook, totalSucceeded, totalFailed, errors: allErrors };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     await finishLoopRun(run_.id, {
