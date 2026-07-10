@@ -6,3 +6,4 @@
 - [Stale static build on redeploy](stale-static-build-deploys.md) — editing public/ or index.html doesn't update dist/public; rebuild and verify before telling user to republish; favicon browser cache is separately sticky.
 - [Gemini-generated blog hero images](gemini-blog-hero-images.md) — server-side unique image gen per post via Gemini SDK + Object Storage, replacing static template rotation; set imageConfig.aspectRatio explicitly.
 - [ReactMarkdown GFM tables](reactmarkdown-gfm-tables.md) — react-markdown needs remark-gfm (tables) + rehype-raw (raw HTML like <br/>) plugins; neither is on by default.
+- [Facebook Page posting token setup](facebook-page-token-setup.md) — System User token can't post directly; must exchange for page-scoped token via /{page-id}?fields=access_token.
