@@ -1,10 +1,10 @@
 - [Reddit scraping constraints](reddit-scraping.md) — Reddit JSON API 403 from Replit IPs; use RSS feed for server-side ingest instead.
 - [Reddit RSS rate limiting](reddit-rss-rate-limiting.md) — RSS feeds cap at 100 posts; burst testing causes 429s that only clear after ~10+ min; scheduled daily runs are unaffected.
-- [Blog SEO prerender pattern](blog-seo-prerender.md) — blog posts need prerender.mjs + api-server /blog/:slug route to get correct canonical/metadata; ReactMarkdown works fine in SSR.
+- [Blog SEO prerender pattern](blog-seo-prerender.md) — prod /blog served by static deploy only; prerender.mjs needs multi-base API fallback + must strip generic og:image so FB cards use the featured image.
 - [Vite build env vars](vite-build-env.md) — job-genie build requires PORT and BASE_PATH; use `PORT=19806 BASE_PATH=/ pnpm --filter @workspace/job-genie run build`.
-- [API server path resolution](api-server-path-resolution.md) — esbuild bundles all TS into a single dist/index.mjs; __dirname in route files resolves to dist/, use 3x ../ (not 4x) to reach workspace root.
-- [Stale static build on redeploy](stale-static-build-deploys.md) — editing public/ or index.html doesn't update dist/public; rebuild and verify before telling user to republish; favicon browser cache is separately sticky.
+- [API server path resolution](api-server-path-resolution.md) — esbuild bundles all TS into one dist/index.mjs; __dirname resolves to dist/, use 3x ../ to reach workspace root.
+- [Stale static build on redeploy](stale-static-build-deploys.md) — editing public/ or index.html doesn't update dist/public; rebuild before telling user to republish; favicon cache is separately sticky.
 - [LLM bulk-endpoint batching](llm-bulk-endpoint-batching.md) — endpoints fanning out many sequential Claude calls must batch server-side + client-loop, or they hit the proxy/browser timeout.
-- [Gemini-generated blog hero images](gemini-blog-hero-images.md) — server-side unique image gen per post via Gemini SDK + Object Storage, replacing static template rotation; set imageConfig.aspectRatio explicitly.
+- [Gemini-generated blog hero images](gemini-blog-hero-images.md) — unique per-post image gen via Gemini SDK + Object Storage; set imageConfig.aspectRatio explicitly.
 - [ReactMarkdown GFM tables](reactmarkdown-gfm-tables.md) — react-markdown needs remark-gfm (tables) + rehype-raw (raw HTML like <br/>) plugins; neither is on by default.
 - [Facebook Page posting token setup](facebook-page-token-setup.md) — System User token can't post directly; must exchange for page-scoped token via /{page-id}?fields=access_token.

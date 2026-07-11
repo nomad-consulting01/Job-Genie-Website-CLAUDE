@@ -124,23 +124,42 @@ async function main() {
   // Gracefully skips if the API server is unreachable (cold first-build) — those
   // posts will be served by the api-server dynamic SSR fallback instead.
 
-  const API_BASE = process.env['BLOG_PRERENDER_API'] ?? 'http://localhost:8080';
+  // Resolve which API to pull blog posts from. Prefer an explicit override;
+  // otherwise try the local dev API first (fast, reflects the working DB during
+  // local builds) and fall back to the live production API for deploy builds,
+  // where localhost:8080 isn't running. Without this fallback the deploy build
+  // pre-renders ZERO blog posts, so crawlers (e.g. Facebook) receive the generic
+  // homepage OG tags for every /blog/:slug URL instead of the post's own title
+  // and featured image.
+  const API_BASES = process.env['BLOG_PRERENDER_API']
+    ? [process.env['BLOG_PRERENDER_API']]
+    : ['http://localhost:8080', 'https://job-genie.ai'];
+
+  let API_BASE = null;
   let blogPosts = [];
 
-  try {
-    console.log(`[prerender] Fetching blog post list from ${API_BASE}/api/blog…`);
-    const listResp = await fetch(`${API_BASE}/api/blog?limit=500&offset=0`, {
-      signal: AbortSignal.timeout(8000),
-    });
-    if (listResp.ok) {
+  for (const base of API_BASES) {
+    try {
+      console.log(`[prerender] Fetching blog post list from ${base}/api/blog…`);
+      const listResp = await fetch(`${base}/api/blog?limit=500&offset=0`, {
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!listResp.ok) {
+        console.warn(`[prerender] ${base} returned ${listResp.status} — trying next source`);
+        continue;
+      }
       const listData = await listResp.json();
       blogPosts = (listData.posts ?? []).filter((p) => p.source === 'internal');
-      console.log(`[prerender] ${blogPosts.length} internal blog posts to pre-render`);
-    } else {
-      console.warn(`[prerender] API returned ${listResp.status} — skipping blog prerender`);
+      API_BASE = base;
+      console.log(`[prerender] ${blogPosts.length} internal blog posts to pre-render (source: ${base})`);
+      break;
+    } catch (err) {
+      console.warn(`[prerender] Could not reach ${base} — trying next source:`, err.message);
     }
-  } catch (err) {
-    console.warn('[prerender] Could not reach API — skipping blog prerender:', err.message);
+  }
+
+  if (!API_BASE) {
+    console.warn('[prerender] No API source reachable — skipping blog prerender');
   }
 
   // Import blog-specific render functions from the SSR bundle built above
@@ -181,6 +200,11 @@ async function main() {
       html = html.replace(/<meta name="twitter:card"[^>]*(\/?>)/g, '');
       html = html.replace(/<meta name="twitter:title"[^>]*(\/?>)/g, '');
       html = html.replace(/<meta name="twitter:description"[^>]*(\/?>)/g, '');
+      // Strip the homepage image tags too, otherwise the generic og-image.png
+      // lingers alongside the per-post featured image and crawlers (Facebook)
+      // treat the two og:image tags as a gallery / pick the wrong one.
+      html = html.replace(/<meta property="og:image[^"]*"[^>]*(\/?>)/g, '');
+      html = html.replace(/<meta name="twitter:image"[^>]*(\/?>)/g, '');
 
       // 5. Replace <title> with per-post head block
       html = html.replace(

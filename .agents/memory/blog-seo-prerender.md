@@ -1,37 +1,32 @@
 ---
 name: Blog SEO prerender pattern
-description: How blog posts get correct canonical, title, and article body in raw HTML for crawlers
+description: How blog posts get correct canonical, title, og:image, and article body in raw HTML for crawlers (incl. Facebook link cards)
 ---
 
 ## The problem
 Vite SPA serves the same `index.html` for all routes. Blog posts at `/blog/:slug` got:
 - Homepage canonical (`https://job-genie.ai/`)
-- Homepage title/meta
+- Homepage title/meta + homepage `og:image` (generic brand image → wrong Facebook link-card image)
 - No article body (fetched in useEffect, invisible to non-JS crawlers)
 
-## The fix (two-layer)
+## What actually serves /blog/:slug in PROD (important)
+In production `/blog/:slug` is served by the STATIC job-genie deploy (`serve="static"`, rewrite `/* → /index.html`). The api-server only routes `paths=["/api"]`, so `blog-html.ts` (`app.use("/blog", …)`) is **UNREACHABLE in prod**. So in prod the ONLY thing that gives crawlers correct per-post meta is a prerendered `dist/public/blog/:slug/index.html`. If a slug wasn't prerendered, crawlers fall through the rewrite to the generic homepage `index.html`. (The api-server SSR route only helps in dev, and only if `/blog` were routed to it — it isn't.)
 
-### Layer 1 — Static prerender at build time (prerender.mjs)
-After building static landing pages, the script:
-1. Calls `http://localhost:8080/api/blog?limit=500` to list internal posts
-2. Calls `/api/blog/:slug` for each post to get full data
-3. Uses `renderBlogPost(data)` + `getBlogPostHeadHtml(data)` from the compiled SSR bundle
-4. Writes `dist/public/blog/:slug/index.html` with per-post metadata + React-rendered article body
+## The fix — prerender must run at deploy-build time (prerender.mjs)
+After building static landing pages, the blog section of `main()`:
+1. Lists internal posts via `/api/blog?limit=500`, fetches `/api/blog/:slug` per post
+2. Renders with `renderBlogPost(data)` + `getBlogPostHeadHtml(data)` from the compiled SSR bundle
+3. Writes `dist/public/blog/:slug/index.html` with per-post meta (incl. `og:image = featuredImageUrl`) + React-rendered body
 
-Gracefully skips if the API server is unreachable (cold build).
+**Multi-base API fallback (the key deploy fix):** if `BLOG_PRERENDER_API` is unset, it tries `http://localhost:8080` first (fast for local builds), then falls back to `https://job-genie.ai` (deploy builds where localhost isn't running). Picks the first base whose `/api/blog` returns posts. Before this, the deploy build hit localhost, got nothing, and prerendered ZERO posts → every FB link card showed the generic homepage og:image/title.
+**Why:** deploy build has no local api-server; during a deploy the previous prod version is still live and serves the API.
 
-### Layer 2 — api-server dynamic SSR fallback (`/blog/:slug` route)
-For posts added after the last build:
-- `artifacts/api-server/src/routes/blog-html.ts` registered at `app.use("/blog", blogHtmlRouter)`
-- Checks if prerendered static file exists first (fast path)
-- Falls back to: DB fetch → inline markdown→HTML converter → full HTML response
-- Embeds `window.__BLOG_POST_DATA__` for React hydration
+**Strip homepage image tags in the blog loop:** the prerender template is `index.html`, which has a generic `og:image`/`og:image:width|height|alt`/`twitter:image`. The blog loop must strip those (regex `og:image[^"]*` + `twitter:image`) before injecting the per-post head, or the page ends with TWO `og:image` tags and Facebook treats them as a gallery / picks wrong. Do this ONLY in the blog loop — the static-routes loop relies on the template's og:image because `buildHeadHtml` (unlike `getBlogPostHeadHtml`) does NOT emit one.
+
+## Residual limitation (accepted trade-off)
+Posts created by the cron AFTER a deploy are NOT prerendered until the next republish, so their FB link card / SEO shows generic OG until then (the api-server dynamic SSR fallback can't rescue them in prod). New content needs a redeploy for SEO anyway. Existing shared FB posts also need a Facebook re-scrape (Sharing Debugger / Graph `scrape=true`) after republish to refresh the cached card.
 
 ## Key files
-- `artifacts/job-genie/src/entry-server.tsx` — exports `renderBlogPost`, `getBlogPostHeadHtml`, `BlogPostSSRData`
-- `artifacts/job-genie/prerender.mjs` — blog section at the bottom of `main()`
-- `artifacts/api-server/src/routes/blog-html.ts` — api-server SSR fallback
-- `artifacts/api-server/src/app.ts` — `app.use("/blog", blogHtmlRouter)`
-
-**Why:** ReactMarkdown v10 works fine with `renderToString` for SSR.
-**How to apply:** When new blog posts are added by the cron, they are served by the api-server SSR fallback until the next `pnpm build`.
+- `artifacts/job-genie/prerender.mjs` — blog section at the bottom of `main()` (multi-base fallback + image-tag strip)
+- `artifacts/job-genie/src/entry-server.tsx` — `renderBlogPost`, `getBlogPostHeadHtml` (emits per-post og:image), `buildHeadHtml` (static routes, no og:image)
+- `artifacts/api-server/src/routes/blog-html.ts` — SSR route, mounted `/blog` but unreachable in prod (paths=["/api"])
