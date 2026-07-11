@@ -484,6 +484,72 @@ export async function getMarketingAssetsForAnswer(answerId: number) {
     .orderBy(desc(contentAssets.publishedAt), desc(contentAssets.id));
 }
 
+/**
+ * Approved Meta Ads + Instagram marketing assets for an answer — the only variants
+ * exposed publicly. Returns at most one row per channel (most recently approved).
+ */
+export async function getApprovedMarketingForAnswer(answerId: number) {
+  const rows = await db
+    .select()
+    .from(contentAssets)
+    .where(
+      and(
+        eq(contentAssets.answerId, answerId),
+        eq(contentAssets.variant, "direct_response"),
+        eq(contentAssets.status, "approved"),
+        sql`${contentAssets.channel} IN ('meta_ads', 'instagram')`
+      )
+    )
+    .orderBy(desc(contentAssets.publishedAt), desc(contentAssets.id));
+
+  let meta: (typeof rows)[number] | null = null;
+  let instagram: (typeof rows)[number] | null = null;
+  for (const r of rows) {
+    if (r.channel === "meta_ads" && !meta) meta = r;
+    else if (r.channel === "instagram" && !instagram) instagram = r;
+  }
+  return { meta, instagram };
+}
+
+export interface PublicMarketingVariant {
+  copy: string;
+  hashtags: string[];
+  cta: string;
+}
+export interface PublicDirectResponse {
+  meta: PublicMarketingVariant | null;
+  instagram: PublicMarketingVariant | null;
+}
+
+/** Map a stored marketing payloadJson to the public variant shape. Falls back to `content` for legacy/seeded rows. */
+function extractPublicVariant(payload: unknown): PublicMarketingVariant | null {
+  const p = (payload ?? {}) as Record<string, unknown>;
+  const structured = typeof p["copy"] === "string" ? (p["copy"] as string) : "";
+  const legacy = typeof p["content"] === "string" ? (p["content"] as string) : "";
+  const copy = structured.trim() ? structured : legacy;
+  if (!copy.trim()) return null;
+  const hashtags = Array.isArray(p["hashtags"])
+    ? (p["hashtags"] as unknown[]).map((h) => String(h).trim()).filter(Boolean)
+    : [];
+  const cta = typeof p["cta"] === "string" ? (p["cta"] as string).trim() : "";
+  return { copy: copy.trim(), hashtags, cta };
+}
+
+/**
+ * Build the public-facing directResponse object for a blog post's answer.
+ * Only includes APPROVED variants; returns null when neither channel is approved
+ * (so the public page omits the section entirely).
+ */
+export async function getPublicDirectResponseForAnswer(
+  answerId: number
+): Promise<PublicDirectResponse | null> {
+  const { meta, instagram } = await getApprovedMarketingForAnswer(answerId);
+  const metaV = meta ? extractPublicVariant(meta.payloadJson) : null;
+  const instaV = instagram ? extractPublicVariant(instagram.payloadJson) : null;
+  if (!metaV && !instaV) return null;
+  return { meta: metaV, instagram: instaV };
+}
+
 /** Delete a specific marketing channel's assets for an answer (used before force-regenerate). */
 export async function deleteMarketingAssetForAnswer(answerId: number, channel: "meta_ads" | "instagram") {
   await db
@@ -495,6 +561,46 @@ export async function deleteMarketingAssetForAnswer(answerId: number, channel: "
         eq(contentAssets.channel, channel)
       )
     );
+}
+
+/** Fetch a single content asset by id. */
+export async function getContentAssetById(id: number) {
+  const [row] = await db.select().from(contentAssets).where(eq(contentAssets.id, id));
+  return row ?? null;
+}
+
+/** Resolve the public blog slug for an answer (its blog_post/standard asset externalId). */
+export async function getBlogSlugByAnswerId(answerId: number): Promise<string | null> {
+  const [row] = await db
+    .select({ externalId: contentAssets.externalId })
+    .from(contentAssets)
+    .where(
+      and(
+        eq(contentAssets.channel, "blog_post"),
+        eq(contentAssets.variant, "standard"),
+        eq(contentAssets.answerId, answerId),
+        isNotNull(contentAssets.externalId)
+      )
+    )
+    .limit(1);
+  return row?.externalId ?? null;
+}
+
+/**
+ * Update the editable fields of a marketing asset's payloadJson (merged, so other
+ * keys are preserved) and reset status to 'draft' — edits must be re-approved.
+ */
+export async function updateMarketingAssetPayload(
+  assetId: number,
+  fields: { copy: string; hashtags: string[]; cta: string; content: string }
+) {
+  await db
+    .update(contentAssets)
+    .set({
+      payloadJson: sql`${contentAssets.payloadJson} || ${JSON.stringify(fields)}::jsonb`,
+      status: "draft",
+    })
+    .where(eq(contentAssets.id, assetId));
 }
 
 /** Blog posts that have a slug (externalId set) but haven't been migrated to Beehiiv yet */

@@ -386,55 +386,59 @@ Rules:
 - Make copy native to each platform. Treat the first frame as part of the headline.
 - Do not imply personal attributes in ways that violate Meta's advertising policies.`;
 
-const META_INSTAGRAM_INSTRUCTIONS = `Create Meta Ads and Instagram marketing copy for this job-search topic and expert answer. Return valid JSON only (no markdown fences).
+const META_INSTAGRAM_INSTRUCTIONS = `Create ready-to-publish direct-response social copy for this job-search topic and expert answer. Return valid JSON only (no markdown fences, no commentary).
 
 QUESTION: {QUESTION}
 
 EXPERT ANSWER:
 {ANSWER}
 
-Produce two markdown documents.
+Produce ONE strong, publish-ready post for EACH platform.
 
-1. "meta_ads": Three materially different Meta ad angles (not cosmetic word changes). For EACH angle use this markdown structure:
-### Meta Ad [N]: [Angle Name]
-- **Funnel temperature:** cold / warm / retargeting
-- **Placement:** (e.g. Feed, Reels, Stories)
-- **Hook:** ...
-- **Primary text:** ... (2–5 short paragraphs)
-- **Headline:** ...
-- **Description:** ...
-- **CTA:** ...
-- **Creative concept:** ...
-- **Opening frame:** ...
-- **Objection addressed:** ...
-- **Primary metric:** ...
+META (Facebook / Instagram feed ad — "meta"):
+- "copy": Longer-form, link-friendly, conversational primary text — 3 to 6 short paragraphs. Move the reader Attention → Curiosity → Belief Shift → Desire → Urgency → Action. Name the enemy (ghost jobs, ATS black holes, spray-and-pray applications, recruiter invisibility). It is fine to reference clicking the link or claiming the free Application Autopsy directly.
+- "hashtags": 4 to 8 relevant, non-spammy hashtags.
+- "cta": A short call-to-action button phrase (e.g. "Get My Free Autopsy").
 
-2. "instagram": Organic Instagram copy in three formats, each labelled with markdown:
-### Instagram Reel
-- **Visual opening:** ...
-- **Spoken/on-screen hook:** ...
-- **Script:** (beat-by-beat)
-- **Caption:** ...
-- **Save/Share/DM CTA:** ...
-### Instagram Carousel
-- **Cover slide:** ...
-- **Slides:** (slide-by-slide copy)
-- **Caption:** ...
-- **CTA:** ...
-### Instagram Story Sequence
-- (3–5 frames, each a short line)
-- **CTA sticker/DM instruction:** ...
+INSTAGRAM (organic caption — "instagram"):
+- "copy": Shorter and hook-first. Open with a scroll-stopping first line, then punchy high-energy lines with line breaks for readability. NO raw URLs — reference the link in bio instead. End by prompting saves / shares / DMs.
+- "hashtags": 8 to 15 relevant hashtags.
+- "cta": A short call-to-action that references the link in bio (e.g. "Link in bio for your free Application Autopsy").
 
-Return exactly:
+Rules:
+- Never invent testimonials, statistics, guarantees, deadlines, or results. If proof would strengthen a claim, write "Proof needed: [describe]".
+- Ground everything in Job-Genie's specialist-recruiter mechanism, enemy, and audience.
+- Do not imply personal attributes in ways that violate Meta's advertising policies.
+
+Return exactly this shape:
 {
-  "meta_ads": "<markdown>",
-  "instagram": "<markdown>"
+  "meta": { "copy": "<text>", "hashtags": ["...", "..."], "cta": "<text>" },
+  "instagram": { "copy": "<text>", "hashtags": ["...", "..."], "cta": "<text>" }
 }`;
 
+export interface MarketingVariant {
+  copy: string;
+  hashtags: string[];
+  cta: string;
+}
+
 export interface MetaInstagramResult {
-  metaAds: string;
-  instagram: string;
+  meta: MarketingVariant;
+  instagram: MarketingVariant;
   tokensUsed: number;
+}
+
+/** Coerce a parsed variant into a clean {copy, hashtags[], cta} shape. */
+function normaliseVariant(v: unknown): MarketingVariant {
+  const o = (v ?? {}) as Record<string, unknown>;
+  const copy = typeof o["copy"] === "string" ? o["copy"].trim() : "";
+  const cta = typeof o["cta"] === "string" ? o["cta"].trim() : "";
+  let hashtags: string[] = [];
+  const h = o["hashtags"];
+  if (Array.isArray(h)) hashtags = h.map((x) => String(x).trim()).filter(Boolean);
+  else if (typeof h === "string") hashtags = h.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean);
+  hashtags = hashtags.map((t) => (t.startsWith("#") ? t : `#${t}`));
+  return { copy, hashtags, cta };
 }
 
 export async function generateMetaInstagramCopy(
@@ -454,7 +458,7 @@ export async function generateMetaInstagramCopy(
   });
 
   const raw = message.content[0]?.type === "text" ? message.content[0].text : "{}";
-  let parsed: { meta_ads?: string; instagram?: string } = {};
+  let parsed: { meta?: unknown; instagram?: unknown } = {};
   try {
     parsed = JSON.parse(raw) as typeof parsed;
   } catch {
@@ -465,8 +469,8 @@ export async function generateMetaInstagramCopy(
   }
 
   return {
-    metaAds: parsed.meta_ads ?? "",
-    instagram: parsed.instagram ?? "",
+    meta: normaliseVariant(parsed.meta),
+    instagram: normaliseVariant(parsed.instagram),
     tokensUsed: message.usage.input_tokens + message.usage.output_tokens,
   };
 }

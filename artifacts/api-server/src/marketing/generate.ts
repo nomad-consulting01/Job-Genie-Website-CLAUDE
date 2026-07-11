@@ -1,10 +1,19 @@
-import { generateMetaInstagramCopy } from "../integrations/claude.js";
+import { generateMetaInstagramCopy, type MarketingVariant } from "../integrations/claude.js";
 import {
   insertContentAsset,
   getMarketingAssetsForAnswer,
   deleteMarketingAssetForAnswer,
 } from "../corpus/db.js";
 import { logger } from "../lib/logger.js";
+
+/** Compose a human-readable markdown block from a structured variant (for back-compat display). */
+export function composeMarketingMarkdown(v: MarketingVariant): string {
+  const parts: string[] = [];
+  if (v.copy.trim()) parts.push(v.copy.trim());
+  if (v.cta.trim()) parts.push(`**CTA:** ${v.cta.trim()}`);
+  if (v.hashtags.length) parts.push(v.hashtags.join(" "));
+  return parts.join("\n\n");
+}
 
 export interface MarketingGenerateResult {
   answerId: number;
@@ -45,14 +54,14 @@ export async function generateAndStoreBlogMarketing(
     // On force-regenerate, remove stale rows first so we never accumulate duplicates.
     if (force) {
       const deletes: Promise<unknown>[] = [];
-      if (result.metaAds.trim()) deletes.push(deleteMarketingAssetForAnswer(answerId, "meta_ads"));
-      if (result.instagram.trim()) deletes.push(deleteMarketingAssetForAnswer(answerId, "instagram"));
+      if (result.meta.copy.trim()) deletes.push(deleteMarketingAssetForAnswer(answerId, "meta_ads"));
+      if (result.instagram.copy.trim()) deletes.push(deleteMarketingAssetForAnswer(answerId, "instagram"));
       await Promise.all(deletes);
     }
 
     const inserts: Promise<unknown>[] = [];
 
-    if (needMeta && result.metaAds.trim()) {
+    if (needMeta && result.meta.copy.trim()) {
       inserts.push(
         insertContentAsset({
           answerId,
@@ -62,11 +71,14 @@ export async function generateAndStoreBlogMarketing(
             channel: "meta_ads",
             variant: "direct_response",
             question,
-            content: result.metaAds,
+            copy: result.meta.copy,
+            hashtags: result.meta.hashtags,
+            cta: result.meta.cta,
+            content: composeMarketingMarkdown(result.meta),
             generated_at: new Date().toISOString(),
           },
-          status: "published",
-          publishedAt: new Date(),
+          // Generated copy starts as a draft — it must be approved before public exposure.
+          status: "draft",
         })
       );
       created.push("meta_ads");
@@ -74,7 +86,7 @@ export async function generateAndStoreBlogMarketing(
       skipped.push("meta_ads");
     }
 
-    if (needInstagram && result.instagram.trim()) {
+    if (needInstagram && result.instagram.copy.trim()) {
       inserts.push(
         insertContentAsset({
           answerId,
@@ -84,11 +96,14 @@ export async function generateAndStoreBlogMarketing(
             channel: "instagram",
             variant: "direct_response",
             question,
-            content: result.instagram,
+            copy: result.instagram.copy,
+            hashtags: result.instagram.hashtags,
+            cta: result.instagram.cta,
+            content: composeMarketingMarkdown(result.instagram),
             generated_at: new Date().toISOString(),
           },
-          status: "published",
-          publishedAt: new Date(),
+          // Generated copy starts as a draft — it must be approved before public exposure.
+          status: "draft",
         })
       );
       created.push("instagram");
@@ -98,9 +113,9 @@ export async function generateAndStoreBlogMarketing(
 
     await Promise.all(inserts);
 
-    if ((needMeta && !result.metaAds.trim()) || (needInstagram && !result.instagram.trim())) {
+    if ((needMeta && !result.meta.copy.trim()) || (needInstagram && !result.instagram.copy.trim())) {
       logger.warn(
-        { answerId, metaEmpty: !result.metaAds.trim(), instagramEmpty: !result.instagram.trim() },
+        { answerId, metaEmpty: !result.meta.copy.trim(), instagramEmpty: !result.instagram.copy.trim() },
         "Marketing: Claude returned empty copy for a requested channel (possible truncated/invalid JSON)"
       );
     }

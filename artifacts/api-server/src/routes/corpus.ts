@@ -14,10 +14,14 @@ import {
   getLoop2AssetsForAnswer,
   listPublishedBlogPosts,
   getMarketingAssetsForAnswer,
+  getContentAssetById,
+  getBlogSlugByAnswerId,
+  updateMarketingAssetPayload,
 } from "../corpus/db.js";
 import { seedManualQuestion } from "../loops/loop1/ingest.js";
 import { scrapeRedditUrl, ingestFromRedditUrl } from "../integrations/reddit.js";
-import { generateAndStoreBlogMarketing } from "../marketing/generate.js";
+import { generateAndStoreBlogMarketing, composeMarketingMarkdown } from "../marketing/generate.js";
+import { invalidatePrerenderedBlogPost } from "./blog-html.js";
 import { logger } from "../lib/logger.js";
 
 const router = Router();
@@ -291,19 +295,28 @@ router.get("/blog-marketing", async (_req, res) => {
         for (const m of marketing) {
           if (!byChannel.has(m.channel)) byChannel.set(m.channel, m);
         }
-        const readContent = (channel: string): string | null => {
+        const readVariant = (channel: string) => {
           const a = byChannel.get(channel);
           if (!a) return null;
           const payload = (a.payloadJson ?? {}) as Record<string, unknown>;
-          return (payload["content"] as string | undefined) ?? null;
+          const structuredCopy = typeof payload["copy"] === "string" ? (payload["copy"] as string) : "";
+          const legacyContent = typeof payload["content"] === "string" ? (payload["content"] as string) : "";
+          return {
+            assetId: a.id,
+            status: a.status,
+            copy: structuredCopy || legacyContent,
+            hashtags: Array.isArray(payload["hashtags"]) ? (payload["hashtags"] as unknown[]).map(String) : [],
+            cta: typeof payload["cta"] === "string" ? (payload["cta"] as string) : "",
+            content: legacyContent || structuredCopy,
+          };
         };
         return {
           blogPostId: asset.id,
           answerId: answer.id,
           slug: asset.externalId,
           question: question.normalisedQuestion,
-          meta: readContent("meta_ads"),
-          instagram: readContent("instagram"),
+          meta: readVariant("meta_ads"),
+          instagram: readVariant("instagram"),
         };
       })
     );
@@ -384,6 +397,72 @@ router.post("/blog-marketing/generate", async (req, res) => {
     const msg = err instanceof Error ? err.message : String(err);
     logger.error({ err: msg }, "POST /corpus/blog-marketing/generate failed");
     res.status(500).json({ error: msg });
+  }
+});
+
+/**
+ * Edit a marketing variant's structured fields (copy / hashtags / cta).
+ * Recomposes the display markdown and resets the asset to 'draft' — it must be
+ * re-approved before it appears publicly. Invalidates any prerendered file.
+ */
+router.patch("/blog-marketing/:assetId", async (req, res) => {
+  try {
+    const assetId = parseInt(req.params["assetId"] ?? "0");
+    const asset = await getContentAssetById(assetId);
+    if (!asset || (asset.channel !== "meta_ads" && asset.channel !== "instagram")) {
+      res.status(404).json({ error: "Marketing asset not found" });
+      return;
+    }
+    const body = req.body as { copy?: string; hashtags?: string[] | string; cta?: string };
+    const copy = typeof body.copy === "string" ? body.copy.trim() : "";
+    const cta = typeof body.cta === "string" ? body.cta.trim() : "";
+    let hashtags: string[] = [];
+    if (Array.isArray(body.hashtags)) hashtags = body.hashtags.map((h) => String(h).trim()).filter(Boolean);
+    else if (typeof body.hashtags === "string") hashtags = body.hashtags.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean);
+    hashtags = hashtags.map((t) => (t.startsWith("#") ? t : `#${t}`));
+
+    const variant = { copy, hashtags, cta };
+    const content = composeMarketingMarkdown(variant);
+    await updateMarketingAssetPayload(assetId, { ...variant, content });
+
+    // Editing un-approves — drop any stale prerendered HTML for this post.
+    if (asset.answerId != null) {
+      const slug = await getBlogSlugByAnswerId(asset.answerId);
+      if (slug) invalidatePrerenderedBlogPost(slug);
+    }
+
+    res.json({ id: assetId, status: "draft", ...variant, content });
+  } catch (err) {
+    logger.error({ err }, "PATCH /corpus/blog-marketing/:assetId failed");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+/**
+ * Approve or unapprove a marketing variant for public exposure.
+ * Body: { approved: boolean }. Invalidates the prerendered file so crawlers get fresh HTML.
+ */
+router.post("/blog-marketing/:assetId/approval", async (req, res) => {
+  try {
+    const assetId = parseInt(req.params["assetId"] ?? "0");
+    const asset = await getContentAssetById(assetId);
+    if (!asset || (asset.channel !== "meta_ads" && asset.channel !== "instagram")) {
+      res.status(404).json({ error: "Marketing asset not found" });
+      return;
+    }
+    const { approved } = req.body as { approved?: boolean };
+    const status = approved ? "approved" : "draft";
+    await updateContentAssetStatus(assetId, status);
+
+    if (asset.answerId != null) {
+      const slug = await getBlogSlugByAnswerId(asset.answerId);
+      if (slug) invalidatePrerenderedBlogPost(slug);
+    }
+
+    res.json({ id: assetId, status });
+  } catch (err) {
+    logger.error({ err }, "POST /corpus/blog-marketing/:assetId/approval failed");
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

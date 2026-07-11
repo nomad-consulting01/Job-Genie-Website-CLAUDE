@@ -13,6 +13,7 @@ import LandingPage from './pages/LandingPage';
 import AEOPage from './pages/AEOPage';
 import variantsData from './data/variants.json';
 import ReactMarkdown from 'react-markdown';
+import { DirectResponseTabs, type PublicDirectResponse } from '@/components/DirectResponseTabs';
 
 const SITE_URL = 'https://job-genie.ai';
 const SITE_NAME = 'Job Genie';
@@ -240,9 +241,10 @@ export interface BlogPostSSRData {
     id: number;
     answerFirstBlock: string;
   };
+  directResponse?: PublicDirectResponse | null;
 }
 
-function StaticBlogPost({ post, question, answer }: BlogPostSSRData) {
+function StaticBlogPost({ post, question, answer, directResponse }: BlogPostSSRData) {
   const date = post.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString('en-GB', {
         day: 'numeric', month: 'long', year: 'numeric',
@@ -284,6 +286,7 @@ function StaticBlogPost({ post, question, answer }: BlogPostSSRData) {
             </ul>
           </footer>
         )}
+        <DirectResponseTabs directResponse={directResponse ?? null} />
       </main>
     </div>
   );

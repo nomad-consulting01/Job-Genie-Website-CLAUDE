@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { listPublishedBlogPosts, getBlogPostBySlug } from "../corpus/db.js";
+import { listPublishedBlogPosts, getBlogPostBySlug, getPublicDirectResponseForAnswer } from "../corpus/db.js";
 import { listBeehiivPosts, isBeehiivConfigured, type BeehiivPost } from "../integrations/beehiiv.js";
 import { logger } from "../lib/logger.js";
 
@@ -81,6 +81,7 @@ router.get("/:slug", async (req, res) => {
     const { asset, answer, question } = row;
     const meta = (asset.engagementMetricsJson ?? {}) as Record<string, unknown>;
     const payload = (asset.payloadJson ?? {}) as Record<string, unknown>;
+    const directResponse = await getPublicDirectResponseForAnswer(answer.id);
     res.json({
       post: {
         id: asset.id,
@@ -103,6 +104,7 @@ router.get("/:slug", async (req, res) => {
         id: answer.id,
         answerFirstBlock: answer.answerFirstBlock,
       },
+      directResponse,
     });
   } catch (err) {
     logger.error({ err }, "GET /blog/:slug failed");

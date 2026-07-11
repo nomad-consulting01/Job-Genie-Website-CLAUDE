@@ -10,7 +10,7 @@
  * at the last build.  The Vite SPA loads on top for interactive users.
  */
 import { Router } from "express";
-import { getBlogPostBySlug } from "../corpus/db.js";
+import { getBlogPostBySlug, getPublicDirectResponseForAnswer } from "../corpus/db.js";
 import { logger } from "../lib/logger.js";
 import fs from "fs";
 import path from "path";
@@ -23,7 +23,24 @@ const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Path to the job-genie Vite build output (available after production build)
-const JOB_GENIE_DIST = path.resolve(__dirname, "../../../../job-genie/dist/public");
+const JOB_GENIE_DIST = path.resolve(__dirname, "../../job-genie/dist/public");
+
+/**
+ * Remove a post's prerendered static file so the dynamic SSR fallback (which reads
+ * fresh approved copy) serves it instead. Called when marketing copy is approved,
+ * unapproved, or edited, so crawlers don't keep seeing stale HTML until the next build.
+ */
+export function invalidatePrerenderedBlogPost(slug: string): void {
+  try {
+    const staticFile = path.join(JOB_GENIE_DIST, "blog", slug, "index.html");
+    if (fs.existsSync(staticFile)) {
+      fs.unlinkSync(staticFile);
+      logger.info({ slug }, "blog-html: invalidated prerendered file after marketing change");
+    }
+  } catch (err) {
+    logger.warn({ slug, err }, "blog-html: failed to invalidate prerendered file");
+  }
+}
 
 function esc(s: string): string {
   return s
@@ -88,6 +105,112 @@ function extractSpaScripts(): string {
   }
 }
 
+interface PublicMarketingVariant {
+  copy: string;
+  hashtags: string[];
+  cta: string;
+}
+interface PublicDirectResponse {
+  meta: PublicMarketingVariant | null;
+  instagram: PublicMarketingVariant | null;
+}
+
+/**
+ * Server-rendered, crawlable tabbed Meta/Instagram section for the raw HTML path.
+ * Renders both tabpanels with ARIA roles (inactive one hidden). A tiny inline
+ * script upgrades it into a keyboard-accessible tab + copy interface for the
+ * brief window before the SPA mounts and for no-JS-framework crawlers.
+ */
+function buildDirectResponseHtml(dr: PublicDirectResponse | null): string {
+  if (!dr) return "";
+  const channels: { key: "meta" | "instagram"; label: string; v: PublicMarketingVariant }[] = [];
+  if (dr.meta) channels.push({ key: "meta", label: "Meta", v: dr.meta });
+  if (dr.instagram) channels.push({ key: "instagram", label: "Instagram", v: dr.instagram });
+  if (channels.length === 0) return "";
+
+  const NAVY = "#090D19";
+  const INDIGO = "#7C83FF";
+  const SORA = "'Sora',sans-serif";
+  const DM = "'DM Sans',sans-serif";
+
+  const tabs = channels
+    .map((c, i) => {
+      const selected = i === 0;
+      const style = selected
+        ? `font-family:${SORA};background:${INDIGO};color:${NAVY};border:1px solid ${INDIGO}`
+        : `font-family:${SORA};background:rgba(255,255,255,.05);color:#9ca3af;border:1px solid rgba(255,255,255,.1)`;
+      return `<button type="button" role="tab" id="dr-tab-${c.key}" aria-selected="${selected}" aria-controls="dr-panel-${c.key}" tabindex="${selected ? 0 : -1}" data-dr-tab="${c.key}" style="border-radius:8px;padding:8px 16px;font-size:14px;font-weight:600;cursor:pointer;${style}">${esc(c.label)}</button>`;
+    })
+    .join("");
+
+  const panels = channels
+    .map((c, i) => {
+      const hidden = i === 0 ? "" : " hidden";
+      const hashtags = c.v.hashtags.length
+        ? `<p style="font-family:${DM};font-size:14px;font-weight:500;color:${INDIGO};margin:0 0 16px">${esc(c.v.hashtags.join(" "))}</p>`
+        : "";
+      const cta = c.v.cta
+        ? `<p style="font-family:${DM};font-size:14px;font-weight:600;color:#fff;margin:0 0 16px">${esc(c.v.cta)}</p>`
+        : "";
+      return `<div role="tabpanel" id="dr-panel-${c.key}" aria-labelledby="dr-tab-${c.key}" tabindex="0" data-dr-panel="${c.key}"${hidden}>
+        <p style="font-family:${DM};font-size:15px;line-height:1.7;color:#e5e7eb;white-space:pre-wrap;margin:0 0 16px">${esc(c.v.copy)}</p>
+        ${hashtags}
+        ${cta}
+        <button type="button" data-dr-copy="${c.key}" style="font-family:${SORA};display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;background:rgba(124,131,255,.15);color:${INDIGO};border:1px solid rgba(124,131,255,.35)">Copy</button>
+      </div>`;
+    })
+    .join("");
+
+  const payload = channels.reduce<Record<string, string>>((acc, c) => {
+    acc[c.key] = [c.v.copy, c.v.hashtags.join(" "), c.v.cta].filter((s) => s && s.trim()).join("\n\n");
+    return acc;
+  }, {});
+
+  return `<section aria-label="Ready-to-share social posts" style="margin-top:48px;border-radius:16px;padding:24px;background:${NAVY};border:1px solid rgba(255,255,255,.08)">
+      <h2 style="font-family:${SORA};font-size:20px;font-weight:700;color:#fff;margin:0 0 4px">Share this insight</h2>
+      <p style="font-family:${DM};font-size:14px;color:#9ca3af;margin:0 0 20px">Copy a ready-to-post version for your channel.</p>
+      <div role="tablist" aria-label="Social platform" style="display:flex;gap:8px;margin-bottom:20px">${tabs}</div>
+      ${panels}
+    </section>
+    <script>(function(){
+      var text=${JSON.stringify(payload).replace(/</g, "\\u003c")};
+      var root=document.currentScript.previousElementSibling;
+      if(!root||!root.querySelector)return;
+      var tabs=[].slice.call(root.querySelectorAll('[data-dr-tab]'));
+      var panels=[].slice.call(root.querySelectorAll('[data-dr-panel]'));
+      var NAVY='${NAVY}',INDIGO='${INDIGO}';
+      function activate(key){
+        tabs.forEach(function(t){
+          var on=t.getAttribute('data-dr-tab')===key;
+          t.setAttribute('aria-selected',on?'true':'false');
+          t.tabIndex=on?0:-1;
+          t.style.background=on?INDIGO:'rgba(255,255,255,.05)';
+          t.style.color=on?NAVY:'#9ca3af';
+          t.style.border=on?'1px solid '+INDIGO:'1px solid rgba(255,255,255,.1)';
+        });
+        panels.forEach(function(p){ p.hidden=p.getAttribute('data-dr-panel')!==key; });
+      }
+      tabs.forEach(function(t,i){
+        t.addEventListener('click',function(){ activate(t.getAttribute('data-dr-tab')); });
+        t.addEventListener('keydown',function(e){
+          var n=i;
+          if(e.key==='ArrowRight'||e.key==='ArrowDown')n=(i+1)%tabs.length;
+          else if(e.key==='ArrowLeft'||e.key==='ArrowUp')n=(i-1+tabs.length)%tabs.length;
+          else if(e.key==='Home')n=0;else if(e.key==='End')n=tabs.length-1;else return;
+          e.preventDefault();activate(tabs[n].getAttribute('data-dr-tab'));tabs[n].focus();
+        });
+      });
+      root.querySelectorAll('[data-dr-copy]').forEach(function(b){
+        b.addEventListener('click',function(){
+          var k=b.getAttribute('data-dr-copy');
+          if(navigator.clipboard){navigator.clipboard.writeText(text[k]||'').then(function(){
+            var o=b.textContent;b.textContent='Copied \u2713';setTimeout(function(){b.textContent=o;},1500);
+          }).catch(function(){});}
+        });
+      });
+    })();</script>`;
+}
+
 function buildBlogPostHtml(opts: {
   slug: string;
   title: string;
@@ -101,6 +224,7 @@ function buildBlogPostHtml(opts: {
   faqJsonLd: Record<string, unknown> | null;
   postDataJson: string;
   featuredImageUrl?: string | null;
+  directResponse?: PublicDirectResponse | null;
 }): string {
   const canonical = `${SITE_URL}/blog/${opts.slug}`;
   const displayTitle = opts.title.includes("| Job Genie") ? opts.title : `${opts.title} | Job Genie`;
@@ -192,6 +316,7 @@ function buildBlogPostHtml(opts: {
       <div style="font-size:15px;color:#d1d5db;line-height:1.8">
         ${opts.contentHtml}
       </div>
+      ${buildDirectResponseHtml(opts.directResponse ?? null)}
     </article>
   </div>
   <script>window.__BLOG_POST_DATA__=${opts.postDataJson};</script>
@@ -228,6 +353,7 @@ router.get("/:slug", async (req, res) => {
     const { asset, answer, question } = row;
     const meta = (asset.engagementMetricsJson ?? {}) as Record<string, unknown>;
     const payload = (asset.payloadJson ?? {}) as Record<string, unknown>;
+    const directResponse = await getPublicDirectResponseForAnswer(answer.id);
 
     const seoTitle = String(meta["seoTitle"] ?? question.normalisedQuestion);
     const metaDescription = String(meta["metaDescription"] ?? "");
@@ -258,6 +384,7 @@ router.get("/:slug", async (req, res) => {
         id: answer.id,
         answerFirstBlock: answer.answerFirstBlock,
       },
+      directResponse,
     };
 
     const html = buildBlogPostHtml({
@@ -272,7 +399,8 @@ router.get("/:slug", async (req, res) => {
       painPointTags: question.painPointTags,
       faqJsonLd,
       featuredImageUrl,
-      postDataJson: JSON.stringify(postData),
+      postDataJson: JSON.stringify(postData).replace(/</g, "\\u003c"),
+      directResponse,
     });
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");

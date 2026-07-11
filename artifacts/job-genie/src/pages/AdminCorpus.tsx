@@ -142,13 +142,44 @@ function ContentPane({ content, channel }: { content: string; channel: string })
   return <p className="text-xs text-gray-300 whitespace-pre-wrap leading-relaxed">{content}</p>;
 }
 
+interface MarketingVariant {
+  assetId: number;
+  status: string;
+  copy: string;
+  hashtags: string[];
+  cta: string;
+  content: string;
+}
+
 interface BlogMarketing {
   blogPostId: number;
   answerId: number;
   slug: string | null;
   question: string;
-  meta: string | null;
-  instagram: string | null;
+  meta: MarketingVariant | null;
+  instagram: MarketingVariant | null;
+}
+
+function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) {
+  const [copied, setCopied] = useState(false);
+  if (!text) return null;
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(text);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        } catch {
+          /* clipboard unavailable */
+        }
+      }}
+      className="text-[11px] text-gray-400 border border-white/10 px-2 py-0.5 rounded hover:bg-white/10 transition-colors whitespace-nowrap"
+    >
+      {copied ? "✓ Copied" : label}
+    </button>
+  );
 }
 
 function BlogMarketingCard({
@@ -156,17 +187,59 @@ function BlogMarketingCard({
   marketing,
   generating,
   onGenerate,
+  onSave,
+  onApprove,
 }: {
   post: { id: number; slug: string; seoTitle: string; readTimeMinutes: number | null; publishedAt: string | null };
   marketing: BlogMarketing | undefined;
   generating: boolean;
   onGenerate: (answerId: number, force: boolean) => void;
+  onSave: (assetId: number, fields: { copy: string; hashtags: string; cta: string }) => Promise<void>;
+  onApprove: (assetId: number, approved: boolean) => Promise<void>;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [subTab, setSubTab] = useState<"meta" | "instagram">("meta");
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({ copy: "", hashtags: "", cta: "" });
+  const [saving, setSaving] = useState(false);
+  const [approving, setApproving] = useState(false);
 
+  const v = marketing ? (subTab === "meta" ? marketing.meta : marketing.instagram) : null;
   const hasCopy = !!(marketing && (marketing.meta || marketing.instagram));
-  const content = subTab === "meta" ? marketing?.meta : marketing?.instagram;
+  const anyApproved = !!(
+    marketing &&
+    (marketing.meta?.status === "approved" || marketing.instagram?.status === "approved")
+  );
+  const approved = v?.status === "approved";
+
+  const switchTab = (t: "meta" | "instagram") => {
+    setSubTab(t);
+    setEditing(false);
+  };
+  const startEdit = () => {
+    if (!v) return;
+    setDraft({ copy: v.copy, hashtags: v.hashtags.join(" "), cta: v.cta });
+    setEditing(true);
+  };
+  const save = async () => {
+    if (!v) return;
+    setSaving(true);
+    try {
+      await onSave(v.assetId, draft);
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+  const toggleApproval = async () => {
+    if (!v) return;
+    setApproving(true);
+    try {
+      await onApprove(v.assetId, !approved);
+    } finally {
+      setApproving(false);
+    }
+  };
 
   return (
     <div className="bg-white/5 border border-white/8 rounded-xl p-4">
@@ -178,11 +251,12 @@ function BlogMarketingCard({
             {post.readTimeMinutes && <span>{post.readTimeMinutes} min read</span>}
             {post.publishedAt && <span>{new Date(post.publishedAt).toLocaleDateString()}</span>}
             {hasCopy && <span className="text-amber-400">⚡ Meta + Instagram copy</span>}
+            {anyApproved && <span className="text-emerald-400">● Live on post</span>}
           </div>
         </div>
         <div className="flex flex-shrink-0 items-center gap-2">
           <button
-            onClick={() => setExpanded((v) => !v)}
+            onClick={() => setExpanded((x) => !x)}
             disabled={!marketing}
             className="text-xs bg-amber-900/30 text-amber-300 border border-amber-700/40 px-3 py-1 rounded-lg hover:bg-amber-900/50 transition-colors whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
           >
@@ -200,9 +274,9 @@ function BlogMarketingCard({
 
       {expanded && marketing && (
         <div className="mt-4 border-t border-white/10 pt-4">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
             <button
-              onClick={() => setSubTab("meta")}
+              onClick={() => switchTab("meta")}
               className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
                 subTab === "meta"
                   ? "bg-blue-900/40 text-blue-200 border-blue-600/50"
@@ -212,7 +286,7 @@ function BlogMarketingCard({
               📘 Meta Ads
             </button>
             <button
-              onClick={() => setSubTab("instagram")}
+              onClick={() => switchTab("instagram")}
               className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
                 subTab === "instagram"
                   ? "bg-pink-900/40 text-pink-200 border-pink-600/50"
@@ -221,6 +295,17 @@ function BlogMarketingCard({
             >
               📸 Instagram
             </button>
+            {v && (
+              <span
+                className={`text-[11px] px-2 py-0.5 rounded-full border ${
+                  approved
+                    ? "bg-emerald-900/30 text-emerald-300 border-emerald-700/40"
+                    : "bg-amber-900/30 text-amber-300 border-amber-700/40"
+                }`}
+              >
+                {approved ? "Approved" : "Draft"}
+              </span>
+            )}
             <div className="ml-auto flex items-center gap-2">
               {hasCopy && (
                 <button
@@ -234,9 +319,106 @@ function BlogMarketingCard({
             </div>
           </div>
 
-          {content ? (
-            <div className="bg-black/30 rounded-lg p-4 border border-white/5 max-h-96 overflow-y-auto">
-              <p className="text-xs text-gray-300 whitespace-pre-wrap leading-relaxed font-mono">{content}</p>
+          {v ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                {!editing ? (
+                  <>
+                    <button
+                      onClick={startEdit}
+                      className="text-xs bg-white/5 text-gray-200 border border-white/10 px-3 py-1 rounded-lg hover:bg-white/10 transition-colors"
+                    >
+                      ✎ Edit
+                    </button>
+                    <button
+                      onClick={toggleApproval}
+                      disabled={approving}
+                      className={`text-xs px-3 py-1 rounded-lg font-semibold transition-colors disabled:opacity-40 ${
+                        approved
+                          ? "bg-white/5 text-amber-300 border border-amber-700/40 hover:bg-white/10"
+                          : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                      }`}
+                    >
+                      {approving ? "Saving…" : approved ? "Unapprove" : "✓ Approve for public"}
+                    </button>
+                    <CopyButton text={v.content} label="Copy all" />
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={save}
+                      disabled={saving}
+                      className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-lg font-semibold disabled:opacity-40"
+                    >
+                      {saving ? "Saving…" : "Save changes"}
+                    </button>
+                    <button
+                      onClick={() => setEditing(false)}
+                      disabled={saving}
+                      className="text-xs bg-white/5 text-gray-300 border border-white/10 px-3 py-1 rounded-lg hover:bg-white/10 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <span className="text-[11px] text-gray-500">Saving resets this to Draft — approve again to publish.</span>
+                  </>
+                )}
+              </div>
+
+              {editing ? (
+                <div className="space-y-3 bg-black/30 rounded-lg p-4 border border-white/5">
+                  <label className="block">
+                    <span className="text-[11px] uppercase tracking-wide text-gray-500">Copy</span>
+                    <textarea
+                      value={draft.copy}
+                      onChange={(e) => setDraft((d) => ({ ...d, copy: e.target.value }))}
+                      rows={8}
+                      className="mt-1 w-full bg-black/40 border border-white/10 rounded-lg p-2 text-xs text-gray-200 font-mono resize-y focus:outline-none focus:border-amber-600/50"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-[11px] uppercase tracking-wide text-gray-500">Hashtags (space or comma separated)</span>
+                    <input
+                      value={draft.hashtags}
+                      onChange={(e) => setDraft((d) => ({ ...d, hashtags: e.target.value }))}
+                      className="mt-1 w-full bg-black/40 border border-white/10 rounded-lg p-2 text-xs text-gray-200 font-mono focus:outline-none focus:border-amber-600/50"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-[11px] uppercase tracking-wide text-gray-500">CTA</span>
+                    <input
+                      value={draft.cta}
+                      onChange={(e) => setDraft((d) => ({ ...d, cta: e.target.value }))}
+                      className="mt-1 w-full bg-black/40 border border-white/10 rounded-lg p-2 text-xs text-gray-200 font-mono focus:outline-none focus:border-amber-600/50"
+                    />
+                  </label>
+                </div>
+              ) : (
+                <div className="bg-black/30 rounded-lg p-4 border border-white/5 max-h-96 overflow-y-auto space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[11px] uppercase tracking-wide text-gray-500">Copy</span>
+                      <CopyButton text={v.copy} />
+                    </div>
+                    <p className="text-xs text-gray-300 whitespace-pre-wrap leading-relaxed font-mono">{v.copy || "—"}</p>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[11px] uppercase tracking-wide text-gray-500">Hashtags</span>
+                      <CopyButton text={v.hashtags.join(" ")} />
+                    </div>
+                    <p className="text-xs text-sky-300 whitespace-pre-wrap leading-relaxed font-mono">
+                      {v.hashtags.length ? v.hashtags.join(" ") : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[11px] uppercase tracking-wide text-gray-500">CTA</span>
+                      <CopyButton text={v.cta} />
+                    </div>
+                    <p className="text-xs text-amber-300 whitespace-pre-wrap leading-relaxed font-mono">{v.cta || "—"}</p>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-8 bg-black/20 rounded-lg border border-white/5">
@@ -371,6 +553,24 @@ export default function AdminCorpus() {
     } finally {
       setGeneratingAnswerId(null);
     }
+  };
+
+  const saveMarketing = async (assetId: number, fields: { copy: string; hashtags: string; cta: string }) => {
+    await fetch(`${API_BASE}/api/admin/corpus/blog-marketing/${assetId}`, {
+      method: "PATCH",
+      headers: authHeaders(),
+      body: JSON.stringify(fields),
+    });
+    await fetchBlogMarketing();
+  };
+
+  const setMarketingApproval = async (assetId: number, approved: boolean) => {
+    await fetch(`${API_BASE}/api/admin/corpus/blog-marketing/${assetId}/approval`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ approved }),
+    });
+    await fetchBlogMarketing();
   };
 
   const generateAllMarketing = async () => {
@@ -1172,6 +1372,8 @@ export default function AdminCorpus() {
                         generatingAnswerId === blogMarketing[String(p.id)]!.answerId)
                     }
                     onGenerate={generateMarketing}
+                    onSave={saveMarketing}
+                    onApprove={setMarketingApproval}
                   />
                 ))}
               </>

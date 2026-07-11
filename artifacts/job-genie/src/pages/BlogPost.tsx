@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "wouter";
 import ReactMarkdown from "react-markdown";
 import { SEO } from "@/components/SEO";
+import { DirectResponseTabs, type PublicDirectResponse } from "@/components/DirectResponseTabs";
 
 const API_BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const SITE_URL = "https://job-genie.ai";
@@ -26,6 +27,7 @@ interface BlogPostData {
   answer: {
     answerFirstBlock: string;
   };
+  directResponse?: PublicDirectResponse | null;
 }
 
 function TagPill({ tag }: { tag: string }) {
@@ -210,6 +212,9 @@ export default function BlogPost() {
               </p>
             </div>
           )}
+
+          {/* Ready-to-share social posts (only when approved copy exists) */}
+          <DirectResponseTabs directResponse={data!.directResponse ?? null} />
 
           {/* CTA */}
           <div className="mt-12 bg-gradient-to-br from-teal-50 to-blue-50 border border-teal-100 rounded-2xl p-8 text-center">
