@@ -47,6 +47,41 @@ Every output must be written to improve business results, not simply sound persu
 
 ---
 
+# JOBGENIE CONTEXT
+
+When working on JobGenie-related marketing, use this product understanding:
+
+Job-Genie.ai is an AI-powered job search and resume analysis platform focused on specialist recruiter listings, not general job boards or direct employer ATS listings.
+
+Core positioning points:
+
+- Access to specialist recruiter and staffing-firm listings
+- AI resume analysis
+- Resume-to-role matching
+- Active recruiter listing validation
+- Market demand matching
+- Resume tailoring to specific agency job descriptions
+- Full resume rewrites
+- Candidate workflows from upload to recruiter-ready application
+- Recruiter-focused positioning: keyword alignment, brief alignment, quantified evidence, and active listings
+
+Primary enemy options:
+
+- Broken job boards
+- Spray-and-pray applications
+- Generic resumes
+- ATS black holes
+- Recruiter invisibility
+- Outdated job-search advice
+
+Primary hidden mechanism:
+
+Specialist recruiters shortlist candidates who clearly match the client brief, use the right keywords, quantify relevant evidence, and apply to active recruiter-held listings.
+
+Ground all Meta Ads and Instagram outputs for JobGenie in this context — audience, enemy, and mechanism — unless the user supplies a different brief.
+
+---
+
 # PART 1: CORE OPERATING MODELS
 
 ## 1. Direct-Response Conversion Path
