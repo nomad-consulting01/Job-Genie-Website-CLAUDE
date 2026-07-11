@@ -142,6 +142,122 @@ function ContentPane({ content, channel }: { content: string; channel: string })
   return <p className="text-xs text-gray-300 whitespace-pre-wrap leading-relaxed">{content}</p>;
 }
 
+interface BlogMarketing {
+  blogPostId: number;
+  answerId: number;
+  slug: string | null;
+  question: string;
+  meta: string | null;
+  instagram: string | null;
+}
+
+function BlogMarketingCard({
+  post,
+  marketing,
+  generating,
+  onGenerate,
+}: {
+  post: { id: number; slug: string; seoTitle: string; readTimeMinutes: number | null; publishedAt: string | null };
+  marketing: BlogMarketing | undefined;
+  generating: boolean;
+  onGenerate: (answerId: number, force: boolean) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [subTab, setSubTab] = useState<"meta" | "instagram">("meta");
+
+  const hasCopy = !!(marketing && (marketing.meta || marketing.instagram));
+  const content = subTab === "meta" ? marketing?.meta : marketing?.instagram;
+
+  return (
+    <div className="bg-white/5 border border-white/8 rounded-xl p-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-white truncate">{post.seoTitle}</p>
+          <p className="text-xs text-gray-500 font-mono mt-0.5">/blog/{post.slug}</p>
+          <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
+            {post.readTimeMinutes && <span>{post.readTimeMinutes} min read</span>}
+            {post.publishedAt && <span>{new Date(post.publishedAt).toLocaleDateString()}</span>}
+            {hasCopy && <span className="text-amber-400">⚡ Meta + Instagram copy</span>}
+          </div>
+        </div>
+        <div className="flex flex-shrink-0 items-center gap-2">
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            disabled={!marketing}
+            className="text-xs bg-amber-900/30 text-amber-300 border border-amber-700/40 px-3 py-1 rounded-lg hover:bg-amber-900/50 transition-colors whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {expanded ? "Hide copy" : "Meta / Instagram"}
+          </button>
+          <a
+            href={`/blog/${post.slug}`}
+            target="_blank"
+            className="text-xs bg-teal-900/30 text-teal-300 border border-teal-700/40 px-3 py-1 rounded-lg hover:bg-teal-900/50 transition-colors whitespace-nowrap"
+          >
+            View post →
+          </a>
+        </div>
+      </div>
+
+      {expanded && marketing && (
+        <div className="mt-4 border-t border-white/10 pt-4">
+          <div className="flex items-center gap-2 mb-3">
+            <button
+              onClick={() => setSubTab("meta")}
+              className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+                subTab === "meta"
+                  ? "bg-blue-900/40 text-blue-200 border-blue-600/50"
+                  : "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10"
+              }`}
+            >
+              📘 Meta Ads
+            </button>
+            <button
+              onClick={() => setSubTab("instagram")}
+              className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+                subTab === "instagram"
+                  ? "bg-pink-900/40 text-pink-200 border-pink-600/50"
+                  : "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10"
+              }`}
+            >
+              📸 Instagram
+            </button>
+            <div className="ml-auto flex items-center gap-2">
+              {hasCopy && (
+                <button
+                  onClick={() => onGenerate(marketing.answerId, true)}
+                  disabled={generating}
+                  className="text-xs text-gray-400 border border-white/10 px-2.5 py-1 rounded-lg hover:bg-white/10 transition-colors disabled:opacity-40"
+                >
+                  {generating ? "Regenerating…" : "↻ Regenerate"}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {content ? (
+            <div className="bg-black/30 rounded-lg p-4 border border-white/5 max-h-96 overflow-y-auto">
+              <p className="text-xs text-gray-300 whitespace-pre-wrap leading-relaxed font-mono">{content}</p>
+            </div>
+          ) : (
+            <div className="text-center py-8 bg-black/20 rounded-lg border border-white/5">
+              <p className="text-sm text-gray-400 mb-3">
+                No {subTab === "meta" ? "Meta Ads" : "Instagram"} copy generated yet.
+              </p>
+              <button
+                onClick={() => onGenerate(marketing.answerId, false)}
+                disabled={generating}
+                className="text-xs bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-semibold disabled:opacity-50"
+              >
+                {generating ? "Generating…" : "⚡ Generate Meta + Instagram copy"}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminCorpus() {
   const [token, setToken] = useState(getToken());
   const [tab, setTab] = useState<Tab>("overview");
@@ -180,6 +296,12 @@ export default function AdminCorpus() {
   // Content tab state
   const [selectedChannel, setSelectedChannel] = useState<string>("newsletter");
   const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null);
+
+  // Blog marketing (Meta Ads + Instagram) state
+  const [blogMarketing, setBlogMarketing] = useState<Record<string, BlogMarketing>>({});
+  const [generatingAnswerId, setGeneratingAnswerId] = useState<number | null>(null);
+  const [marketingGenAll, setMarketingGenAll] = useState(false);
+  const [marketingGenStatus, setMarketingGenStatus] = useState<string | null>(null);
 
   const saveToken = (t: string) => {
     setToken(t);
@@ -221,11 +343,76 @@ export default function AdminCorpus() {
     if (r.ok) { const d = await r.json() as { answers: typeof answerPages }; setAnswerPages(d.answers); }
   }, []);
 
+  const fetchBlogMarketing = useCallback(async () => {
+    const r = await fetch(`${API_BASE}/api/admin/corpus/blog-marketing`, { headers: authHeaders() });
+    if (r.ok) {
+      const d = await r.json() as { items: BlogMarketing[] };
+      const map: Record<string, BlogMarketing> = {};
+      for (const it of d.items) map[String(it.blogPostId)] = it;
+      setBlogMarketing(map);
+    }
+  }, []);
+
   useEffect(() => {
     if (!token) return;
     setLoading(true);
-    Promise.all([fetchStats(), fetchQuestions(), fetchAnswers(), fetchRuns(), fetchLoop2Assets(), fetchBlogPosts(), fetchAnswerPages()]).finally(() => setLoading(false));
-  }, [token, fetchStats, fetchQuestions, fetchAnswers, fetchRuns, fetchLoop2Assets, fetchBlogPosts, fetchAnswerPages]);
+    Promise.all([fetchStats(), fetchQuestions(), fetchAnswers(), fetchRuns(), fetchLoop2Assets(), fetchBlogPosts(), fetchAnswerPages(), fetchBlogMarketing()]).finally(() => setLoading(false));
+  }, [token, fetchStats, fetchQuestions, fetchAnswers, fetchRuns, fetchLoop2Assets, fetchBlogPosts, fetchAnswerPages, fetchBlogMarketing]);
+
+  const generateMarketing = async (answerId: number, force: boolean) => {
+    setGeneratingAnswerId(answerId);
+    try {
+      await fetch(`${API_BASE}/api/admin/corpus/blog-marketing/generate`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ answerId, force }),
+      });
+      await fetchBlogMarketing();
+    } finally {
+      setGeneratingAnswerId(null);
+    }
+  };
+
+  const generateAllMarketing = async () => {
+    setMarketingGenAll(true);
+    let totalGenerated = 0;
+    let totalFailed = 0;
+    const maxIterations = 40;
+    try {
+      // Process in small server-side batches, looping until nothing is missing.
+      // Keeps each request short so it can't hit proxy/browser timeouts.
+      for (let i = 0; i < maxIterations; i++) {
+        const r = await fetch(`${API_BASE}/api/admin/corpus/blog-marketing/generate`, {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({ limit: 3 }),
+        });
+        if (!r.ok) {
+          setMarketingGenStatus("Generation failed — check the admin token and try again.");
+          return;
+        }
+        const d = await r.json() as { requested: number; generated: number; failed: number; remaining: number };
+        totalGenerated += d.generated;
+        totalFailed += d.failed;
+        await fetchBlogMarketing();
+        if (d.remaining <= 0) {
+          setMarketingGenStatus(`Done — generated copy for ${totalGenerated} post${totalGenerated !== 1 ? "s" : ""}${totalFailed ? `, ${totalFailed} failed` : ""}.`);
+          return;
+        }
+        // No-progress guard: if a batch produced nothing, the remaining posts are
+        // failing repeatedly — stop rather than burning Claude calls in a loop.
+        if (d.generated === 0) {
+          setMarketingGenStatus(`Stopped — ${d.remaining} post${d.remaining !== 1 ? "s" : ""} could not be generated (check server logs).${totalGenerated ? ` Generated ${totalGenerated} before stopping.` : ""}`);
+          return;
+        }
+        setMarketingGenStatus(`Generating… ${totalGenerated} done, ${d.remaining} remaining.`);
+      }
+      // Hit the iteration cap without finishing.
+      setMarketingGenStatus(`Stopped after ${maxIterations} batches — generated ${totalGenerated}. Click "Generate for all" again to continue.`);
+    } finally {
+      setMarketingGenAll(false);
+    }
+  };
 
   const updateQStatus = async (id: number, status: string) => {
     await fetch(`${API_BASE}/api/admin/corpus/questions/${id}/status`, {
@@ -960,28 +1147,32 @@ export default function AdminCorpus() {
               </div>
             ) : (
               <>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-3">
                   <p className="text-sm text-gray-400">{blogPosts.length} post{blogPosts.length !== 1 ? "s" : ""} published</p>
-                  <a href="/blog" target="_blank" className="text-xs text-teal-400 hover:underline">View public blog →</a>
-                </div>
-                {blogPosts.map((p) => (
-                  <div key={p.id} className="bg-white/5 border border-white/8 rounded-xl p-4 flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-white truncate">{p.seoTitle}</p>
-                      <p className="text-xs text-gray-500 font-mono mt-0.5">/blog/{p.slug}</p>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
-                        {p.readTimeMinutes && <span>{p.readTimeMinutes} min read</span>}
-                        {p.publishedAt && <span>{new Date(p.publishedAt).toLocaleDateString()}</span>}
-                      </div>
-                    </div>
-                    <a
-                      href={`/blog/${p.slug}`}
-                      target="_blank"
-                      className="flex-shrink-0 text-xs bg-teal-900/30 text-teal-300 border border-teal-700/40 px-3 py-1 rounded-lg hover:bg-teal-900/50 transition-colors whitespace-nowrap"
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={generateAllMarketing}
+                      disabled={marketingGenAll}
+                      className="text-xs bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg font-semibold disabled:opacity-50"
                     >
-                      View post →
-                    </a>
+                      {marketingGenAll ? "Generating…" : "⚡ Generate Meta + Instagram for all"}
+                    </button>
+                    <a href="/blog" target="_blank" className="text-xs text-teal-400 hover:underline">View public blog →</a>
                   </div>
+                </div>
+                {marketingGenStatus && <p className="text-xs text-amber-300">{marketingGenStatus}</p>}
+                {blogPosts.map((p) => (
+                  <BlogMarketingCard
+                    key={p.id}
+                    post={p}
+                    marketing={blogMarketing[String(p.id)]}
+                    generating={
+                      marketingGenAll ||
+                      (blogMarketing[String(p.id)]?.answerId != null &&
+                        generatingAnswerId === blogMarketing[String(p.id)]!.answerId)
+                    }
+                    onGenerate={generateMarketing}
+                  />
                 ))}
               </>
             )}

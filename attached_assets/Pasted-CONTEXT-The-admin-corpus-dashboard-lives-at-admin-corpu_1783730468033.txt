@@ -1,0 +1,66 @@
+CONTEXT
+The admin corpus dashboard lives at /admin/corpus (password-protected). Each corpus
+item has a "Content" tab that displays generated outputs, including a section
+currently labeled "Direct Response." Corpus items are also rendered on the public
+blog at /blog/[slug].
+
+Before making changes, inspect the existing corpus data model and the components
+that render (a) the admin Content tab and (b) the public blog post page, and confirm
+the actual field names for the Direct Response output. Do not rename or drop any
+existing fields — extend the schema additively.
+
+TASK 1 — Admin: Update the Direct Response output structure
+In the Content tab of /admin/corpus, replace the single Direct Response output with
+a structured object containing two platform-specific variants:
+
+  directResponse: {
+    meta: {
+      copy: string,          // Facebook-optimized post copy
+      hashtags: string[],
+      cta: string            // e.g. "Get My Free Autopsy"
+    },
+    instagram: {
+      copy: string,          // Instagram-optimized post copy
+      hashtags: string[],
+      cta: string
+    }
+  }
+
+Requirements:
+- Update the generation pipeline so both variants are produced per corpus item.
+  Meta copy: longer-form, link-friendly, conversational. Instagram copy: shorter,
+  hook-first, hashtag-heavy, no raw links (CTA references link in bio).
+- In the admin Content tab, render the two variants side by side or as sub-tabs,
+  each with its own copy-to-clipboard button and an inline edit + save capability.
+- Migrate existing corpus items: map the current single Direct Response value into
+  directResponse.meta.copy so no existing content is lost, and generate the
+  Instagram variant lazily or via a one-time backfill script (ask me which before
+  running a backfill).
+- Preserve the existing human-approval gate: edited/generated variants must be
+  marked approved before they are exposed publicly.
+
+TASK 2 — Public blog: tabbed Meta / Instagram copy section
+On the public blog post template, add a tabbed component displaying the approved
+social copy for that post, with exactly two tabs:
+
+  Tab 1: "Meta"       → directResponse.meta content
+  Tab 2: "Instagram"  → directResponse.instagram content
+
+Requirements:
+- Only render this section if the post has approved directResponse content;
+  otherwise omit it entirely (no empty state on the public page).
+- Default tab: Meta. Tabs must work without page reload and be keyboard-accessible
+  (proper ARIA tab roles).
+- Style with the Job Genie brand system: dark navy #090D19 background, indigo
+  #7C83FF active-tab accent, Sora for tab labels, DM Sans for body copy. Match the
+  existing blog typography scale.
+- Include a copy-to-clipboard button on each tab's content.
+- Ensure the tab content is server-rendered (or hydrated from server data) so the
+  copy is crawlable — this section should be indexable for AEO purposes, not
+  injected client-side only.
+- Do not alter FAQPage JSON-LD or any existing structured data on blog pages.
+
+VERIFICATION
+- Show me the updated Content tab on one existing corpus item in admin.
+- Show me one public blog post rendering both tabs correctly on desktop and mobile.
+- Run the migration in dry-run mode first and report how many items are affected.

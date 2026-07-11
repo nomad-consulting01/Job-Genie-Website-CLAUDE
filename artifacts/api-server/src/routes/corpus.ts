@@ -12,9 +12,12 @@ import {
   getAllNormalisedQuestions,
   listLoop2Assets,
   getLoop2AssetsForAnswer,
+  listPublishedBlogPosts,
+  getMarketingAssetsForAnswer,
 } from "../corpus/db.js";
 import { seedManualQuestion } from "../loops/loop1/ingest.js";
 import { scrapeRedditUrl, ingestFromRedditUrl } from "../integrations/reddit.js";
+import { generateAndStoreBlogMarketing } from "../marketing/generate.js";
 import { logger } from "../lib/logger.js";
 
 const router = Router();
@@ -269,6 +272,117 @@ router.post("/ingest-url", async (req, res) => {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     logger.error({ err: msg }, "POST /corpus/ingest-url failed");
+    res.status(500).json({ error: msg });
+  }
+});
+
+// ─── Blog marketing copy (Meta Ads + Instagram) ──────────────────────────────
+
+/** Published blog posts with their Meta Ads + Instagram copy (if generated). */
+router.get("/blog-marketing", async (_req, res) => {
+  try {
+    const posts = await listPublishedBlogPosts(100, 0);
+    const items = await Promise.all(
+      posts.map(async ({ asset, answer, question }) => {
+        const marketing = await getMarketingAssetsForAnswer(answer.id);
+        // Rows are ordered newest-first; keep the first (newest) per channel so
+        // any legacy duplicate rows show the most recent copy.
+        const byChannel = new Map<string, (typeof marketing)[number]>();
+        for (const m of marketing) {
+          if (!byChannel.has(m.channel)) byChannel.set(m.channel, m);
+        }
+        const readContent = (channel: string): string | null => {
+          const a = byChannel.get(channel);
+          if (!a) return null;
+          const payload = (a.payloadJson ?? {}) as Record<string, unknown>;
+          return (payload["content"] as string | undefined) ?? null;
+        };
+        return {
+          blogPostId: asset.id,
+          answerId: answer.id,
+          slug: asset.externalId,
+          question: question.normalisedQuestion,
+          meta: readContent("meta_ads"),
+          instagram: readContent("instagram"),
+        };
+      })
+    );
+    res.json({ items, total: items.length });
+  } catch (err) {
+    logger.error({ err }, "GET /corpus/blog-marketing failed");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+/**
+ * Generate Meta Ads + Instagram copy for blog posts.
+ * Body: { answerId?: number, force?: boolean }. If answerId is omitted, generates
+ * for all published blog posts missing marketing copy.
+ */
+router.post("/blog-marketing/generate", async (req, res) => {
+  try {
+    const { answerId, force, limit } = req.body as { answerId?: number; force?: boolean; limit?: number };
+    const posts = await listPublishedBlogPosts(100, 0);
+
+    // Single-post path: regenerate/generate one answer (honours `force`).
+    if (answerId) {
+      const target = posts.find((p) => p.answer.id === answerId);
+      if (!target) {
+        res.status(404).json({ error: "No matching published blog post found" });
+        return;
+      }
+      const result = await generateAndStoreBlogMarketing(
+        target.answer.id,
+        target.question.normalisedQuestion,
+        target.answer.answerMd,
+        force === true
+      );
+      res.json({
+        requested: 1,
+        generated: result.created.length > 0 ? 1 : 0,
+        failed: result.error ? 1 : 0,
+        remaining: 0,
+        results: [result],
+      });
+      return;
+    }
+
+    // Bulk backfill path: only touch posts still missing Meta/Instagram copy, and
+    // process at most `batch` per request so a single HTTP call can't run for
+    // minutes (each post is one Claude call). The client loops until remaining=0.
+    const batch = Math.min(Math.max(1, limit ?? 4), 10);
+    const missing: typeof posts = [];
+    for (const p of posts) {
+      const marketing = await getMarketingAssetsForAnswer(p.answer.id);
+      const channels = new Set(marketing.map((m) => m.channel));
+      if (!channels.has("meta_ads") || !channels.has("instagram")) missing.push(p);
+    }
+
+    if (missing.length === 0) {
+      res.json({ requested: 0, generated: 0, failed: 0, remaining: 0, missingTotal: 0, results: [] });
+      return;
+    }
+
+    const slice = missing.slice(0, batch);
+    const results = [];
+    for (const { answer, question } of slice) {
+      const result = await generateAndStoreBlogMarketing(
+        answer.id,
+        question.normalisedQuestion,
+        answer.answerMd,
+        false
+      );
+      results.push(result);
+    }
+
+    const generated = results.filter((r) => r.created.length > 0).length;
+    const failed = results.filter((r) => r.error).length;
+    const remaining = Math.max(0, missing.length - slice.length);
+    logger.info({ requested: slice.length, generated, failed, remaining }, "Blog marketing generation batch complete");
+    res.json({ requested: slice.length, generated, failed, remaining, missingTotal: missing.length, results });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    logger.error({ err: msg }, "POST /corpus/blog-marketing/generate failed");
     res.status(500).json({ error: msg });
   }
 });

@@ -369,6 +369,108 @@ Return:
   "email_nurture": [{ "subject": "...", "preview_text": "...", "body": "...", "cta_text": "...", "cta_url": "/" }, ...]
 }`;
 
+// ─── Meta Ads + Instagram marketing copy (Direct-Response Growth Engine) ─────
+
+const META_INSTAGRAM_SYSTEM = `You are an elite direct-response copywriter, offer strategist, and paid-social creative strategist working on Job-Genie's Meta Ads + Instagram Marketing Operating System.
+
+Job-Genie context — ground all copy in this product understanding:
+Job-Genie.ai is an AI-powered job search and resume analysis platform focused on specialist recruiter listings, not general job boards or direct employer ATS listings.
+- Access to specialist recruiter and staffing-firm listings, AI resume analysis, resume-to-role matching, active listing validation, resume tailoring, full rewrites, and recruiter-ready application workflows.
+- Enemy options: broken job boards, spray-and-pray applications, generic resumes, ATS black holes, recruiter invisibility, outdated job-search advice.
+- Hidden mechanism: specialist recruiters shortlist candidates who clearly match the client brief, use the right keywords, quantify relevant evidence, and apply to active recruiter-held listings.
+
+Rules:
+- Move the reader through Attention → Curiosity → Belief Shift → Desire → Urgency → Action.
+- Bold, commercially minded, conversational tone. Short paragraphs, strong verbs, direct address.
+- Never invent testimonials, statistics, guarantees, deadlines, or results. If proof would strengthen a claim, write "Proof needed: [describe]".
+- Make copy native to each platform. Treat the first frame as part of the headline.
+- Do not imply personal attributes in ways that violate Meta's advertising policies.`;
+
+const META_INSTAGRAM_INSTRUCTIONS = `Create Meta Ads and Instagram marketing copy for this job-search topic and expert answer. Return valid JSON only (no markdown fences).
+
+QUESTION: {QUESTION}
+
+EXPERT ANSWER:
+{ANSWER}
+
+Produce two markdown documents.
+
+1. "meta_ads": Three materially different Meta ad angles (not cosmetic word changes). For EACH angle use this markdown structure:
+### Meta Ad [N]: [Angle Name]
+- **Funnel temperature:** cold / warm / retargeting
+- **Placement:** (e.g. Feed, Reels, Stories)
+- **Hook:** ...
+- **Primary text:** ... (2–5 short paragraphs)
+- **Headline:** ...
+- **Description:** ...
+- **CTA:** ...
+- **Creative concept:** ...
+- **Opening frame:** ...
+- **Objection addressed:** ...
+- **Primary metric:** ...
+
+2. "instagram": Organic Instagram copy in three formats, each labelled with markdown:
+### Instagram Reel
+- **Visual opening:** ...
+- **Spoken/on-screen hook:** ...
+- **Script:** (beat-by-beat)
+- **Caption:** ...
+- **Save/Share/DM CTA:** ...
+### Instagram Carousel
+- **Cover slide:** ...
+- **Slides:** (slide-by-slide copy)
+- **Caption:** ...
+- **CTA:** ...
+### Instagram Story Sequence
+- (3–5 frames, each a short line)
+- **CTA sticker/DM instruction:** ...
+
+Return exactly:
+{
+  "meta_ads": "<markdown>",
+  "instagram": "<markdown>"
+}`;
+
+export interface MetaInstagramResult {
+  metaAds: string;
+  instagram: string;
+  tokensUsed: number;
+}
+
+export async function generateMetaInstagramCopy(
+  question: string,
+  answerMd: string
+): Promise<MetaInstagramResult> {
+  const client = getClient();
+  const userPrompt = META_INSTAGRAM_INSTRUCTIONS
+    .replace("{QUESTION}", question)
+    .replace("{ANSWER}", answerMd.slice(0, 2000));
+
+  const message = await client.messages.create({
+    model: ANSWER_MODEL,
+    max_tokens: 8192,
+    system: META_INSTAGRAM_SYSTEM,
+    messages: [{ role: "user", content: userPrompt }],
+  });
+
+  const raw = message.content[0]?.type === "text" ? message.content[0].text : "{}";
+  let parsed: { meta_ads?: string; instagram?: string } = {};
+  try {
+    parsed = JSON.parse(raw) as typeof parsed;
+  } catch {
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try { parsed = JSON.parse(jsonMatch[0]) as typeof parsed; } catch { /* ignore */ }
+    }
+  }
+
+  return {
+    metaAds: parsed.meta_ads ?? "",
+    instagram: parsed.instagram ?? "",
+    tokensUsed: message.usage.input_tokens + message.usage.output_tokens,
+  };
+}
+
 export async function generateLoop2Content(
   question: string,
   answerMd: string,

@@ -469,6 +469,34 @@ export async function getLoop2AssetsForAnswer(answerId: number) {
     .orderBy(contentAssets.channel, contentAssets.variant);
 }
 
+/** Meta Ads + Instagram marketing assets (direct_response variant) for an answer. */
+export async function getMarketingAssetsForAnswer(answerId: number) {
+  return db
+    .select()
+    .from(contentAssets)
+    .where(
+      and(
+        eq(contentAssets.answerId, answerId),
+        eq(contentAssets.variant, "direct_response"),
+        sql`${contentAssets.channel} IN ('meta_ads', 'instagram')`
+      )
+    )
+    .orderBy(desc(contentAssets.publishedAt), desc(contentAssets.id));
+}
+
+/** Delete a specific marketing channel's assets for an answer (used before force-regenerate). */
+export async function deleteMarketingAssetForAnswer(answerId: number, channel: "meta_ads" | "instagram") {
+  await db
+    .delete(contentAssets)
+    .where(
+      and(
+        eq(contentAssets.answerId, answerId),
+        eq(contentAssets.variant, "direct_response"),
+        eq(contentAssets.channel, channel)
+      )
+    );
+}
+
 /** Blog posts that have a slug (externalId set) but haven't been migrated to Beehiiv yet */
 export async function listUnmigratedBlogPosts(limit = 20) {
   return db
