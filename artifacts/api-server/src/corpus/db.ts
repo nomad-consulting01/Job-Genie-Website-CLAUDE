@@ -454,6 +454,49 @@ export async function markBlogPostFacebookShared(id: number, facebookPostId: str
 }
 
 /**
+ * Published blog posts (slug + featuredImageUrl set) that have NOT yet been
+ * posted to Instagram AND have approved instagram direct_response copy.
+ */
+export async function listPublishedBlogPostsNotOnInstagram(limit = 5) {
+  return db
+    .select({ asset: contentAssets, answer: answers, question: questions })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(
+      and(
+        eq(contentAssets.channel, "blog_post"),
+        eq(contentAssets.variant, "standard"),
+        isNotNull(contentAssets.externalId),
+        sql`(${contentAssets.engagementMetricsJson}->>'instagramPostId') IS NULL`,
+        sql`(${contentAssets.engagementMetricsJson}->>'featuredImageUrl') IS NOT NULL`,
+        sql`EXISTS (
+          SELECT 1 FROM content_assets m
+          WHERE m.answer_id = ${contentAssets.answerId}
+            AND m.channel = 'instagram'
+            AND m.variant = 'direct_response'
+            AND m.status = 'approved'
+        )`
+      )
+    )
+    .orderBy(desc(contentAssets.scheduledFor))
+    .limit(limit);
+}
+
+/**
+ * Merge instagramPostId into a blog_post's engagementMetricsJson without
+ * overwriting existing fields (seoTitle, featuredImageUrl, etc.).
+ */
+export async function markBlogPostInstagramShared(id: number, instagramPostId: string) {
+  await db
+    .update(contentAssets)
+    .set({
+      engagementMetricsJson: sql`${contentAssets.engagementMetricsJson} || ${JSON.stringify({ instagramPostId })}::jsonb`,
+    })
+    .where(eq(contentAssets.id, id));
+}
+
+/**
  * Get all Loop 2 assets for a specific answer, grouped by channel and variant.
  */
 export async function getLoop2AssetsForAnswer(answerId: number) {

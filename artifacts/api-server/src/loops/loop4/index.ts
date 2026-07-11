@@ -3,6 +3,7 @@ import { runReddit } from "./reddit.js";
 import { runEmail } from "./email.js";
 import { runLinkedIn } from "./linkedin.js";
 import { runFacebook } from "./facebook.js";
+import { runInstagram } from "./instagram.js";
 import { startLoopRun, finishLoopRun } from "../../corpus/db.js";
 import { engineConfig } from "../../config/engine.js";
 import { logger } from "../../lib/logger.js";
@@ -24,6 +25,7 @@ export interface Loop4RunResult {
   email: Loop4SubResult;
   linkedin: Loop4SubResult;
   facebook: Loop4SubResult;
+  instagram: Loop4SubResult;
   totalSucceeded: number;
   totalFailed: number;
   errors: string[];
@@ -43,6 +45,7 @@ export async function run(): Promise<Loop4RunResult> {
   let email: Loop4SubResult = { processed: 0, succeeded: 0, failed: 0, skipped: 0, errors: [] };
   let linkedin: Loop4SubResult = { processed: 0, succeeded: 0, failed: 0, queued: 0, errors: [] };
   let facebook: Loop4SubResult = { processed: 0, succeeded: 0, failed: 0, skipped: 0, errors: [] };
+  let instagram: Loop4SubResult = { processed: 0, succeeded: 0, failed: 0, skipped: 0, errors: [] };
 
   try {
     // GEO — always runs, no external deps
@@ -80,6 +83,13 @@ export async function run(): Promise<Loop4RunResult> {
     totalFailed += facebook.failed;
     if (facebook.errors.length > 0) allErrors.push(...facebook.errors.map((e) => `[facebook] ${e}`));
 
+    // Instagram — graceful skip if Page has no linked Instagram Business Account
+    logger.info("Loop 4: running Instagram sub-engine");
+    instagram = await runInstagram(cfg.maxItemsPerChannel);
+    totalSucceeded += instagram.succeeded;
+    totalFailed += instagram.failed;
+    if (instagram.errors.length > 0) allErrors.push(...instagram.errors.map((e) => `[instagram] ${e}`));
+
     const hasErrors = totalFailed > 0;
     await finishLoopRun(run_.id, {
       itemsProcessed: totalSucceeded + totalFailed,
@@ -89,11 +99,11 @@ export async function run(): Promise<Loop4RunResult> {
     });
 
     logger.info(
-      { runId: run_.id, totalSucceeded, totalFailed, geo, reddit: { ...reddit, errors: reddit.errors.length }, email: { ...email, errors: email.errors.length }, linkedin },
+      { runId: run_.id, totalSucceeded, totalFailed, geo, reddit: { ...reddit, errors: reddit.errors.length }, email: { ...email, errors: email.errors.length }, linkedin, facebook, instagram },
       "Loop 4 completed"
     );
 
-    return { runId: run_.id, geo, reddit, email, linkedin, facebook, totalSucceeded, totalFailed, errors: allErrors };
+    return { runId: run_.id, geo, reddit, email, linkedin, facebook, instagram, totalSucceeded, totalFailed, errors: allErrors };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     await finishLoopRun(run_.id, {
