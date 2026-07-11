@@ -401,6 +401,48 @@ router.post("/blog-marketing/generate", async (req, res) => {
 });
 
 /**
+ * Background bulk-generate: responds immediately, processes all posts missing
+ * Meta/Instagram copy in the background. Monitor via server logs.
+ */
+router.post("/blog-marketing/generate-all", requireAdmin, async (req, res) => {
+  res.json({ message: "Marketing generation started — running in background", status: "started" });
+
+  (async () => {
+    try {
+      const posts = await listPublishedBlogPosts(100, 0);
+      const missing: typeof posts = [];
+      for (const p of posts) {
+        const marketing = await getMarketingAssetsForAnswer(p.answer.id);
+        const channels = new Set(marketing.map((m) => m.channel));
+        if (!channels.has("meta_ads") || !channels.has("instagram")) missing.push(p);
+      }
+      logger.info({ total: missing.length }, "Blog marketing generate-all: posts to process");
+      let generated = 0;
+      let failed = 0;
+      for (const { answer, question } of missing) {
+        const result = await generateAndStoreBlogMarketing(
+          answer.id,
+          question.normalisedQuestion,
+          answer.answerMd,
+          false
+        );
+        if (result.created.length > 0) {
+          generated++;
+          logger.info({ answerId: answer.id, channels: result.created }, "Blog marketing generate-all: generated");
+        }
+        if (result.error) {
+          failed++;
+          logger.error({ answerId: answer.id, err: result.error }, "Blog marketing generate-all: failed");
+        }
+      }
+      logger.info({ generated, failed, total: missing.length }, "Blog marketing generate-all: complete");
+    } catch (err) {
+      logger.error({ err }, "Blog marketing generate-all: fatal error");
+    }
+  })();
+});
+
+/**
  * Edit a marketing variant's structured fields (copy / hashtags / cta).
  * Recomposes the display markdown and resets the asset to 'draft' — it must be
  * re-approved before it appears publicly. Invalidates any prerendered file.
