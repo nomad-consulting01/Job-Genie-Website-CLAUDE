@@ -324,6 +324,19 @@ function buildBlogPostHtml(opts: {
 </html>`;
 }
 
+// Serve the SPA shell for the /blog listing page.
+// router.get("/:slug") only matches single-segment paths, so the bare /blog
+// index (remaining path "/") falls here. Clients render the listing client-side.
+router.get("/", (_req, res) => {
+  const indexPath = path.join(JOB_GENIE_DIST, "index.html");
+  if (fs.existsSync(indexPath)) {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.sendFile(indexPath);
+  } else {
+    res.redirect("/");
+  }
+});
+
 router.get("/:slug", async (req, res) => {
   // Only handle text/html requests (crawlers + direct browser visits)
   const accept = req.headers["accept"] ?? "";

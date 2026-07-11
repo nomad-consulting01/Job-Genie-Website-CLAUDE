@@ -9,8 +9,11 @@ Vite SPA serves the same `index.html` for all routes. Blog posts at `/blog/:slug
 - Homepage title/meta + homepage `og:image` (generic brand image → wrong Facebook link-card image)
 - No article body (fetched in useEffect, invisible to non-JS crawlers)
 
-## What actually serves /blog/:slug in PROD (important)
-In production `/blog/:slug` is served by the STATIC job-genie deploy (`serve="static"`, rewrite `/* → /index.html`). The api-server only routes `paths=["/api"]`, so `blog-html.ts` (`app.use("/blog", …)`) is **UNREACHABLE in prod**. So in prod the ONLY thing that gives crawlers correct per-post meta is a prerendered `dist/public/blog/:slug/index.html`. If a slug wasn't prerendered, crawlers fall through the rewrite to the generic homepage `index.html`. (The api-server SSR route only helps in dev, and only if `/blog` were routed to it — it isn't.)
+## What serves /blog/:slug in PROD
+The api-server artifact.toml `paths = ["/api", "/blog"]` — `/blog` routes to the api-server in both dev and prod. `blog-html.ts` (`app.use("/blog", blogHtmlRouter)`) serves:
+- `/blog` (bare) → `router.get("/")` → SPA index.html (blog listing page, client-rendered)
+- `/blog/:slug` → `router.get("/:slug")` → checks dist prerendered file first (fast path), else dynamic SSR from DB with correct per-post og:image
+This is always correct in prod regardless of whether prerender ran. Note: in dev, hard-refreshing /blog URLs loads the stale dist/public (hashed asset refs may 404); client-side SPA nav is unaffected.
 
 ## The fix — prerender must run at deploy-build time (prerender.mjs)
 After building static landing pages, the blog section of `main()`:
