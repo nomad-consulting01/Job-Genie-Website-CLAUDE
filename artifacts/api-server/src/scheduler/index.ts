@@ -17,6 +17,9 @@ let loop4Running = false;
 let scraperTask: cron.ScheduledTask | null = null;
 let scraperRunning = false;
 
+let reactorHarvestTask: cron.ScheduledTask | null = null;
+let reactorHarvestRunning = false;
+
 export function startScheduler(): void {
   // 2 AM — Listing scraper (fills pending queue, no Claude cost)
   const scraperSchedule = engineConfig.listingScraper.cronSchedule;
@@ -123,7 +126,28 @@ export function startScheduler(): void {
     }
   });
 
-  logger.info("Scheduler started (scraper 2AM → Loop1 3AM → Loop2 4AM → Loop3 5AM → Loop4 6AM)");
+  // Every 6 hours — Reactor Invite Harvester (harvest Facebook post reactions)
+  const reactorSchedule = engineConfig.reactorInvites.cronSchedule;
+  logger.info({ schedule: reactorSchedule }, "Scheduler: scheduling Reactor Invite Harvester");
+
+  reactorHarvestTask = cron.schedule(reactorSchedule, async () => {
+    if (reactorHarvestRunning) {
+      logger.warn("Reactor invite harvester already running — skipping scheduled trigger");
+      return;
+    }
+    reactorHarvestRunning = true;
+    try {
+      logger.info("Scheduler: triggering Reactor Invite Harvester");
+      const { runHarvester } = await import("../loops/reactor-invite-queue/harvester.js");
+      await runHarvester();
+    } catch (err) {
+      logger.error({ err }, "Scheduler: Reactor Invite Harvester failed");
+    } finally {
+      reactorHarvestRunning = false;
+    }
+  });
+
+  logger.info("Scheduler started (scraper 2AM → Loop1 3AM → Loop2 4AM → Loop3 5AM → Loop4 6AM → Reactor every 6h)");
 }
 
 export function stopScheduler(): void {
@@ -132,6 +156,7 @@ export function stopScheduler(): void {
   loop2Task?.stop();
   loop3Task?.stop();
   loop4Task?.stop();
+  reactorHarvestTask?.stop();
   logger.info("Scheduler stopped");
 }
 
@@ -158,6 +183,10 @@ export function getSchedulerStatus() {
     loop4: {
       schedule: engineConfig.loop4.cronSchedule,
       running: loop4Running,
+    },
+    reactorInviteHarvester: {
+      schedule: engineConfig.reactorInvites.cronSchedule,
+      running: reactorHarvestRunning,
     },
   };
 }

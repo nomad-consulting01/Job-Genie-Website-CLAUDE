@@ -30,6 +30,14 @@ export interface EngineConfig {
     urls: string[];
     dedupeThreshold: number;
   };
+  reactorInvites: {
+    cronSchedule: string;
+    lookbackDays: number;
+    inviteReadyDelta: number;
+    inviteReadyMinTotal: number;
+    dailyCap: number;
+    dailyCapWarning: number;
+  };
 }
 
 export const engineConfig: EngineConfig = {
@@ -67,6 +75,14 @@ export const engineConfig: EngineConfig = {
     maxAnswersPerRun: parseInt(process.env["LOOP2_MAX_ANSWERS"] ?? "5"),
     costBudgetUsd: parseFloat(process.env["LOOP2_COST_BUDGET_USD"] ?? "3.00"),
     channels: ["newsletter", "blog_post", "linkedin", "email_nurture"],
+  },
+  reactorInvites: {
+    cronSchedule: process.env["REACTOR_HARVEST_CRON"] ?? "0 */6 * * *",
+    lookbackDays: parseInt(process.env["REACTOR_LOOKBACK_DAYS"] ?? "14"),
+    inviteReadyDelta: parseInt(process.env["REACTOR_INVITE_DELTA"] ?? "10"),
+    inviteReadyMinTotal: parseInt(process.env["REACTOR_INVITE_MIN_TOTAL"] ?? "25"),
+    dailyCap: parseInt(process.env["REACTOR_DAILY_CAP"] ?? "1000"),
+    dailyCapWarning: parseInt(process.env["REACTOR_CAP_WARNING"] ?? "900"),
   },
   listingScraper: {
     cronSchedule: process.env["LISTING_SCRAPER_CRON"] ?? "0 2 * * *",
