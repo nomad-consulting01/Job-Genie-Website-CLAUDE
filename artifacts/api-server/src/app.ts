@@ -51,6 +51,10 @@ app.use("/api/answers", answersRouter);
 // Dynamic sitemap.xml and llms.txt — served at /api/sitemap.xml and /api/llms.txt
 app.use("/api", sitemapRouter);
 
+// Also expose at conventional root paths so /llms.txt and /sitemap.xml resolve
+// for AI crawlers and search engines without a path prefix.
+app.use("/", sitemapRouter);
+
 // Blog post server-side HTML — per-post canonical, metadata, and article body for crawlers.
 // Handles /blog/:slug with correct metadata.  Prerendered static files are served first
 // (if they exist); dynamic SSR is the fallback for posts added after the last build.
