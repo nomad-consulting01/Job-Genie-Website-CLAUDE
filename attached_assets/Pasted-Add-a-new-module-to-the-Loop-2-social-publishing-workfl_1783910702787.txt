@@ -1,0 +1,69 @@
+Add a new module to the Loop 2 social publishing workflow called "Reactor Invite Queue" 
+(loop2/reactor-invite-queue). This module converts reactions on our programmatically 
+published Facebook Page posts into a prioritized, human-actioned invite queue.
+
+CONTEXT
+- Stack: Node.js/TypeScript backend, PostgreSQL, existing Loop 2 modules already 
+  authenticate to the Meta Graph API using our Page access token for the Job Genie 
+  Facebook Page (app: "Job Genie Page Publisher").
+- Compliance constraint (non-negotiable): Meta provides NO Graph API endpoint for 
+  sending page-follow invites. The "Send Invites" action lives only in Meta Business 
+  Suite's Planner UI. This module must NEVER attempt browser automation, headless 
+  sessions, or any simulation of Business Suite UI actions. The agent's job ends at 
+  producing a task queue; a human performs the invite click. Follow the same 
+  human/agent split pattern used in the Reddit AEO Loop module.
+
+WHAT TO BUILD
+
+1. Reaction Harvester (automated, cron every 6 hours)
+   - For every post published by Loop 2 in the last 14 days, call the Graph API 
+     /{post-id}/reactions edge (paginated) and /{post-id}/insights where available.
+   - Store per post: post_id, permalink, publish timestamp, total reaction count, 
+     reaction breakdown by type, and the delta since last harvest.
+   - New table: reactor_invite_posts (post_id PK, permalink, published_at, 
+     last_harvested_at, total_reactions, reaction_delta, invite_status, 
+     invites_sent_count, last_invited_at).
+
+2. Invite Opportunity Scorer (automated)
+   - Flag a post as "invite-ready" when reaction_delta >= configurable threshold 
+     (default 10) OR total_reactions >= 25 with invite_status = 'never_invited'.
+   - Rank invite-ready posts by reaction_delta descending, so the freshest pools 
+     surface first.
+
+3. Human Task Queue (the handoff point)
+   - Add a "Reactor Invites" panel to the existing password-protected admin dashboard.
+   - Each queue item shows: post preview text (first 120 chars), reaction count and 
+     delta, publish date, and a deep link to 
+     https://business.facebook.com/latest/content_calendar so I can locate the post's 
+     "Reactions (N) → Send Invites" control in the Planner calendar view.
+   - Two action buttons per item: "Mark Invited (enter count sent)" and "Skip".
+   - Marking invited logs invites_sent_count and timestamp.
+
+4. Daily Cap Tracker
+   - Meta allows up to 1,000 invites per day per Page. Maintain a running daily total 
+     from my logged invite sessions, display remaining headroom in the panel, and 
+     visually warn when logged invites approach 900/day. Reset at midnight ET.
+
+5. Digest Notification
+   - Extend the existing Loop 2 notification path (or add a simple daily email via 
+     our current transactional setup) with a morning digest: number of invite-ready 
+     posts, top 3 by reaction delta, and remaining daily invite headroom.
+
+6. Reporting
+   - Weekly rollup: invites logged, posts actioned, follower count snapshot (via 
+     /{page-id}?fields=followers_count) so we can correlate invite sessions with 
+     follower growth.
+
+GUARDRAILS
+- Respect Graph API rate limits with exponential backoff; reuse the existing Loop 2 
+  API client rather than creating a new auth path.
+- All writes behind the existing admin auth; no new public endpoints.
+- Every automated action must be logged; every invite action must originate from a 
+  human clicking in Business Suite and be recorded after the fact, never triggered 
+  by code.
+- Add config values (thresholds, cron cadence, cap warning level) to the existing 
+  Loop 2 config file, not hardcoded.
+
+Deliver: migration for the new table, the harvester cron job, scorer logic, admin 
+dashboard panel, digest hook, and a short README section in the Loop 2 docs 
+explaining the human/agent split and why invite-sending is manual.
