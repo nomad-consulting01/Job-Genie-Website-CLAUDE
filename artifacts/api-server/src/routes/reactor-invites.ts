@@ -71,7 +71,20 @@ router.get("/all", async (_req, res) => {
       .select()
       .from(reactorInvitePosts)
       .orderBy(desc(reactorInvitePosts.reactionDelta));
-    res.json({ items: all, total: all.length });
+    const items = all.map((p) => ({
+      post_id: p.postId,
+      post_snippet: p.postSnippet,
+      permalink: p.permalink,
+      published_at: p.publishedAt,
+      last_harvested_at: p.lastHarvestedAt,
+      total_reactions: p.totalReactions,
+      reaction_delta: p.reactionDelta,
+      reaction_breakdown: p.reactionBreakdown,
+      invite_status: p.inviteStatus,
+      invites_sent_count: p.invitesSentCount,
+      last_invited_at: p.lastInvitedAt,
+    }));
+    res.json({ items, total: items.length });
   } catch (err) {
     logger.error({ err }, "GET /reactor-invites/all failed");
     res.status(500).json({ error: "Internal server error" });
