@@ -27,6 +27,9 @@ const ROUTES = [
   '/for/senior-engineers',
   '/for/career-changers',
   '/job-genie-vs-auto-apply',
+  '/terms',
+  '/privacy',
+  '/data-deletion',
 ];
 
 async function main() {

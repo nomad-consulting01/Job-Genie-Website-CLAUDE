@@ -10,6 +10,7 @@ import blogRouter from "./routes/blog.js";
 import answersRouter from "./routes/answers.js";
 import sitemapRouter from "./routes/sitemap.js";
 import blogHtmlRouter from "./routes/blog-html.js";
+import answersHtmlRouter from "./routes/answers-html.js";
 import redditAeoRouter from "./routes/reddit-aeo.js";
 import reactorInvitesRouter from "./routes/reactor-invites.js";
 import { logger } from "./lib/logger.js";
@@ -58,9 +59,16 @@ app.use("/api", sitemapRouter);
 app.use("/", sitemapRouter);
 
 // Blog post server-side HTML — per-post canonical, metadata, and article body for crawlers.
-// Handles /blog/:slug with correct metadata.  Prerendered static files are served first
+// Handles /blog and /blog/:slug with correct metadata. Prerendered static files are served first
 // (if they exist); dynamic SSR is the fallback for posts added after the last build.
 app.use("/blog", blogHtmlRouter);
+
+// GEO answer pages — /answers and /answers/:slug with route-specific HTML for crawlers.
+app.use("/answers", answersHtmlRouter);
+
+// /qa/:slug — mounted at the canonical path so crawlers reach the HTML directly.
+// The JSON API remains at /api/qa. This router checks Accept and serves HTML or JSON.
+app.use("/qa", qaRouter);
 
 if (process.env["NODE_ENV"] !== "test") {
   startScheduler();

@@ -10,7 +10,7 @@
  * at the last build.  The Vite SPA loads on top for interactive users.
  */
 import { Router } from "express";
-import { getBlogPostBySlug, getPublicDirectResponseForAnswer } from "../corpus/db.js";
+import { getBlogPostBySlug, getPublicDirectResponseForAnswer, listPublishedBlogPosts } from "../corpus/db.js";
 import { logger } from "../lib/logger.js";
 import fs from "fs";
 import path from "path";
@@ -323,16 +323,114 @@ function buildBlogPostHtml(opts: {
 </html>`;
 }
 
-// Serve the SPA shell for the /blog listing page.
-// router.get("/:slug") only matches single-segment paths, so the bare /blog
-// index (remaining path "/") falls here. Clients render the listing client-side.
-router.get("/", (_req, res) => {
-  const indexPath = path.join(JOB_GENIE_DIST, "index.html");
-  if (fs.existsSync(indexPath)) {
+/** Build a static HTML page for the /blog listing with crawler-visible article list. */
+async function buildBlogIndexHtml(posts: Array<{ slug: string; title: string; description: string; publishedAt: string | null }>): Promise<string> {
+  const canonical = `${SITE_URL}/blog`;
+  const title = "Job Search Advice & Career Insights | Job Genie Blog";
+  const description =
+    "Expert answers to real job-seeker questions — from Application Silence and ATS myths to hidden job market strategies and recruiter shortlisting.";
+  const spaScripts = extractSpaScripts();
+
+  const articleListHtml = posts.length > 0
+    ? posts.map((p) => {
+        const dateStr = p.publishedAt
+          ? new Date(p.publishedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+          : null;
+        return `<li style="margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.06);padding-bottom:24px">
+          ${dateStr ? `<time style="font-size:12px;color:#6b7280">${esc(dateStr)}</time>` : ""}
+          <h2 style="font-size:18px;font-weight:600;color:#fff;margin:6px 0 8px;line-height:1.3">
+            <a href="/blog/${esc(p.slug)}" style="color:#fff;text-decoration:none">${esc(p.title.replace(" | Job Genie", ""))}</a>
+          </h2>
+          ${p.description ? `<p style="font-size:14px;color:#9ca3af;line-height:1.6;margin:0">${esc(p.description)}</p>` : ""}
+        </li>`;
+      }).join("\n")
+    : "<li style='color:#9ca3af'>No posts published yet — check back soon.</li>";
+
+  const collectionSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${canonical}#webpage`,
+    url: canonical,
+    name: title,
+    description,
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+    publisher: { "@id": `${SITE_URL}/#organization` },
+  });
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${esc(title)}</title>
+  <meta name="description" content="${esc(description)}" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="${esc(canonical)}" />
+  <meta property="og:title" content="${esc(title)}" />
+  <meta property="og:description" content="${esc(description)}" />
+  <meta property="og:url" content="${esc(canonical)}" />
+  <meta property="og:site_name" content="${esc(SITE_NAME)}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="${OG_IMAGE}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${esc(title)}" />
+  <meta name="twitter:description" content="${esc(description)}" />
+  <meta name="twitter:image" content="${OG_IMAGE}" />
+  <script type="application/ld+json">${collectionSchema}</script>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  ${spaScripts}
+</head>
+<body>
+  <div id="root">
+    <div style="min-height:100vh;background:#080b14;color:#fff;font-family:system-ui,sans-serif">
+      <header style="border-bottom:1px solid rgba(255,255,255,.06);padding:16px 24px">
+        <a href="/" style="font-size:20px;font-weight:700;color:#fff;text-decoration:none">Job Genie</a>
+      </header>
+      <main style="max-width:960px;margin:0 auto;padding:64px 24px">
+        <p style="font-size:12px;color:#2dd4bf;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin:0 0 12px">Job Search Intelligence</p>
+        <h1 style="font-size:40px;font-weight:700;color:#fff;line-height:1.2;margin:0 0 16px">Real answers to real<br />job-search questions</h1>
+        <p style="font-size:18px;color:#9ca3af;margin:0 0 48px;max-width:640px;line-height:1.6">
+          Every article is generated from real questions posted to Reddit's job-search communities, answered through Job Genie's AEO framework.
+        </p>
+        <ul style="list-style:none;padding:0;margin:0">
+          ${articleListHtml}
+        </ul>
+      </main>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+// Serve SEO-optimised HTML for the /blog listing page so crawlers see
+// route-specific metadata and the article list instead of the generic SPA shell.
+router.get("/", async (_req, res) => {
+  try {
+    const rows = await listPublishedBlogPosts(50, 0);
+    const posts = rows.map(({ asset, question }) => {
+      const meta = (asset.engagementMetricsJson ?? {}) as Record<string, unknown>;
+      return {
+        slug: String(asset.externalId ?? ""),
+        title: String(meta["seoTitle"] ?? question.normalisedQuestion),
+        description: String(meta["metaDescription"] ?? ""),
+        publishedAt: (asset.scheduledFor ?? asset.publishedAt)?.toISOString() ?? null,
+      };
+    }).filter((p) => p.slug);
+
+    const html = await buildBlogIndexHtml(posts);
     res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.sendFile(indexPath);
-  } else {
-    res.redirect("/");
+    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=3600");
+    res.send(html);
+  } catch (err) {
+    logger.error({ err }, "blog-html: error serving blog index HTML");
+    const indexPath = path.join(JOB_GENIE_DIST, "index.html");
+    if (fs.existsSync(indexPath)) {
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.sendFile(indexPath);
+    } else {
+      res.redirect("/");
+    }
   }
 });
 

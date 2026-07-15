@@ -11,6 +11,9 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import Home from './pages/Home';
 import LandingPage from './pages/LandingPage';
 import AEOPage from './pages/AEOPage';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import DataDeletion from './pages/DataDeletion';
 import variantsData from './data/variants.json';
 import ReactMarkdown from 'react-markdown';
 import { DirectResponseTabs, type PublicDirectResponse } from '@/components/DirectResponseTabs';
@@ -86,6 +89,24 @@ const AEO_ROUTES: Record<string, RouteHead> = {
     canonical: `${SITE_URL}/job-genie-vs-auto-apply`,
     robots: 'index, follow',
     aeoQuestion: 'Should I use an AI auto-apply tool to send hundreds of job applications?',
+  },
+  '/terms': {
+    title: 'Terms of Service | Job Genie',
+    description: 'Terms of Service for Job-Genie.ai — the rules governing your access to and use of the Job Genie platform.',
+    canonical: `${SITE_URL}/terms`,
+    robots: 'index, follow',
+  },
+  '/privacy': {
+    title: 'Privacy Policy | Job Genie',
+    description: 'How Job-Genie.ai collects, uses, and protects your information when you use our platform.',
+    canonical: `${SITE_URL}/privacy`,
+    robots: 'index, follow',
+  },
+  '/data-deletion': {
+    title: 'Request Data Deletion | Job Genie',
+    description: 'Request deletion of your personal data from Job-Genie.ai. CCPA and GDPR compliant, processed within 30 days.',
+    canonical: `${SITE_URL}/data-deletion`,
+    robots: 'index, follow',
   },
 };
 
@@ -416,6 +437,9 @@ export function render(url: string): string {
             <Route path="/job-genie-vs-auto-apply">
               {() => <AEOPage slug="job-genie-vs-auto-apply" />}
             </Route>
+            <Route path="/terms" component={TermsOfService} />
+            <Route path="/privacy" component={PrivacyPolicy} />
+            <Route path="/data-deletion" component={DataDeletion} />
             <Route path="/:slug" component={LandingPage} />
           </Switch>
         </WouterRouter>

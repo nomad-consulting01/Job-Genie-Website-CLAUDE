@@ -123,6 +123,83 @@ function escHtml(s: string): string {
     .replace(/>/g, "&gt;");
 }
 
+router.get("/", async (req, res) => {
+  const accept = req.headers["accept"] ?? "";
+  if (!accept.includes("text/html") && !accept.includes("*/*")) {
+    res.status(406).json({ error: "Not acceptable" });
+    return;
+  }
+  try {
+    const items = await listPublishedQAs(100);
+    const canonical = `${SITE_URL}/qa`;
+    const title = "Job Search FAQ — Expert Answers | Job Genie";
+    const description =
+      "Structured Q&A answers to real job-seeker questions about Application Silence, ATS myths, the hidden job market, and recruiter shortlisting.";
+    const listHtml = items.length > 0
+      ? items.map((r) => {
+          const p = r.asset.payloadJson as { slug?: string; title?: string; answer_first_block?: string } | null;
+          const slug = p?.slug ?? "";
+          const t = p?.title ?? r.question.normalisedQuestion;
+          const blurb = p?.answer_first_block ?? "";
+          if (!slug) return "";
+          return `<li class="item">
+              <h2><a href="/qa/${escHtml(slug)}">${escHtml(t)}</a></h2>
+              ${blurb ? `<p>${escHtml(blurb.slice(0, 150))}…</p>` : ""}
+            </li>`;
+        }).filter(Boolean).join("\n")
+      : "<li>No Q&A published yet.</li>";
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=3600");
+    res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${escHtml(title)}</title>
+  <meta name="description" content="${escHtml(description)}" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="${escHtml(canonical)}" />
+  <meta property="og:title" content="${escHtml(title)}" />
+  <meta property="og:description" content="${escHtml(description)}" />
+  <meta property="og:url" content="${escHtml(canonical)}" />
+  <meta property="og:site_name" content="Job Genie" />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a1a;color:#e8e8f0;line-height:1.7}
+    header{border-bottom:1px solid rgba(255,255,255,.08);padding:1rem 1.5rem;margin-bottom:1.5rem}
+    .logo{font-weight:700;font-size:1.2rem;color:#fff;text-decoration:none}
+    .logo span{color:#7c6dfa}
+    main{max-width:780px;margin:0 auto;padding:2rem 1.5rem 4rem}
+    h1{font-size:2rem;font-weight:700;color:#fff;margin-bottom:1rem}
+    .desc{color:#9ca3af;margin-bottom:2rem}
+    ul{list-style:none;padding:0}
+    .item{margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid rgba(255,255,255,.06)}
+    .item h2{font-size:1rem;font-weight:600;margin-bottom:.4rem}
+    .item h2 a{color:#9e91fb;text-decoration:none}
+    .item h2 a:hover{text-decoration:underline}
+    .item p{font-size:.875rem;color:#9ca3af}
+  </style>
+</head>
+<body>
+  <header>
+    <a class="logo" href="${SITE_URL}">Job <span>Genie</span></a>
+  </header>
+  <main>
+    <h1>Job Search Q&amp;A</h1>
+    <p class="desc">${escHtml(description)}</p>
+    <ul>${listHtml}</ul>
+  </main>
+</body>
+</html>`);
+  } catch (err) {
+    logger.error({ err }, "GET /qa failed");
+    res.status(500).send("Internal server error");
+  }
+});
+
 router.get("/list", async (_req, res) => {
   try {
     const items = await listPublishedQAs(100);
@@ -158,7 +235,12 @@ router.get("/:slug", async (req, res) => {
       pain_point_tags: string[];
     };
 
-    if (accept.includes("text/html")) {
+    // Default to HTML unless the client explicitly requests JSON, or the
+    // request came in via the /api/qa/* mount (programmatic API consumers).
+    const wantsJson =
+      accept.includes("application/json") || req.baseUrl.startsWith("/api/");
+
+    if (!wantsJson) {
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       res.send(buildQAHtml(payload));
     } else {
