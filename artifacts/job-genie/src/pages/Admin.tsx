@@ -62,8 +62,15 @@ export default function Admin() {
       fetch("/api/admin/metrics", {
         headers: { Authorization: `Bearer ${token}` },
       })
-        .then((r) => r.json())
-        .then((data) => setMetrics(data))
+        .then((r) => {
+          if (r.status === 401) {
+            localStorage.removeItem("ADMIN_TOKEN");
+            setToken(null);
+            return null;
+          }
+          return r.json();
+        })
+        .then((data) => { if (data) setMetrics(data); })
         .catch((e) => console.error("Failed to fetch metrics", e));
     }
   }, [token]);
@@ -79,16 +86,21 @@ export default function Admin() {
           fetch("/api/admin/reactor-invites/weekly-report", { headers: { Authorization: `Bearer ${token}` } }),
           fetch("/api/admin/reactor-invites/all", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
+        if (qRes.status === 401 || capRes.status === 401) {
+          localStorage.removeItem("ADMIN_TOKEN");
+          setToken(null);
+          return;
+        }
         const [q, cap, weekly, all] = await Promise.all([
-          qRes.json(),
-          capRes.json(),
-          weeklyRes.json(),
-          allRes.json(),
+          qRes.ok ? qRes.json() : null,
+          capRes.ok ? capRes.json() : null,
+          weeklyRes.ok ? weeklyRes.json() : null,
+          allRes.ok ? allRes.json() : null,
         ]);
-        setReactorQueue(q.items ?? []);
-        setReactorDailyCap(cap);
-        setReactorWeekly(weekly);
-        setReactorAllPosts(all.items ?? []);
+        setReactorQueue(q?.items ?? []);
+        setReactorDailyCap(cap ?? null);
+        setReactorWeekly(weekly ?? null);
+        setReactorAllPosts(all?.items ?? []);
       } catch (e) {
         console.error("Failed to fetch reactor data", e);
       } finally {
