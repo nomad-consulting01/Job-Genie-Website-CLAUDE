@@ -63,7 +63,15 @@ function Router() {
 }
 
 const CANONICAL_HOST = "www.job-genie.ai";
-if (typeof window !== "undefined" && window.location.hostname !== CANONICAL_HOST && window.location.hostname !== "localhost") {
+if (
+  typeof window !== "undefined" &&
+  window.location.hostname !== CANONICAL_HOST &&
+  window.location.hostname !== "localhost" &&
+  !window.location.hostname.endsWith(".replit.app") &&
+  !window.location.hostname.endsWith(".replit.dev") &&
+  !window.location.hostname.endsWith(".replit.co") &&
+  !window.location.hostname.endsWith(".kirk.replit.dev")
+) {
   window.location.replace(`https://${CANONICAL_HOST}${window.location.pathname}${window.location.search}${window.location.hash}`);
 }
 
