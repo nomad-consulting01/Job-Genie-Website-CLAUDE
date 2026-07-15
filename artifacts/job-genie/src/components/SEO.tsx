@@ -150,8 +150,7 @@ export function SEO({
       isPartOf: { '@id': `${SITE_URL}/#website` },
       ...(pageType === 'home' ? { potentialAction: { '@type': 'SearchAction', target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/?q={search_term_string}` }, 'query-input': 'required name=search_term_string' } } : {}),
     },
-    FAQ_SCHEMA,
-    HOW_TO_SCHEMA,
+    ...(pageType === 'home' ? [FAQ_SCHEMA, HOW_TO_SCHEMA] : []),
     {
       '@context': 'https://schema.org',
       '@type': 'Service',

@@ -216,6 +216,49 @@ export function buildHeadHtml(head: RouteHead): string {
       })
     : null;
 
+  const homeFaqSchema = isHome ? JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'Why am I not hearing back from any of my job applications?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: "If you've sent dozens or hundreds of applications and heard nothing back — not even rejections — you're experiencing Application Silence, and it's rarely about your qualifications. A single role now draws thousands of near-identical, AI-optimised applications, so most are filtered or deprioritised before a human opens them. The fix isn't more volume; it's becoming a candidate a specialist recruiter can shortlist. Job Genie diagnoses why you're being filtered with an Application Silence Score and rewrites your profile to clear the recruiter shortlist threshold.",
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Is it normal to apply to 100+ jobs and get no response in 2026?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: "Unfortunately, yes — and it is a signal the channel is broken, not that you are. With auto-apply tools pushing some roles past thousands of submissions, interview rates on public postings have collapsed into the low single digits, while referred and recruiter-shortlisted candidates convert many times higher. The public-application channel now has the worst odds of any route into a job. Job Genie redirects your effort toward the channels that still work.",
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Why do recruiters ghost candidates, even after interviews?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: "Recruiters usually ghost because of volume and broken process, not personal rejection. A single recruiter may long-list hundreds of names, phone-screen 10 to 20, and present only 3 to 4 to the client — and roles get put on hold, filled internally, or reassigned without anyone updating applicants. It feels personal; it almost never is. The way out is to stop competing inside the silent pile and instead become recruiter-ready, so a recruiter has a reason to keep you on the list.",
+        },
+      },
+    ],
+  }) : null;
+
+  const homeHowToSchema = isHome ? JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to get your free Application Autopsy',
+    description: 'Upload your resume to get your Application Silence Score, Recruiter-Fit Gap, and channel diagnosis in under 2 minutes.',
+    step: [
+      { '@type': 'HowToStep', position: 1, name: 'Upload your resume', text: 'Upload your current CV — PDF, Word, or plain text.' },
+      { '@type': 'HowToStep', position: 2, name: 'Receive your Autopsy', text: 'Job Genie diagnoses your Application Silence Score, ghost-job exposure, and Recruiter-Fit Gap in under 2 minutes.' },
+      { '@type': 'HowToStep', position: 3, name: 'See your matched roles', text: 'Review your closest matches from 300,000+ specialist recruiter-held listings — roles never posted on LinkedIn or Indeed.' },
+    ],
+  }) : null;
+
   const lines = [
     `<title>${esc(head.title)}</title>`,
     `<meta name="description" content="${esc(head.description)}" />`,
@@ -233,6 +276,8 @@ export function buildHeadHtml(head: RouteHead): string {
     `<script type="application/ld+json">${serviceSchema}</script>`,
     `<script type="application/ld+json">${breadcrumbSchema}</script>`,
     questionSchema ? `<script type="application/ld+json">${questionSchema}</script>` : null,
+    homeFaqSchema ? `<script type="application/ld+json">${homeFaqSchema}</script>` : null,
+    homeHowToSchema ? `<script type="application/ld+json">${homeHowToSchema}</script>` : null,
   ];
 
   return lines.filter(Boolean).join('\n    ');

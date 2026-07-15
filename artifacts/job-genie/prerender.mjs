@@ -6,7 +6,8 @@
  *   - Full React-rendered page content (FAQ, comparison table, hero copy) in the <body>
  *   - Route-specific <title>, <meta name="description">, canonical, robots, og/twitter tags
  *   - Per-route WebPage + Question JSON-LD in <head>
- *   - The shared static JSON-LD schemas from index.html (Org, FAQ, HowTo, SoftwareApp)
+ *   - The shared static JSON-LD schemas from index.html (Organization + SoftwareApp only — site-wide)
+ *   - Homepage-only FAQPage, HowTo, and Question schemas injected for the / route only
  *
  * Usage (run automatically via `pnpm build`):
  *   BASE_PATH=/ node prerender.mjs
