@@ -3,52 +3,52 @@
 
   <!-- Home -->
   <url>
-    <loc>https://job-genie.ai/</loc>
+    <loc>https://www.job-genie.ai/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <!-- Cornerstone pillar -->
   <url>
-    <loc>https://job-genie.ai/why-no-responses-after-100-applications</loc>
+    <loc>https://www.job-genie.ai/why-no-responses-after-100-applications</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <!-- Ghost Job Detector -->
   <url>
-    <loc>https://job-genie.ai/ghost-jobs</loc>
+    <loc>https://www.job-genie.ai/ghost-jobs</loc>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
 
   <!-- Glossary -->
   <url>
-    <loc>https://job-genie.ai/glossary</loc>
+    <loc>https://www.job-genie.ai/glossary</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Persona pages -->
   <url>
-    <loc>https://job-genie.ai/for/mid-career-professionals</loc>
+    <loc>https://www.job-genie.ai/for/mid-career-professionals</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://job-genie.ai/for/senior-engineers</loc>
+    <loc>https://www.job-genie.ai/for/senior-engineers</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://job-genie.ai/for/career-changers</loc>
+    <loc>https://www.job-genie.ai/for/career-changers</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Comparison page -->
   <url>
-    <loc>https://job-genie.ai/job-genie-vs-auto-apply</loc>
+    <loc>https://www.job-genie.ai/job-genie-vs-auto-apply</loc>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
   </url>

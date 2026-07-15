@@ -3,6 +3,7 @@ import { insertContentAsset } from "../../corpus/db.js";
 import { logger } from "../../lib/logger.js";
 import type { Loop2Channel } from "../../config/engine.js";
 import type { Answer, Question } from "@workspace/db";
+import { SITE_URL } from "@workspace/site-config";
 
 export interface Loop2GenerateResult {
   answerId: number;
@@ -14,7 +15,6 @@ export interface Loop2GenerateResult {
 
 const CHANNELS: Loop2Channel[] = ["newsletter", "blog_post", "linkedin", "email_nurture"];
 
-const SITE_URL = "https://job-genie.ai";
 
 /** Brand image URLs (both styles) keyed by channel. */
 const CHANNEL_IMAGES: Record<Loop2Channel, { dark_teal: string; warm_editorial: string }> = {

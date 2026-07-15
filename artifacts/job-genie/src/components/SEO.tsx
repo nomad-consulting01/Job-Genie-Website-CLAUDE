@@ -1,8 +1,5 @@
 import { createPortal } from 'react-dom';
-
-const SITE_URL = 'https://job-genie.ai';
-const SITE_NAME = 'Job Genie';
-const OG_IMAGE = `${SITE_URL}/og-image.png`;
+import { SITE_URL, SITE_NAME, OG_IMAGE } from '@workspace/site-config';
 
 const ORG_SCHEMA = {
   '@context': 'https://schema.org',

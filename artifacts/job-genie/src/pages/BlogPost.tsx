@@ -4,8 +4,9 @@ import ReactMarkdown from "react-markdown";
 import { SEO } from "@/components/SEO";
 import { DirectResponseTabs, type PublicDirectResponse } from "@/components/DirectResponseTabs";
 
+import { SITE_URL } from "@workspace/site-config";
+
 const API_BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
-const SITE_URL = "https://job-genie.ai";
 
 interface BlogPostData {
   post: {

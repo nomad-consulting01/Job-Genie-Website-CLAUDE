@@ -15,8 +15,7 @@ import variantsData from './data/variants.json';
 import ReactMarkdown from 'react-markdown';
 import { DirectResponseTabs, type PublicDirectResponse } from '@/components/DirectResponseTabs';
 
-const SITE_URL = 'https://job-genie.ai';
-const SITE_NAME = 'Job Genie';
+import { SITE_URL, SITE_NAME } from '@workspace/site-config';
 
 function esc(s: string): string {
   return s

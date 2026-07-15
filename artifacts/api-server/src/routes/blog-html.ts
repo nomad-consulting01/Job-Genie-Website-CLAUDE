@@ -16,10 +16,9 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
+import { SITE_URL, SITE_NAME, OG_IMAGE } from "@workspace/site-config";
+
 const router = Router();
-const SITE_URL = "https://job-genie.ai";
-const SITE_NAME = "Job Genie";
-const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Path to the job-genie Vite build output (available after production build)

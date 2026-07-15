@@ -4,6 +4,7 @@ import { trackEvent, useEngagementTracking } from "../lib/analytics";
 import { getExperiment } from "../lib/abtest";
 import { SEO } from "../components/SEO";
 import { NewsletterForm } from "../components/NewsletterForm";
+import { SITE_URL } from "@workspace/site-config";
 
 function useScrollReveal() {
   useEffect(() => {
@@ -898,7 +899,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
               <a href="#feat">Features</a>
               <a href="#faq">FAQ</a>
               <a href="#price">Pricing</a>
-              <a href="https://job-genie.ai/" target="_blank" rel="noopener noreferrer">Launch App</a>
+              <a href={`${SITE_URL}/`} target="_blank" rel="noopener noreferrer">Launch App</a>
               <a href="/terms">Terms of Service</a>
               <a href="/privacy">Privacy Policy</a>
               <a href="/data-deletion">Request Data Deletion</a>
@@ -935,8 +936,8 @@ export default function Home() {
       <SEO
         title="Why Your Job Applications Go Silent | Free Application Autopsy | Job Genie"
         description="Why do job applications go silent? Job Genie reveals your Application Silence Score, diagnoses your Recruiter-Fit Gap, and matches you to 300,000+ specialist recruiter listings in under 2 minutes — free, no account needed."
-        url="https://job-genie.ai/"
-        canonicalUrl="https://job-genie.ai/"
+        url={`${SITE_URL}/`}
+        canonicalUrl={`${SITE_URL}/`}
         pageType="home"
         aeoQuestion="Why do my job applications keep going silent?"
       />

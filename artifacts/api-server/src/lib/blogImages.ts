@@ -2,8 +2,7 @@ import { randomUUID } from "crypto";
 import { generateImage } from "@workspace/integrations-gemini-ai/image";
 import { objectStorageClient, getPrivateObjectDir, parseObjectDir } from "./objectStorage.js";
 import { logger } from "./logger.js";
-
-const SITE_URL = "https://job-genie.ai";
+import { SITE_URL } from "@workspace/site-config";
 const BLOG_IMAGE_PREFIX = "blog-hero-images";
 
 export type BlogHeroImageStyle = "dark_teal" | "warm_editorial";

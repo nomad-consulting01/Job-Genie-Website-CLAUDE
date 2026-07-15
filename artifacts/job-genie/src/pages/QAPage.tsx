@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRoute, Link } from "wouter";
 import { Helmet } from "react-helmet-async";
+import { SITE_URL } from "@workspace/site-config";
 
 interface QAData {
   slug: string;
@@ -46,7 +47,6 @@ export default function QAPage() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  const SITE_URL = "https://job-genie.ai";
   const canonical = `${SITE_URL}/qa/${slug}`;
 
   if (loading) {

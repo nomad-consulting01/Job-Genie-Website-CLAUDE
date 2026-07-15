@@ -112,7 +112,7 @@ export async function runReddit(limit: number): Promise<RedditResult> {
       answer.answerFirstBlock,
       "",
       "---",
-      "*I'm a bot sharing AI-generated job-search intelligence. [Job Genie](https://job-genie.ai) helps candidates escape Application Silence.*",
+      "*I'm a bot sharing AI-generated job-search intelligence. [Job Genie](https://www.job-genie.ai) helps candidates escape Application Silence.*",
     ].join("\n");
 
     try {

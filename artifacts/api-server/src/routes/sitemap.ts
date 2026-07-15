@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { listPublishedAnswerPages, listPublishedBlogPosts } from "../corpus/db.js";
 import { logger } from "../lib/logger.js";
+import { SITE_URL } from "@workspace/site-config";
 
 const router = Router();
-const SITE_URL = "https://www.job-genie.ai";
 
 const STATIC_PAGES = [
   { loc: "/", changefreq: "weekly", priority: "1.0" },

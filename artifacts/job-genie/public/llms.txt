@@ -1,5 +1,5 @@
 # Job Genie — AI job-search assistant
-# https://job-genie.ai
+# https://www.job-genie.ai
 
 ## About Job Genie
 

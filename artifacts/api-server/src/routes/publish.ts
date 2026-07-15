@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { logger } from "../lib/logger.js";
+import { SITE_URL } from "@workspace/site-config";
 import {
   listUnpublishedNewsletterAssets,
   listUnmigratedBlogPosts,
@@ -169,7 +170,7 @@ router.get("/admin/publish/blog/preview/:assetId", async (req, res) => {
       ? (payload["pain_point_tags"] as string[])
       : question.painPointTags ?? [];
     const imageUrl = String(
-      meta["featuredImageUrl"] ?? payload["image_dark_teal_url"] ?? "https://job-genie.ai/brand/blog-og-dark-teal.png"
+      meta["featuredImageUrl"] ?? payload["image_dark_teal_url"] ?? `${SITE_URL}/brand/blog-og-dark-teal.png`
     );
 
     const bodyHtml = buildBlogWebHtml({ slug, seoTitle, content, painPointTags, imageUrl });
@@ -201,7 +202,7 @@ router.get("/admin/publish/blog/preview/:assetId", async (req, res) => {
 <body>
   <div class="toolbar">
     <strong>📋 Beehiiv Preview — ${seoTitle}</strong>
-    <a href="https://job-genie.ai/blog/${slug}" target="_blank">View live post →</a>
+    <a href="${SITE_URL}/blog/${slug}" target="_blank">View live post →</a>
     <button class="copy-btn" onclick="copyHtml()">Copy HTML</button>
   </div>
   <div class="card" id="preview">${bodyHtml}</div>

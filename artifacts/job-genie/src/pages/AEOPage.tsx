@@ -3,8 +3,7 @@ import { Link } from "wouter";
 import { SEO } from "../components/SEO";
 import { trackEvent } from "../lib/analytics";
 import { landingPages, type LandingPage } from "../data/landing-pages";
-
-const SITE_URL = "https://job-genie.ai";
+import { SITE_URL } from "@workspace/site-config";
 
 interface AEOPageProps {
   slug: string;

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { getContentAssetBySlug, listPublishedQAs } from "../corpus/db.js";
 import { logger } from "../lib/logger.js";
+import { SITE_URL } from "@workspace/site-config";
 
 const router = Router();
 
@@ -11,7 +12,6 @@ function buildQAHtml(payload: {
   answer_md: string;
   pain_point_tags: string[];
 }): string {
-  const SITE_URL = "https://job-genie.ai";
   const canonical = `${SITE_URL}/qa/${payload.slug}`;
   const ogDesc = payload.answer_first_block.slice(0, 160);
 

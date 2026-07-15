@@ -1,6 +1,7 @@
 import { listUnpublishedNewsletterAssets, markAssetDistributed } from "../../corpus/db.js";
 import { createBeehiivDraft, isBeehiivConfigured } from "../../integrations/beehiiv.js";
 import { logger } from "../../lib/logger.js";
+import { SITE_URL as _SITE_URL_DEFAULT } from "@workspace/site-config";
 
 export interface EmailResult {
   processed: number;
@@ -12,7 +13,7 @@ export interface EmailResult {
 
 const FROM_EMAIL = process.env["EMAIL_FROM"] ?? "Job Genie <newsletter@job-genie.ai>";
 const SUBSCRIBER_LIST = (process.env["EMAIL_SUBSCRIBER_LIST"] ?? "").split(",").map((e) => e.trim()).filter(Boolean);
-const SITE_URL = process.env["SITE_URL"] ?? "https://job-genie.ai";
+const SITE_URL = process.env["SITE_URL"] ?? _SITE_URL_DEFAULT;
 
 async function sendViaResend(subject: string, html: string, to: string[]): Promise<boolean> {
   const apiKey = process.env["RESEND_API_KEY"];

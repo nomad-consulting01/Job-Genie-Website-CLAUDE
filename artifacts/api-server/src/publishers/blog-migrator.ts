@@ -5,8 +5,7 @@ import {
 } from "../corpus/db.js";
 import { mdToNewsletterHtml } from "./newsletter.js";
 import { logger } from "../lib/logger.js";
-
-const SITE_URL = "https://job-genie.ai";
+import { SITE_URL } from "@workspace/site-config";
 
 // ---------------------------------------------------------------------------
 // Build Beehiiv web-post HTML from a blog_post asset

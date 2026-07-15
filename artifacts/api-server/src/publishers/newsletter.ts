@@ -4,8 +4,7 @@ import {
   markAssetDistributed,
 } from "../corpus/db.js";
 import { logger } from "../lib/logger.js";
-
-const SITE_URL = "https://job-genie.ai";
+import { SITE_URL } from "@workspace/site-config";
 
 // ---------------------------------------------------------------------------
 // Markdown → email-safe HTML
