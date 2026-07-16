@@ -29,5 +29,5 @@
 - None yet.
 
 ## Notes
-- The public site is a hybrid static app: a small set of routes are prerendered, while several other public routes still rely on the SPA shell.
-- The strongest SEO risks are crawlability/rendering for non-prerendered public routes, host canonical consistency, and structured-data accuracy.
+- The public site is now hybrid prerender + API SSR: homepage, AEO pages, and legal pages are prerendered, while `/blog`, `/answers`, `/answers/:slug`, `/qa`, `/qa/:slug`, `/sitemap.xml`, and `/llms.txt` are served by the API artifact at canonical root paths.
+- The current highest-impact gaps are concentrated in the `/qa` section: discovery coverage (internal links + sitemap/llms.txt), missing social preview images, and a broken favicon path in API-rendered HTML.
