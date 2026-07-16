@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { listPublishedAnswerPages, listPublishedBlogPosts } from "../corpus/db.js";
+import { listPublishedAnswerPages, listPublishedBlogPosts, listPublishedQAs } from "../corpus/db.js";
 import { logger } from "../lib/logger.js";
 import { SITE_URL } from "@workspace/site-config";
 
@@ -16,14 +16,16 @@ const STATIC_PAGES = [
   { loc: "/job-genie-vs-auto-apply", changefreq: "monthly", priority: "0.75" },
   { loc: "/answers", changefreq: "daily", priority: "0.9" },
   { loc: "/blog", changefreq: "daily", priority: "0.85" },
+  { loc: "/qa", changefreq: "daily", priority: "0.85" },
 ];
 
 /** Dynamic XML sitemap — includes all published /answers/:slug and /blog/:slug pages */
 router.get("/sitemap.xml", async (_req, res) => {
   try {
-    const [answerRows, blogRows] = await Promise.all([
+    const [answerRows, blogRows, qaRows] = await Promise.all([
       listPublishedAnswerPages(500, 0),
       listPublishedBlogPosts(200, 0),
+      listPublishedQAs(500),
     ]);
 
     const today = new Date().toISOString().split("T")[0];
@@ -40,6 +42,13 @@ router.get("/sitemap.xml", async (_req, res) => {
         const lastmod = (asset.scheduledFor ?? asset.publishedAt ?? new Date()).toISOString().split("T")[0];
         return `  <url>\n    <loc>${SITE_URL}/blog/${asset.externalId}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n    <lastmod>${lastmod}</lastmod>\n  </url>`;
       }),
+      ...qaRows.map(({ asset }) => {
+        const p = (asset.payloadJson ?? {}) as Record<string, unknown>;
+        const slug = String(p["slug"] ?? asset.externalId ?? "");
+        if (!slug) return "";
+        const lastmod = (asset.scheduledFor ?? asset.publishedAt ?? new Date()).toISOString().split("T")[0];
+        return `  <url>\n    <loc>${SITE_URL}/qa/${slug}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.85</priority>\n    <lastmod>${lastmod}</lastmod>\n  </url>`;
+      }).filter(Boolean),
     ];
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -60,9 +69,10 @@ ${urlEntries.join("\n")}
 /** Dynamic llms.txt — GEO standard: lists all Q&A pairs for AI citation engines */
 router.get("/llms.txt", async (_req, res) => {
   try {
-    const [answerRows, blogRows] = await Promise.all([
+    const [answerRows, blogRows, qaRows] = await Promise.all([
       listPublishedAnswerPages(500, 0),
       listPublishedBlogPosts(200, 0),
+      listPublishedQAs(500),
     ]);
 
     const header = `# Job Genie — AI job-search assistant
@@ -119,6 +129,7 @@ filled through referrals and recruiter shortlists before they are widely adverti
 /job-genie-vs-auto-apply                 Honest comparison: recruiter-visibility vs spray-and-pray auto-apply
 /answers                                 GEO answer index — all Q&A pages optimised for AI search
 /blog                                    Blog — job-search intelligence and recruiter-fit articles
+/qa                                      Job Search FAQ — structured Q&A on Application Silence, ATS myths, and recruiter shortlisting
 
 `;
 
@@ -147,11 +158,30 @@ filled through referrals and recruiter shortlists before they are widely adverti
       ].join("\n");
     });
 
+    const qaLines = qaRows.map(({ asset, question }) => {
+      const p = (asset.payloadJson ?? {}) as Record<string, unknown>;
+      const slug = String(p["slug"] ?? asset.externalId ?? "");
+      const title = String(p["title"] ?? question.normalisedQuestion);
+      const firstBlock = String(p["answer_first_block"] ?? "");
+      const tags = (question.painPointTags as string[] ?? []).join(", ");
+      if (!slug) return "";
+      return [
+        `### ${title}`,
+        `URL: ${SITE_URL}/qa/${slug}`,
+        `Q: ${question.normalisedQuestion}`,
+        `A: ${firstBlock.slice(0, 400)}${firstBlock.length > 400 ? "…" : ""}`,
+        `Tags: ${tags}`,
+        "",
+      ].join("\n");
+    }).filter(Boolean);
+
     const body = [
       `## GEO Answer Pages (${answerRows.length} total)\n`,
       answerLines.join("\n"),
       `## Blog Posts (${blogRows.length} total)\n`,
       blogLines.join("\n"),
+      `## Job Search FAQ (${qaRows.length} total)\n`,
+      qaLines.join("\n"),
     ].join("\n");
 
     res.setHeader("Content-Type", "text/plain; charset=utf-8");

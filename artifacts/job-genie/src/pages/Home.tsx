@@ -334,6 +334,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           <li><a href="#feat">Features</a></li>
           <li><a href="#price">Pricing</a></li>
           <li><a href="/blog">Blog</a></li>
+          <li><a href="/qa">FAQ</a></li>
           <li>
             <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bg bsm" style={{ color: "var(--wh)" }} onClick={() => trackEvent("free_autopsy_click", { location: "nav" })}>
               {ctaPrimary}
@@ -900,6 +901,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
               <a href="#faq">FAQ</a>
               <a href="#price">Pricing</a>
               <a href={`${SITE_URL}/`} target="_blank" rel="noopener noreferrer">Launch App</a>
+              <a href="/qa">Job Search FAQ</a>
               <a href="/terms">Terms of Service</a>
               <a href="/privacy">Privacy Policy</a>
               <a href="/data-deletion">Request Data Deletion</a>

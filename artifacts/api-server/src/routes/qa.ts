@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getContentAssetBySlug, listPublishedQAs } from "../corpus/db.js";
 import { logger } from "../lib/logger.js";
-import { SITE_URL } from "@workspace/site-config";
+import { SITE_URL, OG_IMAGE } from "@workspace/site-config";
 
 const router = Router();
 
@@ -65,9 +65,13 @@ function buildQAHtml(payload: {
   <meta property="og:url" content="${escHtml(canonical)}" />
   <meta property="og:site_name" content="Job Genie" />
   <meta property="og:type" content="article" />
+  <meta property="og:image" content="${OG_IMAGE}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${escHtml(payload.title)} | Job Genie" />
   <meta name="twitter:description" content="${escHtml(ogDesc)}" />
+  <meta name="twitter:image" content="${OG_IMAGE}" />
   <script type="application/ld+json">${faqSchema}</script>
   <script type="application/ld+json">${breadcrumbSchema}</script>
   <style>
@@ -165,6 +169,13 @@ router.get("/", async (req, res) => {
   <meta property="og:url" content="${escHtml(canonical)}" />
   <meta property="og:site_name" content="Job Genie" />
   <meta property="og:type" content="website" />
+  <meta property="og:image" content="${OG_IMAGE}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${escHtml(title)}" />
+  <meta name="twitter:description" content="${escHtml(description)}" />
+  <meta name="twitter:image" content="${OG_IMAGE}" />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <style>
