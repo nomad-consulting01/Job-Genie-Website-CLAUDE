@@ -291,7 +291,7 @@ function buildBlogPostHtml(opts: {
   <script type="application/ld+json">${breadcrumbSchema}</script>
   <script type="application/ld+json">${questionSchema}</script>
   ${opts.faqJsonLd ? `<script type="application/ld+json">${JSON.stringify(opts.faqJsonLd)}</script>` : ""}
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   ${spaScripts}
 </head>
@@ -377,7 +377,7 @@ async function buildBlogIndexHtml(posts: Array<{ slug: string; title: string; de
   <meta name="twitter:description" content="${esc(description)}" />
   <meta name="twitter:image" content="${OG_IMAGE}" />
   <script type="application/ld+json">${collectionSchema}</script>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   ${spaScripts}
 </head>

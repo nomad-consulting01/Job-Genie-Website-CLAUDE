@@ -165,7 +165,8 @@ router.get("/", async (req, res) => {
   <meta property="og:url" content="${escHtml(canonical)}" />
   <meta property="og:site_name" content="Job Genie" />
   <meta property="og:type" content="website" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a1a;color:#e8e8f0;line-height:1.7}

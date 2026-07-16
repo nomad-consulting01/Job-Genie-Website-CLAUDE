@@ -152,7 +152,7 @@ router.get("/", async (_req, res) => {
   <meta name="twitter:description" content="${esc(description)}" />
   <meta name="twitter:image" content="${OG_IMAGE}" />
   <script type="application/ld+json">${collectionSchema}</script>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   ${spaScripts}
 </head>
@@ -309,7 +309,7 @@ router.get("/:slug", async (req, res) => {
   <script type="application/ld+json">${articleSchema}</script>
   <script type="application/ld+json">${breadcrumbSchema}</script>
   ${howToSchema ? `<script type="application/ld+json">${howToSchema}</script>` : ""}
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   ${spaScripts}
 </head>
