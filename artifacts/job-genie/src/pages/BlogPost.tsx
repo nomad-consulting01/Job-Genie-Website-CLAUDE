@@ -39,6 +39,20 @@ function TagPill({ tag }: { tag: string }) {
   );
 }
 
+function StopApplyingCTA() {
+  return (
+    <div className="bg-gradient-to-br from-teal-50 to-blue-50 border border-teal-100 rounded-2xl p-8 text-center">
+      <h3 className="text-xl font-bold text-gray-900 mb-2">Stop applying into the void</h3>
+      <p className="text-gray-600 text-sm mb-6 leading-relaxed max-w-md mx-auto">
+        Get your free Application Autopsy — Application Silence Score, Recruiter-Fit Gap, and your closest specialist-recruiter matches.
+      </p>
+      <Link href="/" className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-colors">
+        Get Your Free Autopsy →
+      </Link>
+    </div>
+  );
+}
+
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const [data, setData] = useState<BlogPostData | null>(null);
@@ -184,6 +198,11 @@ export default function BlogPost() {
             </div>
           )}
 
+          {/* CTA after Quick Answer */}
+          <div className="mb-10">
+            <StopApplyingCTA />
+          </div>
+
           {/* Main content */}
           <article className="prose prose-sm max-w-none
             prose-headings:font-semibold prose-headings:text-gray-900
@@ -217,15 +236,9 @@ export default function BlogPost() {
           {/* Ready-to-share social posts (only when approved copy exists) */}
           <DirectResponseTabs directResponse={data!.directResponse ?? null} />
 
-          {/* CTA */}
-          <div className="mt-12 bg-gradient-to-br from-teal-50 to-blue-50 border border-teal-100 rounded-2xl p-8 text-center">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Stop applying into the void</h3>
-            <p className="text-gray-600 text-sm mb-6 leading-relaxed max-w-md mx-auto">
-              Get your free Application Autopsy — Application Silence Score, Recruiter-Fit Gap, and your closest specialist-recruiter matches.
-            </p>
-            <Link href="/" className="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-[#080b14] font-semibold px-6 py-3 rounded-xl text-sm transition-colors">
-              Get Your Free Autopsy →
-            </Link>
+          {/* CTA footer */}
+          <div className="mt-12">
+            <StopApplyingCTA />
           </div>
         </main>
       </div>
