@@ -62,7 +62,13 @@ export async function generateBlogHeroImage(
 
   logger.info({ slugHint, filename }, "Generated unique blog hero image");
 
-  return `${SITE_URL}/api/blog-images/${filename}`;
+  // Serve via wsrv.nl (Cloudflare-backed image CDN) so the og:image bypasses
+  // Replit's GCP load balancer, which injects a GAESA session-affinity cookie
+  // on every response. That cookie forces Cache-Control: private, breaking
+  // Facebook's OG image crawler. wsrv.nl fetches from our API and re-serves
+  // with Cache-Control: public — no cookie, no private override.
+  const apiPath = `${SITE_URL}/api/blog-images/${filename}`.replace(/^https?:\/\//, "");
+  return `https://wsrv.nl/?url=${apiPath}`;
 }
 
 /**

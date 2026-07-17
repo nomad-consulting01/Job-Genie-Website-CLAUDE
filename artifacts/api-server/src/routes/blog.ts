@@ -3,6 +3,20 @@ import { listPublishedBlogPosts, getBlogPostBySlug, getPublicDirectResponseForAn
 import { listBeehiivPosts, isBeehiivConfigured, type BeehiivPost } from "../integrations/beehiiv.js";
 import { logger } from "../lib/logger.js";
 
+/**
+ * Rewrites legacy /api/blog-images/ URLs to wsrv.nl so og:image bypasses
+ * Replit's GCP load balancer. GCP injects a GAESA session-affinity cookie on
+ * every response (including static files), which forces Cache-Control: private
+ * and breaks Facebook's OG image crawler. wsrv.nl (Cloudflare CDN) re-serves
+ * the image with Cache-Control: public and no cookie.
+ */
+function toWsrvOgImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith("https://wsrv.nl/")) return url;
+  if (!url.includes("/api/blog-images/")) return url;
+  return `https://wsrv.nl/?url=${url.replace(/^https?:\/\//, "")}`;
+}
+
 const router = Router();
 
 router.get("/", async (req, res) => {
@@ -90,7 +104,7 @@ router.get("/:slug", async (req, res) => {
         metaDescription: meta["metaDescription"] ?? "",
         readTimeMinutes: meta["readTimeMinutes"] ?? null,
         faqJsonLd: meta["faqJsonLd"] ?? null,
-        featuredImageUrl: (meta["featuredImageUrl"] as string | undefined) ?? null,
+        featuredImageUrl: toWsrvOgImageUrl(meta["featuredImageUrl"] as string | undefined),
         content: payload["content"] ?? "",
         publishedAt: asset.scheduledFor ?? asset.publishedAt,
       },

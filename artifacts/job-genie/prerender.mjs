@@ -169,52 +169,24 @@ async function main() {
   // Import blog-specific render functions from the SSR bundle built above
   const { renderBlogPost, getBlogPostHeadHtml } = await import('./dist/server/entry-server.mjs');
 
-  // Canonical site URL — static images are served from here (no /api/ prefix)
-  const SITE_URL = 'https://www.job-genie.ai';
-
-  // Ensure static blog-images directory exists
-  const staticImagesDir = path.resolve(__dirname, 'dist/public/blog-images');
-  fs.mkdirSync(staticImagesDir, { recursive: true });
-
   /**
-   * Downloads a hero image from the local API and saves it as a static file
-   * in dist/public/blog-images/. Returns the new absolute static URL so og:image
-   * points directly to the static file instead of the API proxy.
+   * Wraps a hero image URL with wsrv.nl so og:image bypasses Replit's GCP load
+   * balancer, which injects a GAESA session-affinity Set-Cookie header on every
+   * response (including static files). That cookie forces Cache-Control: private
+   * on ALL job-genie.ai responses, breaking Facebook's OG image crawler.
    *
-   * Why: Replit's GCP load balancer injects a GAESA session-affinity Set-Cookie
-   * header on every API response. Browsers/CDNs interpret any Set-Cookie as
-   * user-specific content and force Cache-Control: private, which breaks
-   * Facebook's social crawler (it cannot use images marked private).
-   * Static files bypass Express entirely — no cookie, no private override.
+   * wsrv.nl (Cloudflare-backed) fetches from our API once, caches it, and
+   * re-serves with Cache-Control: public + no cookie — perfect for FB previews.
+   *
+   * New images already use wsrv.nl URLs (see generateBlogHeroImage). This
+   * function converts the legacy /api/blog-images/ URLs for older posts.
    */
-  async function downloadHeroImageAsStatic(featuredImageUrl) {
-    if (!featuredImageUrl || !featuredImageUrl.includes('/api/blog-images/')) {
-      return featuredImageUrl;
-    }
-    const filename = featuredImageUrl.split('/api/blog-images/').pop();
-    if (!filename || !/^[a-z0-9-]+\.(png|jpg)$/i.test(filename)) {
-      return featuredImageUrl;
-    }
-    const outFile = path.join(staticImagesDir, filename);
-    if (fs.existsSync(outFile)) {
-      return `${SITE_URL}/blog-images/${filename}`;
-    }
-    try {
-      const imgResp = await fetch(`http://localhost:8080/api/blog-images/${filename}`, {
-        signal: AbortSignal.timeout(15000),
-      });
-      if (!imgResp.ok) {
-        console.warn(`[prerender]   image download failed (${imgResp.status}) for ${filename} — keeping API URL`);
-        return featuredImageUrl;
-      }
-      const buffer = Buffer.from(await imgResp.arrayBuffer());
-      fs.writeFileSync(outFile, buffer);
-      console.log(`[prerender]   ✓ saved static hero image: /blog-images/${filename}`);
-      return `${SITE_URL}/blog-images/${filename}`;
-    } catch (err) {
-      console.warn(`[prerender]   image download error for ${filename}: ${err.message} — keeping API URL`);
-      return featuredImageUrl;
-    }
+  function toWsrvOgImageUrl(featuredImageUrl) {
+    if (!featuredImageUrl) return featuredImageUrl;
+    if (featuredImageUrl.startsWith('https://wsrv.nl/')) return featuredImageUrl;
+    if (!featuredImageUrl.includes('/api/blog-images/')) return featuredImageUrl;
+    const withoutProtocol = featuredImageUrl.replace(/^https?:\/\//, '');
+    return `https://wsrv.nl/?url=${withoutProtocol}`;
   }
 
   for (const postSummary of blogPosts) {
@@ -231,10 +203,10 @@ async function main() {
       }
       const postData = await postResp.json();
 
-      // Download hero image as static file and rewrite og:image to static URL
-      // so it bypasses Replit's GCP proxy (which forces Cache-Control: private).
+      // Rewrite legacy /api/blog-images/ URLs → wsrv.nl CDN URL so og:image
+      // bypasses Replit's GCP GAESA cookie (which forces Cache-Control: private).
       if (postData.post?.featuredImageUrl) {
-        postData.post.featuredImageUrl = await downloadHeroImageAsStatic(postData.post.featuredImageUrl);
+        postData.post.featuredImageUrl = toWsrvOgImageUrl(postData.post.featuredImageUrl);
       }
 
       // 1. Render article body via SSR

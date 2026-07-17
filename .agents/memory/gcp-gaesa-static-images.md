@@ -4,14 +4,19 @@ description: Replit's GCP load balancer injects a GAESA session-affinity Set-Coo
 ---
 
 ## The Rule
-Never rely on `/api/blog-images/*` responses being publicly cacheable in production. Any image that needs to be scraped by Facebook/Twitter must be served as a static file from `dist/public/`, not through Express.
+Never serve og:images through `job-genie.ai` URLs for Facebook/social crawlers. GCP's load balancer injects `Set-Cookie: GAESA=...` on **all** responses — API routes AND static files — forcing `Cache-Control: private` on everything. Facebook's OG crawler refuses `private` images.
 
-**Why:** Replit's autoscale deployment runs behind GCP's load balancer, which injects `Set-Cookie: GAESA=...` (session affinity cookie) on all responses. When a response has Set-Cookie, CDNs and Facebook's crawler treat it as user-specific and downgrade any `Cache-Control: public` to `Cache-Control: private`. Facebook's OG image crawler refuses `private` images.
+**Why:**
+- `makePublic()` blocked by bucket-level public access prevention
+- `getSignedUrl()` fails (sidecar credential has no `client_email`)
+- Static files in `dist/public/` ALSO get GAESA → `Cache-Control: private` (not just Express routes)
+- No GCS or local workaround is possible; a different CDN domain is required
 
-`makePublic()` is also blocked on the GCS bucket (public access prevention enforced) and `getSignedUrl()` fails (sidecar credential has no `client_email` for signing). Neither GCS workaround is available.
+**Fix: wsrv.nl image proxy (Cloudflare-backed)**
+Use `https://wsrv.nl/?url=<url-without-protocol>` as the og:image URL. wsrv.nl fetches from our API once, caches it, and re-serves with `Cache-Control: public` + no cookie + `access-control-allow-origin: *` — perfect for Facebook's OG crawler.
 
 **How to apply:**
-- In `prerender.mjs`, the `downloadHeroImageAsStatic()` function fetches each post's hero image from `http://localhost:8080/api/blog-images/<filename>` during the build, saves it to `dist/public/blog-images/<filename>`, and rewrites `postData.post.featuredImageUrl` to `https://www.job-genie.ai/blog-images/<filename>` before calling `getBlogPostHeadHtml()`.
-- Static files in `dist/public/` bypass Express entirely — no GCP proxy, no cookie, no `private` override.
-- This runs at every build, so new posts get their image saved on the next deploy.
-- The `/api/blog-images/*` route still exists for in-app image loading (non-crawler use) — keep it as a streaming route, not a redirect.
+- `generateBlogHeroImage` in `blogImages.ts` returns a wsrv.nl URL for new images (so it's stored in DB from creation)
+- Blog route in `blog.ts` applies `toWsrvOgImageUrl()` to rewrite legacy `/api/blog-images/` URLs on the fly for any post served dynamically
+- `prerender.mjs` applies `toWsrvOgImageUrl()` for prerendered posts (covers the static HTML og:image tags)
+- The `/api/blog-images/*` streaming route still works for in-app image display (browser fetches, not OG crawlers)
