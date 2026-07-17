@@ -1,0 +1,7 @@
+{
+  "_schema": "voice-ledger-v1",
+  "_description": "Thompson-sampling Beta(α,β) per voice arm. Updated by Station ③ runLedgerUpdate().",
+  "lastUpdatedAt": null,
+  "samplingPolicy": null,
+  "arms": {}
+}

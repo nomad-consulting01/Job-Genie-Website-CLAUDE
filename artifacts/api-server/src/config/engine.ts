@@ -1,6 +1,12 @@
 export type Loop2Channel = "newsletter" | "blog_post" | "linkedin" | "email_nurture";
 
 export interface EngineConfig {
+  voiceLoop: {
+    cronScheduleMetrics: string;
+    cronScheduleSelfImprove: string;
+    budgetUsd: number;
+    minImpressionsGate: number;
+  };
   loop4: {
     cronSchedule: string;
     maxItemsPerChannel: number;
@@ -41,6 +47,12 @@ export interface EngineConfig {
 }
 
 export const engineConfig: EngineConfig = {
+  voiceLoop: {
+    cronScheduleMetrics: process.env["VOICE_LOOP_METRICS_CRON"] ?? "0 8 * * *",
+    cronScheduleSelfImprove: process.env["VOICE_LOOP_SELF_IMPROVE_CRON"] ?? "0 1 * * 0",
+    budgetUsd: parseFloat(process.env["VOICE_LOOP_BUDGET_USD"] ?? "2.00"),
+    minImpressionsGate: parseInt(process.env["VOICE_LOOP_MIN_IMPRESSIONS"] ?? "500"),
+  },
   loop4: {
     cronSchedule: process.env["LOOP4_CRON"] ?? "0 6 * * *",
     maxItemsPerChannel: parseInt(process.env["LOOP4_MAX_ITEMS"] ?? "20"),

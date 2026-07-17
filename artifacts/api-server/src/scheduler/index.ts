@@ -20,6 +20,12 @@ let scraperRunning = false;
 let reactorHarvestTask: cron.ScheduledTask | null = null;
 let reactorHarvestRunning = false;
 
+let voiceLoopMetricsTask: cron.ScheduledTask | null = null;
+let voiceLoopMetricsRunning = false;
+
+let voiceLoopSelfImproveTask: cron.ScheduledTask | null = null;
+let voiceLoopSelfImproveRunning = false;
+
 export function startScheduler(): void {
   // 2 AM — Listing scraper (fills pending queue, no Claude cost)
   const scraperSchedule = engineConfig.listingScraper.cronSchedule;
@@ -147,7 +153,51 @@ export function startScheduler(): void {
     }
   });
 
-  logger.info("Scheduler started (scraper 2AM → Loop1 3AM → Loop2 4AM → Loop3 5AM → Loop4 6AM → Reactor every 6h)");
+  // 8 AM daily — Voice Loop Stations ①②③ (FB metrics + attribution + ledger update)
+  const voiceMetricsSchedule = engineConfig.voiceLoop.cronScheduleMetrics;
+  logger.info({ schedule: voiceMetricsSchedule }, "Scheduler: scheduling Voice Loop daily metrics pipeline");
+
+  voiceLoopMetricsTask = cron.schedule(voiceMetricsSchedule, async () => {
+    if (voiceLoopMetricsRunning) {
+      logger.warn("Voice Loop metrics pipeline already running — skipping");
+      return;
+    }
+    voiceLoopMetricsRunning = true;
+    try {
+      logger.info("Scheduler: triggering Voice Loop daily metrics pipeline");
+      const { runDailyMetricsPipeline } = await import("../loops/voice-loop/index.js");
+      const result = await runDailyMetricsPipeline();
+      logger.info({ result }, "Voice Loop daily metrics pipeline completed");
+    } catch (err) {
+      logger.error({ err }, "Scheduler: Voice Loop daily metrics pipeline failed");
+    } finally {
+      voiceLoopMetricsRunning = false;
+    }
+  });
+
+  // Sunday 1 AM — Voice Loop Station ⑦ (weekly self-improvement proposal, human-gated)
+  const voiceSelfImproveSchedule = engineConfig.voiceLoop.cronScheduleSelfImprove;
+  logger.info({ schedule: voiceSelfImproveSchedule }, "Scheduler: scheduling Voice Loop weekly self-improve");
+
+  voiceLoopSelfImproveTask = cron.schedule(voiceSelfImproveSchedule, async () => {
+    if (voiceLoopSelfImproveRunning) {
+      logger.warn("Voice Loop self-improve already running — skipping");
+      return;
+    }
+    voiceLoopSelfImproveRunning = true;
+    try {
+      logger.info("Scheduler: triggering Voice Loop weekly self-improve (Station ⑦)");
+      const { runVoiceLibrarySelfImprove } = await import("../loops/voice-loop/selfImprove.js");
+      const result = await runVoiceLibrarySelfImprove();
+      logger.info({ result }, "Voice Loop weekly self-improve completed — proposal requires human approval");
+    } catch (err) {
+      logger.error({ err }, "Scheduler: Voice Loop weekly self-improve failed");
+    } finally {
+      voiceLoopSelfImproveRunning = false;
+    }
+  });
+
+  logger.info("Scheduler started (scraper 2AM → Loop1 3AM → Loop2 4AM → Loop3 5AM → Loop4 6AM → Reactor every 6h → VoiceLoop metrics 8AM daily → VoiceLoop self-improve Sunday 1AM)");
 }
 
 export function stopScheduler(): void {
@@ -157,6 +207,8 @@ export function stopScheduler(): void {
   loop3Task?.stop();
   loop4Task?.stop();
   reactorHarvestTask?.stop();
+  voiceLoopMetricsTask?.stop();
+  voiceLoopSelfImproveTask?.stop();
   logger.info("Scheduler stopped");
 }
 
@@ -187,6 +239,14 @@ export function getSchedulerStatus() {
     reactorInviteHarvester: {
       schedule: engineConfig.reactorInvites.cronSchedule,
       running: reactorHarvestRunning,
+    },
+    voiceLoopMetrics: {
+      schedule: engineConfig.voiceLoop.cronScheduleMetrics,
+      running: voiceLoopMetricsRunning,
+    },
+    voiceLoopSelfImprove: {
+      schedule: engineConfig.voiceLoop.cronScheduleSelfImprove,
+      running: voiceLoopSelfImproveRunning,
     },
   };
 }

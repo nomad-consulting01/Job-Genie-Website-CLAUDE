@@ -172,6 +172,51 @@ router.get("/backfill-hero-images/status", (_req, res) => {
   res.json({ running: heroImageBackfillRunning });
 });
 
+let voiceLoopDryRunRunning = false;
+
+router.post("/voice-loop/dry-run", async (_req, res) => {
+  if (voiceLoopDryRunRunning) {
+    res.status(409).json({ error: "Voice loop dry-run is already running" });
+    return;
+  }
+  voiceLoopDryRunRunning = true;
+  res.json({ message: "Voice loop dry-run started — stations ①②③④⑤⑥⑦ will be exercised without publishing", status: "started" });
+
+  setImmediate(async () => {
+    try {
+      const { runFbMetricsIngest } = await import("../loops/voice-loop/fbMetrics.js");
+      const { runAttribution } = await import("../loops/voice-loop/attribution.js");
+      const { runLedgerUpdate } = await import("../loops/voice-loop/ledger.js");
+      const { generateVoiceVariants } = await import("../loops/voice-loop/variantGenerator.js");
+      const { runVoiceLibrarySelfImprove } = await import("../loops/voice-loop/selfImprove.js");
+
+      const fbMetrics = await runFbMetricsIngest({ dryRun: true });
+      const attribution = await runAttribution({ dryRun: true });
+      const ledger = await runLedgerUpdate({ dryRun: true });
+
+      const variants = await generateVoiceVariants({
+        assetId: 0,
+        slug: "dry-run-post",
+        question: "Why do job applications get ignored?",
+        answerMd: "Job applications are often ignored because of ATS filtering and lack of recruiter-ready language.",
+        seoTitle: "Why Your Job Applications Get Ignored (Dry Run)",
+      }, { dryRun: true });
+
+      const selfImprove = await runVoiceLibrarySelfImprove({ dryRun: true });
+
+      logger.info({ fbMetrics, attribution, ledger, variants: { generated: variants.variants.length, autoRejected: variants.autoRejected }, selfImprove }, "Voice loop dry-run completed");
+    } catch (err) {
+      logger.error({ err }, "Voice loop dry-run failed");
+    } finally {
+      voiceLoopDryRunRunning = false;
+    }
+  });
+});
+
+router.get("/voice-loop/status", (_req, res) => {
+  res.json({ running: voiceLoopDryRunRunning });
+});
+
 router.post("/scrape-listings/run", async (req, res) => {
   if (scraperRunning) {
     res.status(409).json({ error: "Listing scraper is already running" });

@@ -139,6 +139,19 @@ router.put("/assets/:id/status", async (req, res) => {
       res.status(400).json({ error: `status must be one of: ${allowed.join(", ")}` });
       return;
     }
+
+    /** Block voice_variant assets from being published via this generic route.
+     *  Publishing a voice variant requires human approval — use POST /api/admin/voice-variants/:id/publish. */
+    if (status === "published") {
+      const asset = await getContentAssetById(id);
+      if (asset?.channel === "voice_variant") {
+        res.status(403).json({
+          error: "Voice variant publishing requires human approval. Use POST /api/admin/voice-variants/:id/publish after approving via /approve.",
+        });
+        return;
+      }
+    }
+
     await updateContentAssetStatus(id, status, status === "published" ? new Date() : undefined);
     res.json({ id, status });
   } catch (err) {

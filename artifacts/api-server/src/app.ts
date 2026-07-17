@@ -13,6 +13,7 @@ import blogHtmlRouter from "./routes/blog-html.js";
 import answersHtmlRouter from "./routes/answers-html.js";
 import redditAeoRouter from "./routes/reddit-aeo.js";
 import reactorInvitesRouter from "./routes/reactor-invites.js";
+import voiceVariantsRouter from "./routes/voice-variants.js";
 import { logger } from "./lib/logger.js";
 import { startScheduler } from "./scheduler/index.js";
 
@@ -47,6 +48,7 @@ app.use("/api/admin/corpus", corpusRouter);
 app.use("/api/admin/loops", loopsRouter);
 app.use("/api/admin/reddit-aeo", redditAeoRouter);
 app.use("/api/admin/reactor-invites", reactorInvitesRouter);
+app.use("/api/admin/voice-variants", voiceVariantsRouter);
 app.use("/api/qa", qaRouter);
 app.use("/api/blog", blogRouter);
 app.use("/api/answers", answersRouter);

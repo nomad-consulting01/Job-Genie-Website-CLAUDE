@@ -2,6 +2,7 @@ import { enrichBlogPost } from "./enrich.js";
 import { startLoopRun, finishLoopRun, listBlogPostsNotYetPublished } from "../../corpus/db.js";
 import { engineConfig } from "../../config/engine.js";
 import { logger } from "../../lib/logger.js";
+import { generateAndSaveVoiceVariants } from "../voice-loop/generateAndSave.js";
 
 export interface Loop3RunResult {
   runId: number;
@@ -54,6 +55,18 @@ export async function run(): Promise<Loop3RunResult> {
       } else {
         succeeded++;
         slugs.push(result.slug);
+        setImmediate(() => {
+          generateAndSaveVoiceVariants({
+            assetId: asset.id,
+            answerId: answer.id,
+            slug: result.slug,
+            question: question.normalisedQuestion,
+            answerMd: answer.answerMd,
+            seoTitle: String((asset.engagementMetricsJson as Record<string, unknown> | null)?.["seoTitle"] ?? question.normalisedQuestion),
+          }).catch((err: unknown) => {
+            logger.warn({ assetId: asset.id, err }, "Loop 3: background voice variant generation failed — non-blocking");
+          });
+        });
       }
     }
 

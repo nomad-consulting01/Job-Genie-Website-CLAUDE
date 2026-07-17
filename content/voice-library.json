@@ -1,0 +1,78 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2026-07-17T00:00:00Z",
+  "samplingPolicy": {
+    "exploitWeight": 0.75,
+    "exploreWeight": 0.25,
+    "minImpressionsGate": 500,
+    "compositeWeights": {
+      "w1_reach_rate": 0.25,
+      "w2_engagement_quality": 0.35,
+      "w3_on_brand_score": 0.15,
+      "w4_guardrail_risk": 0.15,
+      "w5_cta_action_rate": 0.10
+    }
+  },
+  "voices": [
+    {
+      "id": "sabri_suby_dr",
+      "label": "Sabri Suby Direct Response",
+      "description": "High-urgency, pattern-interrupt direct response. Bold hook, agitate the pain, present a vivid solution, hard CTA.",
+      "active": true,
+      "samplingWeight": 1.0,
+      "hookTypes": ["pain_agitate", "bold_claim", "contrarian_opener"],
+      "generationInstructions": "Write in the Sabri Suby direct-response style. Open with a pattern-interrupt hook that calls out the exact reader (e.g. 'If you've sent 200 job applications and heard nothing back…'). Agitate the pain viscerally for 1–2 paragraphs. Then pivot to a specific, credible promise. Use short punchy sentences. End every section with a micro-CTA or rhetorical question. Final CTA must be direct and specific. No passive voice. No corporate jargon.",
+      "bannedPhrases": ["synergy", "leverage", "unlock your potential", "game-changer"],
+      "brandVoiceChecks": ["specific_numbers", "reader_callout", "urgency_signal"],
+      "beta": { "alpha": 1.0, "beta": 1.0 }
+    },
+    {
+      "id": "empathetic_peer",
+      "label": "Empathetic Peer",
+      "description": "Warm, first-person voice of someone who has been through the job-search struggle. Validates feelings, shares personal insight, gently leads to action.",
+      "active": true,
+      "samplingWeight": 1.0,
+      "hookTypes": ["shared_experience", "validation_opener", "story_lead"],
+      "generationInstructions": "Write as a peer who went through the exact same job-search struggle and came out the other side. Open by validating the reader's feelings — don't minimise them. Use first-person 'I' to share a brief personal anecdote or observation. Speak to the reader as 'you' throughout. Offer insight that feels like advice from a trusted friend, not a coach. Warm, conversational tone. Paragraphs no longer than 3 sentences. End with an encouraging CTA framed as the next small step.",
+      "bannedPhrases": ["as an AI", "I understand your pain", "hustle harder"],
+      "brandVoiceChecks": ["first_person_present", "emotional_validation", "peer_tone"],
+      "beta": { "alpha": 1.0, "beta": 1.0 }
+    },
+    {
+      "id": "data_analyst",
+      "label": "Data Analyst",
+      "description": "Evidence-first, stat-driven voice. Opens with a surprising data point, builds a logical case, prescribes an evidence-based action.",
+      "active": true,
+      "samplingWeight": 1.0,
+      "hookTypes": ["stat_opener", "research_finding", "benchmark_reveal"],
+      "generationInstructions": "Open with a specific, sourced or plausible statistic that reframes the reader's problem (e.g. '73% of job postings receive zero qualified applicants within 48 hours'). Build a data-driven argument in clear logical steps. Each claim must be concrete — avoid vague generalizations. Use bullet lists where appropriate to present evidence. Prescribe an action based on the data. Tone: precise, authoritative but accessible. Close with a data-supported reason to act now.",
+      "bannedPhrases": ["it is widely believed", "many experts say", "some studies suggest"],
+      "brandVoiceChecks": ["specific_stat", "logical_structure", "evidence_based_cta"],
+      "beta": { "alpha": 1.0, "beta": 1.0 }
+    },
+    {
+      "id": "contrarian_myth_buster",
+      "label": "Contrarian Myth-Buster",
+      "description": "Provocative voice that challenges conventional job-search wisdom. Opens with a counterintuitive claim, debunks a popular myth, offers the real truth.",
+      "active": true,
+      "samplingWeight": 1.0,
+      "hookTypes": ["myth_label", "counterintuitive_claim", "conventional_wisdom_flip"],
+      "generationInstructions": "Open by naming a common job-search belief and immediately flipping it (e.g. 'Everyone tells you to apply to more jobs. That's exactly why you're getting ignored.'). State the popular myth explicitly. Explain WHY it's wrong — with specifics, not hand-waving. Reveal the counterintuitive truth. Provide a concrete alternative action. Maintain a confident, slightly provocative tone without being mean-spirited. End with a sharp CTA that reinforces the new frame.",
+      "bannedPhrases": ["everyone knows", "of course", "obviously"],
+      "brandVoiceChecks": ["myth_named_explicitly", "counterintuitive_flip", "specific_alternative"],
+      "beta": { "alpha": 1.0, "beta": 1.0 }
+    },
+    {
+      "id": "story_narrative",
+      "label": "Story / Narrative",
+      "description": "Mini-narrative voice. Opens with a scene or character moment, builds tension around the job-search problem, resolves it with the insight/product.",
+      "active": true,
+      "samplingWeight": 1.0,
+      "hookTypes": ["scene_setter", "character_moment", "before_after_arc"],
+      "generationInstructions": "Open with a vivid 2–3 sentence scene or character moment (a specific person in a specific situation). Build narrative tension around the job-search problem. The reader should see themselves in the character. After 2–3 paragraphs of story, pivot to the insight or solution naturally — as if the character discovered it. Close with the reader's version of the story (how they could have the same resolution). Tone: cinematic but relatable. No jargon. Strong closing CTA that ties back to the story.",
+      "bannedPhrases": ["in a world where", "once upon a time", "little did they know"],
+      "brandVoiceChecks": ["scene_present_tense", "character_specificity", "narrative_resolution"],
+      "beta": { "alpha": 1.0, "beta": 1.0 }
+    }
+  ]
+}

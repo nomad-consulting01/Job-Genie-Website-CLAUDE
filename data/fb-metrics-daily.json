@@ -1,0 +1,6 @@
+{
+  "_schema": "fb-metrics-daily-v1",
+  "_description": "Daily Facebook page + post metrics. One row per (post_id, metric, date, value). Written by Station ① runFbMetricsIngest().",
+  "lastIngestAt": null,
+  "rows": []
+}

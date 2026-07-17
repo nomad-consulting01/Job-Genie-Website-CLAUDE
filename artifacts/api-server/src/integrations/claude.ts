@@ -526,3 +526,62 @@ export async function generateLoop2Content(
     tokensUsed: message.usage.input_tokens + message.usage.output_tokens,
   };
 }
+
+export interface VoiceVariantCopyResult {
+  copy: string;
+  inputTokens: number;
+  outputTokens: number;
+}
+
+export async function generateVoiceVariantCopy(params: {
+  voiceLabel: string;
+  generationInstructions: string;
+  question: string;
+  answerMd: string;
+  seoTitle: string;
+}): Promise<VoiceVariantCopyResult> {
+  const client = getClient();
+
+  const system = `You are a specialised blog copywriter for Job-Genie — a recruiter-shortlist optimisation engine that helps job seekers reach the hidden job market.
+
+You will be given a specific voice/style to write in, with detailed instructions. Follow them precisely.
+
+Job-Genie core concepts:
+- Application Silence Score: quantifies why applications go unanswered
+- Recruiter-Fit Gap: distance between how a candidate presents vs what a specialist recruiter needs
+- Truth Layer: Job-Genie's shortlist optimisation rewrite system
+- Hidden job market: roles filled via recruiter shortlists before public posting
+- Ghost jobs: listings no longer actively being filled
+
+Return ONLY the blog post body text — no headings, no meta commentary, no JSON wrapper. Plain text, 300–500 words.`;
+
+  const userPrompt = `Voice style: ${params.voiceLabel}
+
+Style instructions:
+${params.generationInstructions}
+
+Blog post topic / question:
+${params.question}
+
+Source answer content (for factual grounding — do not copy verbatim, transform into this voice):
+${params.answerMd.slice(0, 2500)}
+
+SEO title (for context):
+${params.seoTitle}
+
+Write a 300–500 word blog post body in the voice described above. Return only the body text.`;
+
+  const message = await client.messages.create({
+    model: ANSWER_MODEL,
+    max_tokens: 1024,
+    system,
+    messages: [{ role: "user", content: userPrompt }],
+  });
+
+  const copy = message.content[0]?.type === "text" ? message.content[0].text.trim() : "";
+  return {
+    copy,
+    inputTokens: message.usage.input_tokens,
+    outputTokens: message.usage.output_tokens,
+  };
+}

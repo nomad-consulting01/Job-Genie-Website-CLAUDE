@@ -64,7 +64,37 @@ interface Loop2Asset {
   question: { id: number; normalisedQuestion: string };
 }
 
-type Tab = "overview" | "questions" | "answers" | "content" | "blog" | "geo" | "runs";
+type Tab = "overview" | "questions" | "answers" | "content" | "blog" | "geo" | "runs" | "voice";
+
+interface VoiceVariantAsset {
+  id: number;
+  answerId: number;
+  channel: string;
+  variant: string;
+  status: string;
+  publishedAt: string | null;
+  payloadJson: {
+    variantId?: string;
+    voiceId?: string;
+    voiceLabel?: string;
+    bodyText?: string;
+    hookType?: string;
+    predictedScore?: number | null;
+    blogPostSlug?: string;
+    blogPostAssetId?: number;
+    approver?: string;
+    approvedAt?: string;
+    rejectReason?: string;
+    guardrail?: { passed: boolean; failReasons: string[] };
+    editedAt?: string;
+  } | null;
+}
+
+interface VoiceVariantRow {
+  asset: VoiceVariantAsset;
+  answer: { id: number; answerFirstBlock: string; answerMd: string };
+  question: { id: number; normalisedQuestion: string };
+}
 
 const CHANNEL_LABELS: Record<string, string> = {
   newsletter: "📧 Newsletter",
@@ -479,6 +509,35 @@ export default function AdminCorpus() {
   const [selectedChannel, setSelectedChannel] = useState<string>("newsletter");
   const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null);
 
+  // Voice Variants tab state
+  const [voiceVariants, setVoiceVariants] = useState<VoiceVariantRow[]>([]);
+  const [voiceLoading, setVoiceLoading] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [voiceApproving, setVoiceApproving] = useState<Record<number, boolean>>({});
+  const [voiceApprover, setVoiceApprover] = useState<string>("");
+  const [voiceActionStatus, setVoiceActionStatus] = useState<Record<number, string>>({});
+  const [voiceDryRunning, setVoiceDryRunning] = useState(false);
+  const [voiceDryRunStatus, setVoiceDryRunStatus] = useState<string | null>(null);
+  // Station ⑦ self-improve proposals
+  interface SelfImproveProposal {
+    proposalId: string;
+    proposedAt: string;
+    evidence: {
+      underperformers: Array<{ voiceId: string; armKey: string; mean: number; impressions: number }>;
+      topPerformers: Array<{ voiceId: string; armKey: string; mean: number; impressions: number }>;
+    };
+    proposals: Array<{ action: "retire" | "spawn" | "reweight"; voiceId: string; reason: string; newWeight?: number }>;
+    status: "pending" | "applied" | "dismissed";
+    appliedAt?: string;
+    dismissedAt?: string;
+    appliedBy?: string;
+  }
+  const [selfImproveProposals, setSelfImproveProposals] = useState<SelfImproveProposal[]>([]);
+  const [proposalActionStatus, setProposalActionStatus] = useState<Record<string, string>>({});
+  const [editingVariant, setEditingVariant] = useState<number | null>(null);
+  const [editBodyText, setEditBodyText] = useState<string>("");
+  const [editSaving, setEditSaving] = useState(false);
+
   // Blog marketing (Meta Ads + Instagram) state
   const [blogMarketing, setBlogMarketing] = useState<Record<string, BlogMarketing>>({});
   const [generatingAnswerId, setGeneratingAnswerId] = useState<number | null>(null);
@@ -571,6 +630,150 @@ export default function AdminCorpus() {
       body: JSON.stringify({ approved }),
     });
     await fetchBlogMarketing();
+  };
+
+  const fetchVoiceVariants = useCallback(async () => {
+    setVoiceLoading(true);
+    setVoiceError(null);
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/voice-variants`, { headers: authHeaders() });
+      if (!r.ok) { setVoiceError("Failed to load voice variants"); return; }
+      const d = await r.json() as { variants: VoiceVariantRow[] };
+      setVoiceVariants(d.variants ?? []);
+    } catch {
+      setVoiceError("Network error loading voice variants");
+    } finally {
+      setVoiceLoading(false);
+    }
+  }, []);
+
+  const fetchProposals = useCallback(async () => {
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/voice-variants/self-improve`, { headers: authHeaders() });
+      if (!r.ok) return;
+      const d = await r.json() as { proposals: SelfImproveProposal[] };
+      setSelfImproveProposals(d.proposals ?? []);
+    } catch { /* non-blocking */ }
+  }, []);
+
+  useEffect(() => {
+    if (tab === "voice" && token) {
+      void fetchVoiceVariants();
+      void fetchProposals();
+    }
+  }, [tab, token, fetchVoiceVariants, fetchProposals]);
+
+  const saveVariantEdit = async (assetId: number) => {
+    if (!editBodyText.trim()) { alert("Body text cannot be empty"); return; }
+    setEditSaving(true);
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/voice-variants/${assetId}`, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify({ bodyText: editBodyText.trim() }),
+      });
+      const d = await r.json() as { error?: string };
+      if (!r.ok) { alert(`Error saving: ${d.error ?? "Unknown"}`); return; }
+      setEditingVariant(null);
+      setEditBodyText("");
+      await fetchVoiceVariants();
+    } catch {
+      alert("Network error saving edit");
+    } finally {
+      setEditSaving(false);
+    }
+  };
+
+  const applyProposal = async (proposalId: string) => {
+    if (!voiceApprover.trim()) { alert("Enter your name in the Approver field first"); return; }
+    if (!confirm("Apply this self-improve proposal? This will modify the voice library.")) return;
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/voice-variants/self-improve/${proposalId}/apply`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ appliedBy: voiceApprover.trim() }),
+      });
+      const d = await r.json() as { error?: string };
+      setProposalActionStatus((p) => ({ ...p, [proposalId]: r.ok ? "✅ Applied" : `Error: ${d.error ?? "Unknown"}` }));
+      if (r.ok) await fetchProposals();
+    } catch {
+      setProposalActionStatus((p) => ({ ...p, [proposalId]: "Error applying" }));
+    }
+  };
+
+  const dismissProposal = async (proposalId: string) => {
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/voice-variants/self-improve/${proposalId}/dismiss`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const d = await r.json() as { error?: string };
+      setProposalActionStatus((p) => ({ ...p, [proposalId]: r.ok ? "🚫 Dismissed" : `Error: ${d.error ?? "Unknown"}` }));
+      if (r.ok) await fetchProposals();
+    } catch {
+      setProposalActionStatus((p) => ({ ...p, [proposalId]: "Error dismissing" }));
+    }
+  };
+
+  const approveVoiceVariant = async (assetId: number) => {
+    if (!voiceApprover.trim()) { alert("Enter your name in the Approver field first"); return; }
+    setVoiceApproving((p) => ({ ...p, [assetId]: true }));
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/voice-variants/${assetId}/approve`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ approver: voiceApprover.trim() }),
+      });
+      const d = await r.json() as { error?: string };
+      if (!r.ok) { setVoiceActionStatus((p) => ({ ...p, [assetId]: `Error: ${d.error ?? "Unknown"}` })); return; }
+      setVoiceActionStatus((p) => ({ ...p, [assetId]: "✅ Approved" }));
+      await fetchVoiceVariants();
+    } finally {
+      setVoiceApproving((p) => ({ ...p, [assetId]: false }));
+    }
+  };
+
+  const rejectVoiceVariant = async (assetId: number, reason: string) => {
+    try {
+      await fetch(`${API_BASE}/api/admin/voice-variants/${assetId}/reject`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ reason }),
+      });
+      setVoiceActionStatus((p) => ({ ...p, [assetId]: "🚫 Rejected" }));
+      await fetchVoiceVariants();
+    } catch {
+      setVoiceActionStatus((p) => ({ ...p, [assetId]: "Error rejecting" }));
+    }
+  };
+
+  const publishVoiceVariant = async (assetId: number) => {
+    if (!confirm("Publish this variant to Facebook? This cannot be undone.")) return;
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/voice-variants/${assetId}/publish`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const d = await r.json() as { error?: string; facebookPostId?: string };
+      if (!r.ok) { setVoiceActionStatus((p) => ({ ...p, [assetId]: `Error: ${d.error ?? "Unknown"}` })); return; }
+      setVoiceActionStatus((p) => ({ ...p, [assetId]: d.facebookPostId ? `✅ Published (FB: ${d.facebookPostId})` : "✅ Published (internal)" }));
+      await fetchVoiceVariants();
+    } catch {
+      setVoiceActionStatus((p) => ({ ...p, [assetId]: "Error publishing" }));
+    }
+  };
+
+  const triggerVoiceLoopDryRun = async () => {
+    setVoiceDryRunning(true);
+    setVoiceDryRunStatus("Dry-run started — exercising all 7 stations without publishing…");
+    try {
+      await fetch(`${API_BASE}/api/admin/loops/voice-loop/dry-run`, { method: "POST", headers: authHeaders() });
+      setVoiceDryRunStatus("Dry-run running in background — check server logs for full report.");
+    } catch {
+      setVoiceDryRunStatus("Error triggering dry-run");
+    } finally {
+      setVoiceDryRunning(false);
+    }
   };
 
   const generateAllMarketing = async () => {
@@ -784,6 +987,8 @@ export default function AdminCorpus() {
   const loop3Runs = runs.filter((r) => r.loop === "loop3");
   const loop4Runs = runs.filter((r) => r.loop === "loop4");
 
+  const pendingVoiceCount = voiceVariants.filter((v) => v.asset.status === "draft").length;
+
   const tabs: { id: Tab; label: string }[] = [
     { id: "overview", label: "Overview" },
     { id: "questions", label: `Questions (${questions.length})` },
@@ -792,6 +997,7 @@ export default function AdminCorpus() {
     { id: "blog", label: `Blog (${blogPosts.length})` },
     { id: "geo", label: `GEO Answers (${answerPages.length})` },
     { id: "runs", label: `Loop Runs (${runs.length})` },
+    { id: "voice", label: `🎙️ Voice Variants${pendingVoiceCount > 0 ? ` (${pendingVoiceCount} pending)` : ""}` },
   ];
 
   return (
@@ -1412,6 +1618,262 @@ export default function AdminCorpus() {
                 )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* VOICE VARIANTS — Station ⑤ */}
+        {tab === "voice" && (
+          <div className="space-y-6">
+            {/* Header + controls */}
+            <div className="bg-white/5 border border-purple-700/20 rounded-xl p-6">
+              <div className="flex items-center gap-3 mb-2 flex-wrap">
+                <h2 className="text-lg font-semibold text-white">🎙️ Voice Optimization Loop</h2>
+                <span className="text-xs bg-purple-900/30 text-purple-300 border border-purple-700/40 px-2 py-0.5 rounded-full">Thompson Sampling</span>
+              </div>
+              <p className="text-sm text-gray-400 mb-4">
+                Generates 5 voice variants per blog post (Sabri Suby, Empathetic Peer, Data Analyst, Contrarian, Story Narrative).
+                Multi-armed bandit learns which voice maximizes FB engagement. Publishing requires human approval.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                {[
+                  { label: "Total Variants", value: voiceVariants.length, color: "text-white" },
+                  { label: "Pending Approval", value: voiceVariants.filter((v) => v.asset.status === "draft").length, color: "text-yellow-300" },
+                  { label: "Approved", value: voiceVariants.filter((v) => v.asset.status === "approved").length, color: "text-green-300" },
+                  { label: "Published", value: voiceVariants.filter((v) => v.asset.status === "published").length, color: "text-purple-300" },
+                ].map((s) => (
+                  <div key={s.label} className="bg-black/20 rounded-lg p-3 border border-white/8 text-center">
+                    <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-3 items-center">
+                <button
+                  onClick={triggerVoiceLoopDryRun}
+                  disabled={voiceDryRunning}
+                  className="text-sm bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-lg font-semibold disabled:opacity-50"
+                >
+                  {voiceDryRunning ? "Running dry-run…" : "▶ Trigger Dry-Run (no publish)"}
+                </button>
+                <button
+                  onClick={fetchVoiceVariants}
+                  className="text-sm bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 px-4 py-2 rounded-lg"
+                >
+                  ↺ Refresh
+                </button>
+              </div>
+              {voiceDryRunStatus && <p className="mt-3 text-xs text-purple-300 bg-purple-900/10 rounded-lg p-2 border border-purple-700/20">{voiceDryRunStatus}</p>}
+            </div>
+
+            {/* Approver input — sticky */}
+            <div className="bg-white/3 border border-white/8 rounded-xl p-4 flex flex-wrap items-center gap-4">
+              <div className="flex-1 min-w-48">
+                <label className="text-xs text-gray-400 block mb-1">Approver name (required to approve variants)</label>
+                <input
+                  value={voiceApprover}
+                  onChange={(e) => setVoiceApprover(e.target.value)}
+                  placeholder="Your name…"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-purple-500"
+                />
+              </div>
+              <p className="text-xs text-gray-500 max-w-xs">Publishing is gated on approval — your name is recorded as the approver on every variant you approve.</p>
+            </div>
+
+            {/* Error */}
+            {voiceError && <p className="text-red-400 text-sm bg-red-900/10 rounded-lg p-3 border border-red-700/20">{voiceError}</p>}
+            {voiceLoading && <p className="text-gray-400 text-sm">Loading voice variants…</p>}
+
+            {/* Empty state */}
+            {!voiceLoading && voiceVariants.length === 0 && (
+              <div className="text-center py-16 text-gray-500">
+                <p className="text-4xl mb-4">🎙️</p>
+                <p className="text-lg font-medium text-gray-400 mb-2">No voice variants yet</p>
+                <p className="text-sm mb-6">
+                  Generate variants via <strong>POST /api/admin/voice-variants/blog-post/:id/generate</strong>,
+                  or trigger a dry-run above to verify the pipeline end-to-end.
+                </p>
+              </div>
+            )}
+
+            {/* Station ⑦ — Self-Improve Proposals */}
+            {selfImproveProposals.filter((p) => p.status === "pending").length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-amber-300 flex items-center gap-2">
+                  ⚡ Weekly Self-Improve Proposals
+                  <span className="text-xs font-normal text-amber-400/70 bg-amber-900/20 border border-amber-700/30 px-2 py-0.5 rounded-full">
+                    {selfImproveProposals.filter((p) => p.status === "pending").length} pending
+                  </span>
+                </h3>
+                {selfImproveProposals.filter((p) => p.status === "pending").map((proposal) => (
+                  <div key={proposal.proposalId} className="bg-amber-900/10 border border-amber-700/30 rounded-xl p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+                      <div>
+                        <p className="text-xs font-semibold text-amber-300 mb-1">Proposed {new Date(proposal.proposedAt).toLocaleString()}</p>
+                        <div className="flex gap-3 text-xs text-gray-400">
+                          <span>Under-performers: {proposal.evidence.underperformers.length}</span>
+                          <span>Top performers: {proposal.evidence.topPerformers.length}</span>
+                        </div>
+                      </div>
+                      {proposalActionStatus[proposal.proposalId] && (
+                        <span className="text-xs text-teal-300 bg-teal-900/10 border border-teal-700/20 px-3 py-1 rounded-lg">{proposalActionStatus[proposal.proposalId]}</span>
+                      )}
+                    </div>
+                    <ul className="space-y-1 mb-4">
+                      {proposal.proposals.map((p, i) => (
+                        <li key={i} className="text-xs text-gray-300 bg-black/20 rounded-lg px-3 py-2">
+                          <span className={`font-semibold mr-2 ${p.action === "retire" ? "text-red-400" : p.action === "spawn" ? "text-green-400" : "text-blue-400"}`}>
+                            {p.action.toUpperCase()}
+                          </span>
+                          <span className="text-white">{p.voiceId}</span>
+                          {p.newWeight !== undefined && <span className="text-gray-400 ml-2">→ weight {p.newWeight.toFixed(2)}</span>}
+                          <span className="text-gray-400 ml-2">— {p.reason}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => applyProposal(proposal.proposalId)}
+                        className="text-xs bg-amber-700 hover:bg-amber-800 text-white px-3 py-1.5 rounded-lg font-semibold"
+                      >
+                        ✅ Apply Changes
+                      </button>
+                      <button
+                        onClick={() => dismissProposal(proposal.proposalId)}
+                        className="text-xs bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 px-3 py-1.5 rounded-lg"
+                      >
+                        🚫 Dismiss
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Variant cards */}
+            {voiceVariants.map((row) => {
+              const p = row.asset.payloadJson ?? {};
+              const assetId = row.asset.id;
+              const statusColor = {
+                draft: "border-yellow-700/40 bg-yellow-900/10",
+                approved: "border-green-700/40 bg-green-900/10",
+                rejected: "border-red-700/40 bg-red-900/10",
+                published: "border-purple-700/40 bg-purple-900/10",
+              }[row.asset.status] ?? "border-white/8 bg-white/3";
+
+              return (
+                <div key={assetId} className={`border rounded-xl overflow-hidden ${statusColor}`}>
+                  {/* Card header */}
+                  <div className="px-5 py-4 border-b border-white/8 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <span className="text-sm font-semibold text-white">{p.voiceLabel ?? p.voiceId ?? "Unknown Voice"}</span>
+                        <StatusBadge status={row.asset.status} />
+                        {p.guardrail && (
+                          <span className={`text-xs px-2 py-0.5 rounded-full border ${p.guardrail.passed ? "bg-green-900/20 text-green-400 border-green-700/30" : "bg-red-900/20 text-red-400 border-red-700/30"}`}>
+                            {p.guardrail.passed ? "✅ Guardrails OK" : "🚫 Guardrail Failed"}
+                          </span>
+                        )}
+                        {p.predictedScore !== null && p.predictedScore !== undefined && (
+                          <span className="text-xs px-2 py-0.5 rounded-full border bg-blue-900/20 text-blue-300 border-blue-700/30">
+                            Predicted: {p.predictedScore.toFixed(3)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Q: {row.question.normalisedQuestion.slice(0, 100)}{row.question.normalisedQuestion.length > 100 ? "…" : ""}
+                        {p.hookType && ` · Hook: ${p.hookType}`}
+                        {p.blogPostSlug && ` · Slug: ${p.blogPostSlug}`}
+                      </p>
+                      {p.approver && <p className="text-xs text-green-400 mt-0.5">Approved by {p.approver} · {p.approvedAt ? new Date(p.approvedAt).toLocaleString() : ""}</p>}
+                      {p.rejectReason && <p className="text-xs text-red-400 mt-0.5">Rejected: {p.rejectReason}</p>}
+                    </div>
+                    {voiceActionStatus[assetId] && (
+                      <span className="text-xs text-teal-300 bg-teal-900/10 border border-teal-700/20 px-3 py-1 rounded-lg">{voiceActionStatus[assetId]}</span>
+                    )}
+                  </div>
+
+                  {/* Body text / inline editor */}
+                  <div className="px-5 py-4">
+                    {p.guardrail && !p.guardrail.passed && (
+                      <div className="mb-3 p-3 bg-red-900/10 border border-red-700/20 rounded-lg">
+                        <p className="text-xs font-semibold text-red-400 mb-1">Guardrail failures:</p>
+                        {p.guardrail.failReasons.map((r: string, i: number) => <p key={i} className="text-xs text-red-300">• {r}</p>)}
+                      </div>
+                    )}
+                    {editingVariant === assetId ? (
+                      <div className="space-y-2">
+                        <textarea
+                          value={editBodyText}
+                          onChange={(e) => setEditBodyText(e.target.value)}
+                          rows={8}
+                          className="w-full bg-white/5 border border-blue-500/40 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-blue-400 resize-y"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => saveVariantEdit(assetId)}
+                            disabled={editSaving}
+                            className="text-xs bg-blue-700 hover:bg-blue-800 text-white px-3 py-1.5 rounded-lg font-semibold disabled:opacity-50"
+                          >
+                            {editSaving ? "Saving…" : "💾 Save edits"}
+                          </button>
+                          <button
+                            onClick={() => { setEditingVariant(null); setEditBodyText(""); }}
+                            className="text-xs bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 px-3 py-1.5 rounded-lg"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="max-h-48 overflow-y-auto">
+                        <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">{p.bodyText ?? "No body text"}</p>
+                      </div>
+                    )}
+                    {p.editedAt && <p className="text-xs text-blue-400/60 mt-1">Edited {new Date(p.editedAt).toLocaleString()}</p>}
+                  </div>
+
+                  {/* Actions */}
+                  {row.asset.status !== "rejected" && row.asset.status !== "published" && (
+                    <div className="px-5 py-3 border-t border-white/8 flex flex-wrap gap-2">
+                      {row.asset.status === "draft" && p.guardrail?.passed !== false && (
+                        <button
+                          onClick={() => approveVoiceVariant(assetId)}
+                          disabled={voiceApproving[assetId]}
+                          className="text-xs bg-green-700 hover:bg-green-800 text-white px-3 py-1.5 rounded-lg font-semibold disabled:opacity-50"
+                        >
+                          {voiceApproving[assetId] ? "Approving…" : "✅ Approve"}
+                        </button>
+                      )}
+                      {row.asset.status === "approved" && (
+                        <button
+                          onClick={() => publishVoiceVariant(assetId)}
+                          className="text-xs bg-purple-700 hover:bg-purple-800 text-white px-3 py-1.5 rounded-lg font-semibold"
+                        >
+                          🚀 Publish to Facebook
+                        </button>
+                      )}
+                      {editingVariant !== assetId && (
+                        <button
+                          onClick={() => { setEditingVariant(assetId); setEditBodyText(String(p.bodyText ?? "")); }}
+                          className="text-xs bg-blue-900/30 hover:bg-blue-900/50 text-blue-300 border border-blue-700/30 px-3 py-1.5 rounded-lg"
+                        >
+                          ✏️ Edit
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          const reason = prompt("Reject reason (optional):");
+                          void rejectVoiceVariant(assetId, reason ?? "Rejected by admin");
+                        }}
+                        className="text-xs bg-red-900/30 hover:bg-red-900/50 text-red-300 border border-red-700/30 px-3 py-1.5 rounded-lg"
+                      >
+                        🚫 Reject
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
