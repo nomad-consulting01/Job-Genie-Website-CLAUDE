@@ -65,10 +65,48 @@ export async function generateBlogHeroImage(
   return `${SITE_URL}/api/blog-images/${filename}`;
 }
 
+/**
+ * Returns a direct public GCS URL for a blog hero image so it bypasses
+ * Replit's API proxy (which injects a Set-Cookie header that forces
+ * Cache-Control: private and breaks Facebook/social OG image previews).
+ */
+export async function getBlogImagePublicUrl(
+  filename: string
+): Promise<{ publicUrl: string } | null> {
+  // Guard against path traversal — only allow the exact filename shape we generate.
+  if (!/^[a-z0-9-]+\.(png|jpg)$/i.test(filename)) {
+    return null;
+  }
+
+  const { bucketName, prefix } = parseObjectDir(getPrivateObjectDir());
+  const objectName = [prefix, BLOG_IMAGE_PREFIX, filename].filter(Boolean).join("/");
+
+  const bucket = objectStorageClient.bucket(bucketName);
+  const file = bucket.file(objectName);
+  const [exists] = await file.exists();
+  if (!exists) return null;
+
+  try {
+    await file.makePublic();
+  } catch (e) {
+    logger.warn({ filename, err: e instanceof Error ? e.message : String(e) }, "Could not make blog image public — falling back to signed URL");
+    // Attempt signed URL as fallback (60-minute window)
+    const [signedUrl] = await file.getSignedUrl({
+      action: "read",
+      expires: Date.now() + 60 * 60 * 1000,
+    });
+    return { publicUrl: signedUrl };
+  }
+
+  return {
+    publicUrl: `https://storage.googleapis.com/${bucketName}/${objectName}`,
+  };
+}
+
+/** @deprecated Use getBlogImagePublicUrl + redirect instead */
 export async function streamBlogImage(
   filename: string
 ): Promise<{ stream: NodeJS.ReadableStream; contentType: string } | null> {
-  // Guard against path traversal — only allow the exact filename shape we generate.
   if (!/^[a-z0-9-]+\.(png|jpg)$/i.test(filename)) {
     return null;
   }

@@ -8,3 +8,4 @@
 - [Gemini-generated blog hero images](gemini-blog-hero-images.md) — unique per-post image gen via Gemini SDK + Object Storage; set imageConfig.aspectRatio explicitly.
 - [ReactMarkdown GFM tables](reactmarkdown-gfm-tables.md) — react-markdown needs remark-gfm (tables) + rehype-raw (raw HTML like <br/>) plugins; neither is on by default.
 - [Facebook Page posting token setup](facebook-page-token-setup.md) — System User token can't post directly; must exchange for page-scoped token via /{page-id}?fields=access_token.
+- [GCP GAESA cookie forces Cache-Control private](gcp-gaesa-static-images.md) — Replit autoscale injects GAESA session-affinity cookie on all API responses; fix: download images during prerender and serve from dist/public/blog-images/ (static, no cookie).

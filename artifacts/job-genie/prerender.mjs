@@ -169,6 +169,54 @@ async function main() {
   // Import blog-specific render functions from the SSR bundle built above
   const { renderBlogPost, getBlogPostHeadHtml } = await import('./dist/server/entry-server.mjs');
 
+  // Canonical site URL — static images are served from here (no /api/ prefix)
+  const SITE_URL = 'https://www.job-genie.ai';
+
+  // Ensure static blog-images directory exists
+  const staticImagesDir = path.resolve(__dirname, 'dist/public/blog-images');
+  fs.mkdirSync(staticImagesDir, { recursive: true });
+
+  /**
+   * Downloads a hero image from the local API and saves it as a static file
+   * in dist/public/blog-images/. Returns the new absolute static URL so og:image
+   * points directly to the static file instead of the API proxy.
+   *
+   * Why: Replit's GCP load balancer injects a GAESA session-affinity Set-Cookie
+   * header on every API response. Browsers/CDNs interpret any Set-Cookie as
+   * user-specific content and force Cache-Control: private, which breaks
+   * Facebook's social crawler (it cannot use images marked private).
+   * Static files bypass Express entirely — no cookie, no private override.
+   */
+  async function downloadHeroImageAsStatic(featuredImageUrl) {
+    if (!featuredImageUrl || !featuredImageUrl.includes('/api/blog-images/')) {
+      return featuredImageUrl;
+    }
+    const filename = featuredImageUrl.split('/api/blog-images/').pop();
+    if (!filename || !/^[a-z0-9-]+\.(png|jpg)$/i.test(filename)) {
+      return featuredImageUrl;
+    }
+    const outFile = path.join(staticImagesDir, filename);
+    if (fs.existsSync(outFile)) {
+      return `${SITE_URL}/blog-images/${filename}`;
+    }
+    try {
+      const imgResp = await fetch(`http://localhost:8080/api/blog-images/${filename}`, {
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!imgResp.ok) {
+        console.warn(`[prerender]   image download failed (${imgResp.status}) for ${filename} — keeping API URL`);
+        return featuredImageUrl;
+      }
+      const buffer = Buffer.from(await imgResp.arrayBuffer());
+      fs.writeFileSync(outFile, buffer);
+      console.log(`[prerender]   ✓ saved static hero image: /blog-images/${filename}`);
+      return `${SITE_URL}/blog-images/${filename}`;
+    } catch (err) {
+      console.warn(`[prerender]   image download error for ${filename}: ${err.message} — keeping API URL`);
+      return featuredImageUrl;
+    }
+  }
+
   for (const postSummary of blogPosts) {
     const slug = postSummary.slug;
     console.log(`[prerender] Rendering /blog/${slug}…`);
@@ -182,6 +230,12 @@ async function main() {
         continue;
       }
       const postData = await postResp.json();
+
+      // Download hero image as static file and rewrite og:image to static URL
+      // so it bypasses Replit's GCP proxy (which forces Cache-Control: private).
+      if (postData.post?.featuredImageUrl) {
+        postData.post.featuredImageUrl = await downloadHeroImageAsStatic(postData.post.featuredImageUrl);
+      }
 
       // 1. Render article body via SSR
       const appHtml = renderBlogPost(postData);
