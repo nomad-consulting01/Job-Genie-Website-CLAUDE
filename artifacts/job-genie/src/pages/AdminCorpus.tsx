@@ -537,6 +537,9 @@ export default function AdminCorpus() {
   const [editingVariant, setEditingVariant] = useState<number | null>(null);
   const [editBodyText, setEditBodyText] = useState<string>("");
   const [editSaving, setEditSaving] = useState(false);
+  const [selectedBlogPostId, setSelectedBlogPostId] = useState<string>("");
+  const [voiceGenerating, setVoiceGenerating] = useState(false);
+  const [voiceGenerateStatus, setVoiceGenerateStatus] = useState<string | null>(null);
 
   // Blog marketing (Meta Ads + Instagram) state
   const [blogMarketing, setBlogMarketing] = useState<Record<string, BlogMarketing>>({});
@@ -773,6 +776,30 @@ export default function AdminCorpus() {
       setVoiceDryRunStatus("Error triggering dry-run");
     } finally {
       setVoiceDryRunning(false);
+    }
+  };
+
+  const generateVoiceVariantsForPost = async (assetId: string) => {
+    if (!assetId) return;
+    setVoiceGenerating(true);
+    setVoiceGenerateStatus("Generating 5 voice variants — this takes ~30 seconds…");
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/voice-variants/blog-post/${assetId}/generate`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({})) as { error?: string };
+        setVoiceGenerateStatus(`Error: ${err.error ?? r.statusText}`);
+      } else {
+        setVoiceGenerateStatus("Variants generated — refreshing list…");
+        await fetchVoiceVariants();
+        setVoiceGenerateStatus("Done! Review and approve variants below.");
+      }
+    } catch (e) {
+      setVoiceGenerateStatus(`Error: ${String(e)}`);
+    } finally {
+      setVoiceGenerating(false);
     }
   };
 
@@ -1647,11 +1674,36 @@ export default function AdminCorpus() {
                   </div>
                 ))}
               </div>
+              {/* Generate Variants for a specific post */}
+              <div className="flex flex-wrap gap-2 items-center mb-3">
+                <select
+                  value={selectedBlogPostId}
+                  onChange={(e) => setSelectedBlogPostId(e.target.value)}
+                  className="flex-1 min-w-48 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-purple-500"
+                >
+                  <option value="">— Select a blog post —</option>
+                  {blogPosts.map((p) => (
+                    <option key={p.id} value={String(p.id)}>
+                      {p.seoTitle || p.slug}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => generateVoiceVariantsForPost(selectedBlogPostId)}
+                  disabled={!selectedBlogPostId || voiceGenerating}
+                  className="text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold disabled:opacity-40 whitespace-nowrap"
+                >
+                  {voiceGenerating ? "Generating…" : "🎙️ Generate Variants"}
+                </button>
+              </div>
+              {voiceGenerateStatus && (
+                <p className="mb-3 text-xs text-purple-300 bg-purple-900/10 rounded-lg p-2 border border-purple-700/20">{voiceGenerateStatus}</p>
+              )}
               <div className="flex flex-wrap gap-3 items-center">
                 <button
                   onClick={triggerVoiceLoopDryRun}
                   disabled={voiceDryRunning}
-                  className="text-sm bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-lg font-semibold disabled:opacity-50"
+                  className="text-sm bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 px-4 py-2 rounded-lg disabled:opacity-50"
                 >
                   {voiceDryRunning ? "Running dry-run…" : "▶ Trigger Dry-Run (no publish)"}
                 </button>
@@ -1685,13 +1737,15 @@ export default function AdminCorpus() {
 
             {/* Empty state */}
             {!voiceLoading && voiceVariants.length === 0 && (
-              <div className="text-center py-16 text-gray-500">
+              <div className="text-center py-12 text-gray-500">
                 <p className="text-4xl mb-4">🎙️</p>
                 <p className="text-lg font-medium text-gray-400 mb-2">No voice variants yet</p>
-                <p className="text-sm mb-6">
-                  Generate variants via <strong>POST /api/admin/voice-variants/blog-post/:id/generate</strong>,
-                  or trigger a dry-run above to verify the pipeline end-to-end.
-                </p>
+                <p className="text-sm text-gray-500 mb-6">Pick a blog post above and click <strong className="text-gray-300">Generate Variants</strong> to produce 5 voice-tested drafts for human review.</p>
+                {blogPosts.length === 0 && (
+                  <p className="text-xs text-amber-400 bg-amber-900/10 border border-amber-700/20 rounded-lg px-4 py-2 inline-block">
+                    No blog posts found — trigger Loop 3 first to generate posts.
+                  </p>
+                )}
               </div>
             )}
 
