@@ -66,6 +66,16 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    proxy: {
+      "/sitemap.xml": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+      "/llms.txt": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+    },
   },
   preview: {
     port,

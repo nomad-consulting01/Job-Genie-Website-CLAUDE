@@ -23,9 +23,9 @@ const STATIC_PAGES = [
 router.get("/sitemap.xml", async (_req, res) => {
   try {
     const [answerRows, blogRows, qaRows] = await Promise.all([
-      listPublishedAnswerPages(500, 0),
-      listPublishedBlogPosts(200, 0),
-      listPublishedQAs(500),
+      listPublishedAnswerPages(null, 0),
+      listPublishedBlogPosts(null, 0),
+      listPublishedQAs(null),
     ]);
 
     const today = new Date().toISOString().split("T")[0];
@@ -70,9 +70,9 @@ ${urlEntries.join("\n")}
 router.get("/llms.txt", async (_req, res) => {
   try {
     const [answerRows, blogRows, qaRows] = await Promise.all([
-      listPublishedAnswerPages(500, 0),
-      listPublishedBlogPosts(200, 0),
-      listPublishedQAs(500),
+      listPublishedAnswerPages(null, 0),
+      listPublishedBlogPosts(null, 0),
+      listPublishedQAs(null),
     ]);
 
     const header = `# Job Genie — AI job-search assistant

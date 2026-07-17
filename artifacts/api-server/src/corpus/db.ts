@@ -90,8 +90,8 @@ export async function getContentAssetBySlug(slug: string) {
   return row ?? null;
 }
 
-export async function listPublishedQAs(limit = 100) {
-  return db
+export async function listPublishedQAs(limit: number | null = 100) {
+  const q = db
     .select({
       asset: contentAssets,
       answer: answers,
@@ -106,8 +106,8 @@ export async function listPublishedQAs(limit = 100) {
         eq(contentAssets.status, "published")
       )
     )
-    .orderBy(desc(contentAssets.publishedAt))
-    .limit(limit);
+    .orderBy(desc(contentAssets.publishedAt));
+  return limit === null ? q : q.limit(limit);
 }
 
 export async function updateContentAssetStatus(id: number, status: string, publishedAt?: Date) {
@@ -309,16 +309,16 @@ export async function markAssetDistributed(
 }
 
 /** List all published GEO answer pages (web_aeo, externalId set), newest first */
-export async function listPublishedAnswerPages(limit = 50, offset = 0) {
-  return db
+export async function listPublishedAnswerPages(limit: number | null = 50, offset = 0) {
+  const q = db
     .select({ asset: contentAssets, answer: answers, question: questions })
     .from(contentAssets)
     .innerJoin(answers, eq(contentAssets.answerId, answers.id))
     .innerJoin(questions, eq(answers.questionId, questions.id))
     .where(and(eq(contentAssets.channel, "web_aeo"), eq(contentAssets.variant, "standard"), isNotNull(contentAssets.externalId)))
     .orderBy(desc(contentAssets.scheduledFor))
-    .limit(limit)
     .offset(offset);
+  return limit === null ? q : q.limit(limit);
 }
 
 /** Get a single GEO answer page by slug */
@@ -381,8 +381,8 @@ export async function updateBlogMeta(
 /**
  * List all published blog posts (standard variant, slug set), newest first.
  */
-export async function listPublishedBlogPosts(limit = 20, offset = 0) {
-  return db
+export async function listPublishedBlogPosts(limit: number | null = 20, offset = 0) {
+  const q = db
     .select({ asset: contentAssets, answer: answers, question: questions })
     .from(contentAssets)
     .innerJoin(answers, eq(contentAssets.answerId, answers.id))
@@ -395,8 +395,8 @@ export async function listPublishedBlogPosts(limit = 20, offset = 0) {
       )
     )
     .orderBy(desc(contentAssets.scheduledFor))
-    .limit(limit)
     .offset(offset);
+  return limit === null ? q : q.limit(limit);
 }
 
 /**
