@@ -12,8 +12,17 @@ export interface FacebookResult {
   errors: string[];
 }
 
-function buildCaption(seoTitle: string, metaDescription: string): string {
-  return `${seoTitle}\n\n${metaDescription}\n\n👉 Read the full post on Job Genie:`;
+function buildCaption(seoTitle: string, metaDescription: string, link: string): string {
+  return `${seoTitle}\n\n${metaDescription}\n\n👉 Read the full post: ${link}`;
+}
+
+/** Rewrites legacy /api/blog-images/ URLs to wsrv.nl so Facebook can fetch
+ *  the image without hitting Replit's GCP GAESA cookie (Cache-Control: private). */
+function toWsrvUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith("https://wsrv.nl/")) return url;
+  if (!url.includes("/api/blog-images/")) return url;
+  return `https://wsrv.nl/?url=${url.replace(/^https?:\/\//, "")}`;
 }
 
 export async function runFacebook(limit: number): Promise<FacebookResult> {
@@ -41,10 +50,11 @@ export async function runFacebook(limit: number): Promise<FacebookResult> {
     const seoTitle = String(meta["seoTitle"] ?? "New post on Job Genie");
     const metaDescription = String(meta["metaDescription"] ?? "");
     const link = `${SITE_URL}/blog/${slug}`;
-    const caption = buildCaption(seoTitle, metaDescription);
+    const imageUrl = toWsrvUrl(meta["featuredImageUrl"] as string | undefined);
+    const caption = buildCaption(seoTitle, metaDescription, link);
 
     try {
-      const { postId, error } = await postToFacebookPage(pageId, pageAccessToken, caption, link);
+      const { postId, error } = await postToFacebookPage(pageId, pageAccessToken, caption, link, imageUrl);
 
       if (postId) {
         await markBlogPostFacebookShared(asset.id, postId);
