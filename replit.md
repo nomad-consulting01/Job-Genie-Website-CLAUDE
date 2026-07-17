@@ -26,7 +26,7 @@ _Populate as you build — short repo map plus pointers to the source-of-truth f
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- **Landing page content — single source of truth**: `content/landing-pages.json` is the canonical source for AEO landing page data. `artifacts/job-genie/src/data/landing-pages.ts` does **not** duplicate this data — it imports directly from the JSON via the `@content` Vite/TypeScript alias (`@content/landing-pages.json`). To add or edit a landing page, edit only `content/landing-pages.json`. The TypeScript interfaces live in `landing-pages.ts` alongside the re-export.
 
 ## Product
 
