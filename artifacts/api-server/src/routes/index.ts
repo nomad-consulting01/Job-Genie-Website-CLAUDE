@@ -5,6 +5,7 @@ import metricsRouter from "./metrics.js";
 import newsletterRouter from "./newsletter.js";
 import publishRouter from "./publish.js";
 import blogImagesRouter from "./blog-images.js";
+import visitorsRouter from "./visitors.js";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(metricsRouter);
 router.use(newsletterRouter);
 router.use(publishRouter);
 router.use(blogImagesRouter);
+router.use(visitorsRouter);
 
 export default router;

@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useRef } from 'react';
+import { useMemo, useEffect, useRef, useState } from 'react';
 import abTests from '@content/ab-tests.json';
 import { trackEvent } from '../lib/analytics';
 
@@ -61,19 +61,115 @@ function sha256sync(message: string): string {
   return h.map((v) => v.toString(16).padStart(8, '0')).join('');
 }
 
-function getJgVisitorId(): string {
+const LS_KEY = 'jg_visitor_id';
+
+function readLocalVisitorId(): string | null {
   try {
-    let id = localStorage.getItem('jg_visitor_id');
-    if (!id) {
-      id = typeof crypto !== 'undefined' && crypto.randomUUID
-        ? crypto.randomUUID()
-        : Math.random().toString(36).slice(2) + Date.now().toString(36);
-      localStorage.setItem('jg_visitor_id', id);
-    }
-    return id;
+    return localStorage.getItem(LS_KEY);
   } catch {
-    return 'anon';
+    return null;
   }
+}
+
+function writeLocalVisitorId(id: string): void {
+  try {
+    localStorage.setItem(LS_KEY, id);
+  } catch {
+    // ignore
+  }
+}
+
+function generateVisitorId(): string {
+  return typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+/**
+ * Resolve the canonical visitor ID via the server.
+ *
+ * Strategy:
+ * 1. If localStorage already has an ID → send it to the server so it is
+ *    registered (INSERT OR IGNORE). The server returns the same ID.
+ * 2. If localStorage is empty → send an empty body. The server checks its
+ *    `jg_vid` cookie. If a matching record exists in the `visitors` table it
+ *    returns `{ visitor_id, restored: true }` and we write that to localStorage.
+ * 3. If the server has nothing either → generate a fresh ID, write it to
+ *    localStorage and register it with the server in a fire-and-forget call.
+ */
+async function resolveVisitorId(localId: string | null): Promise<string> {
+  try {
+    const body = localId ? { visitor_id: localId } : {};
+    const res = await fetch('/api/visitors/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (res.ok) {
+      const data = (await res.json()) as { visitor_id: string | null; restored: boolean };
+      if (data.visitor_id) {
+        if (data.restored) {
+          writeLocalVisitorId(data.visitor_id);
+        }
+        return data.visitor_id;
+      }
+    }
+  } catch {
+    // Network error — fall through
+  }
+
+  // Server had nothing; use the local ID we already had, or mint a fresh one.
+  if (localId) return localId;
+
+  const fresh = generateVisitorId();
+  writeLocalVisitorId(fresh);
+
+  // Register the new ID server-side (fire-and-forget).
+  fetch('/api/visitors/sync', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ visitor_id: fresh }),
+  }).catch(() => {});
+
+  return fresh;
+}
+
+// Module-level singleton so all experiment hooks share a single network call.
+let _promise: Promise<string> | null = null;
+
+function getVisitorIdPromise(): Promise<string> {
+  if (_promise) return _promise;
+  // Read (but do NOT create) the local ID so we give the server a chance to
+  // restore a prior ID from the cookie when localStorage is empty.
+  const localId = readLocalVisitorId();
+  _promise = resolveVisitorId(localId);
+  return _promise;
+}
+
+/**
+ * Returns the stable visitor ID for experiment bucketing.
+ *
+ * - Synchronous initial value: whatever is in localStorage right now
+ *   (null if localStorage was cleared).
+ * - Async update: once the server sync settles, the state is updated with
+ *   the canonical ID (which may be restored from the server cookie).
+ */
+export function useVisitorId(): string | null {
+  const [visitorId, setVisitorId] = useState<string | null>(() => readLocalVisitorId());
+
+  useEffect(() => {
+    let cancelled = false;
+    getVisitorIdPromise().then((id) => {
+      if (!cancelled) {
+        setVisitorId(id);
+        // Keep localStorage in sync (handles the restoration case)
+        writeLocalVisitorId(id);
+      }
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  return visitorId;
 }
 
 function assignVariant(experimentId: string, visitorId: string, variants: Array<{ id: string; weight: number }>): string {
@@ -102,7 +198,15 @@ export interface UseExperimentResult {
 }
 
 export function useExperiment(experimentId: string): UseExperimentResult {
+  const visitorId = useVisitorId();
+
   const result = useMemo((): UseExperimentResult => {
+    // If visitor ID is not yet resolved, return a null result.
+    // The component will re-render once the server sync settles.
+    if (!visitorId) {
+      return { variant: null, overrides: {}, experimentId, variantId: null };
+    }
+
     const experiment = (abTests.experiments as Array<{
       id: string;
       status: string;
@@ -113,7 +217,6 @@ export function useExperiment(experimentId: string): UseExperimentResult {
       return { variant: null, overrides: {}, experimentId, variantId: null };
     }
 
-    const visitorId = getJgVisitorId();
     const selectedId = assignVariant(experimentId, visitorId, experiment.variants);
     const selectedVariant = experiment.variants.find((v) => v.id === selectedId) ?? experiment.variants[0];
 
@@ -123,18 +226,21 @@ export function useExperiment(experimentId: string): UseExperimentResult {
       experimentId,
       variantId: selectedVariant?.id ?? null,
     };
-  }, [experimentId]);
+  }, [experimentId, visitorId]);
 
+  // Fire analytics exactly once: after the visitor ID is fully resolved and
+  // stable. The firedRef guard ensures we never double-count even if the ID
+  // briefly changes from null → restored.
   const firedRef = useRef(false);
   useEffect(() => {
-    if (!firedRef.current && result.variantId) {
+    if (!firedRef.current && result.variantId && visitorId) {
       firedRef.current = true;
       trackEvent('experiment_assigned', {
         experiment_id: result.experimentId,
         variant_id: result.variantId,
       });
     }
-  }, [result.experimentId, result.variantId]);
+  }, [result.experimentId, result.variantId, visitorId]);
 
   return result;
 }

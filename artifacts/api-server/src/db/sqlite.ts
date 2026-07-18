@@ -74,6 +74,11 @@ function runMigrations(db: InstanceType<typeof DatabaseSync>) {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS visitors (
+      visitor_id TEXT PRIMARY KEY,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE INDEX IF NOT EXISTS idx_events_slug ON conversion_events(page_slug);
     CREATE INDEX IF NOT EXISTS idx_events_name ON conversion_events(event_name);
     CREATE INDEX IF NOT EXISTS idx_events_created ON conversion_events(created_at);
