@@ -22,6 +22,7 @@ import { seedManualQuestion } from "../loops/loop1/ingest.js";
 import { scrapeRedditUrl, ingestFromRedditUrl } from "../integrations/reddit.js";
 import { generateAndStoreBlogMarketing, composeMarketingMarkdown } from "../marketing/generate.js";
 import { invalidatePrerenderedBlogPost } from "./blog-html.js";
+import { invalidateSitemapCache } from "./sitemap.js";
 import { logger } from "../lib/logger.js";
 
 const router = Router();
@@ -153,6 +154,7 @@ router.put("/assets/:id/status", async (req, res) => {
     }
 
     await updateContentAssetStatus(id, status, status === "published" ? new Date() : undefined);
+    if (status === "published") invalidateSitemapCache();
     res.json({ id, status });
   } catch (err) {
     logger.error({ err }, "PUT /corpus/assets/:id/status failed");

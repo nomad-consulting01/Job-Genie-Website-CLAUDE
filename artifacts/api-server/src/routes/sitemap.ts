@@ -5,6 +5,59 @@ import { SITE_URL } from "@workspace/site-config";
 
 const router = Router();
 
+// ---------------------------------------------------------------------------
+// In-memory cache — avoids hitting the DB on every Googlebot request
+// ---------------------------------------------------------------------------
+
+const CACHE_TTL_MS = Number(process.env["SITEMAP_CACHE_TTL_MS"] ?? 15 * 60 * 1000); // 15 min default
+
+interface SitemapCache {
+  xml: string | null;
+  llms: string | null;
+  cachedAt: number;
+}
+
+const cache: SitemapCache = { xml: null, llms: null, cachedAt: 0 };
+
+/** Call this whenever a new asset is published so the next request regenerates from DB. */
+export function invalidateSitemapCache(): void {
+  cache.xml = null;
+  cache.llms = null;
+  cache.cachedAt = 0;
+  logger.info("sitemap cache invalidated");
+}
+
+function isCacheValid(): boolean {
+  return cache.cachedAt > 0 && Date.now() - cache.cachedAt < CACHE_TTL_MS;
+}
+
+// ---------------------------------------------------------------------------
+// Data fetcher (shared by both routes)
+// ---------------------------------------------------------------------------
+
+interface FetchedRows {
+  answerRows: Awaited<ReturnType<typeof listPublishedAnswerPages>>;
+  blogRows: Awaited<ReturnType<typeof listPublishedBlogPosts>>;
+  qaRows: Awaited<ReturnType<typeof listPublishedQAs>>;
+}
+
+let _pending: Promise<FetchedRows> | null = null;
+
+async function fetchRows(): Promise<FetchedRows> {
+  if (_pending) return _pending;
+  _pending = Promise.all([
+    listPublishedAnswerPages(null, 0),
+    listPublishedBlogPosts(null, 0),
+    listPublishedQAs(null),
+  ]).then(([answerRows, blogRows, qaRows]) => ({ answerRows, blogRows, qaRows }))
+    .finally(() => { _pending = null; });
+  return _pending;
+}
+
+// ---------------------------------------------------------------------------
+// Static pages
+// ---------------------------------------------------------------------------
+
 const STATIC_PAGES = [
   { loc: "/", changefreq: "weekly", priority: "1.0" },
   { loc: "/why-no-responses-after-100-applications", changefreq: "monthly", priority: "0.9" },
@@ -20,14 +73,21 @@ const STATIC_PAGES = [
   { loc: "/qa", changefreq: "daily", priority: "0.85" },
 ];
 
+// ---------------------------------------------------------------------------
+// Routes
+// ---------------------------------------------------------------------------
+
 /** Dynamic XML sitemap — includes all published /answers/:slug and /blog/:slug pages */
 router.get("/sitemap.xml", async (_req, res) => {
   try {
-    const [answerRows, blogRows, qaRows] = await Promise.all([
-      listPublishedAnswerPages(null, 0),
-      listPublishedBlogPosts(null, 0),
-      listPublishedQAs(null),
-    ]);
+    if (isCacheValid() && cache.xml !== null) {
+      res.setHeader("Content-Type", "application/xml; charset=utf-8");
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      res.send(cache.xml);
+      return;
+    }
+
+    const { answerRows, blogRows, qaRows } = await fetchRows();
 
     const today = new Date().toISOString().split("T")[0];
 
@@ -58,6 +118,9 @@ router.get("/sitemap.xml", async (_req, res) => {
 ${urlEntries.join("\n")}
 </urlset>`;
 
+    cache.xml = xml;
+    if (!isCacheValid()) cache.cachedAt = Date.now();
+
     res.setHeader("Content-Type", "application/xml; charset=utf-8");
     res.setHeader("Cache-Control", "public, max-age=3600");
     res.send(xml);
@@ -70,11 +133,14 @@ ${urlEntries.join("\n")}
 /** Dynamic llms.txt — GEO standard: lists all Q&A pairs for AI citation engines */
 router.get("/llms.txt", async (_req, res) => {
   try {
-    const [answerRows, blogRows, qaRows] = await Promise.all([
-      listPublishedAnswerPages(null, 0),
-      listPublishedBlogPosts(null, 0),
-      listPublishedQAs(null),
-    ]);
+    if (isCacheValid() && cache.llms !== null) {
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      res.send(cache.llms);
+      return;
+    }
+
+    const { answerRows, blogRows, qaRows } = await fetchRows();
 
     const header = `# Job Genie — AI job-search assistant
 # ${SITE_URL}
@@ -185,9 +251,13 @@ filled through referrals and recruiter shortlists before they are widely adverti
       qaLines.join("\n"),
     ].join("\n");
 
+    const llms = header + body;
+    cache.llms = llms;
+    if (!isCacheValid()) cache.cachedAt = Date.now();
+
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Cache-Control", "public, max-age=3600");
-    res.send(header + body);
+    res.send(llms);
   } catch (err) {
     logger.error({ err }, "GET /llms.txt failed");
     res.status(500).send("# llms.txt generation failed");
