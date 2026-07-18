@@ -869,7 +869,14 @@ export default function AdminCorpus() {
       });
       const d = await r.json() as { message?: string; error?: string };
       if (!r.ok) { setVoiceMetricsStatus(`Error: ${d.error ?? r.statusText}`); return; }
-      setVoiceMetricsStatus(`✅ ${d.message ?? "Metrics pipeline started"} — check logs for results.`);
+      setVoiceMetricsStatus(`✅ ${d.message ?? "Metrics pipeline started"} — refreshing ledger in 5 s…`);
+      /** Pipeline runs in the background server-side; wait briefly then refresh so
+       *  the Bandit Ledger panel reflects the updated arm state. */
+      setTimeout(() => {
+        void fetchVoiceLibrary().then(() => {
+          setVoiceMetricsStatus(`✅ Metrics pipeline complete — ledger refreshed.`);
+        });
+      }, 5000);
     } catch {
       setVoiceMetricsStatus("Network error triggering metrics pipeline");
     } finally {
@@ -2020,6 +2027,130 @@ export default function AdminCorpus() {
                     <span><span className="inline-block w-2 h-2 rounded-full bg-blue-400 mr-1.5 align-middle" />Active — graduated, not leading</span>
                     <span><span className="inline-block w-2 h-2 rounded-full bg-red-400 mr-1.5 align-middle" />Below threshold — mean &lt; 0.45, losing to the bandit baseline</span>
                     <span><span className="inline-block w-2 h-2 rounded-full bg-gray-500 mr-1.5 align-middle" />Retired — disabled in voice library</span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Bandit Ledger — raw arm-level view */}
+            {voiceLibraryData && (() => {
+              const lib = voiceLibraryData.voiceLibrary;
+              const ledger = voiceLibraryData.ledger;
+              const armEntries = Object.entries(ledger.arms);
+
+              if (armEntries.length === 0) return null;
+
+              const voiceLabelMap: Record<string, string> = {};
+              for (const v of lib.voices) voiceLabelMap[v.id] = v.label;
+
+              const sorted = [...armEntries].sort(([, a], [, b]) => b.mean - a.mean);
+
+              const getArmStatus = (arm: BanditArm) => {
+                const voice = lib.voices.find((v) => v.id === arm.voiceId);
+                if (voice && !voice.active) return "retired";
+                if (arm.status === "under_test" || arm.impressions < lib.samplingPolicy.minImpressionsGate) return "under_test";
+                return arm.status === "active" ? "active" : "under_test";
+              };
+
+              const armStatusStyle = (s: string) => {
+                if (s === "active")     return { dot: "bg-blue-400",   badge: "text-blue-300 bg-blue-900/20 border-blue-700/30" };
+                if (s === "retired")    return { dot: "bg-gray-500",   badge: "text-gray-400 bg-gray-800/40 border-gray-700/30" };
+                return                         { dot: "bg-yellow-400", badge: "text-yellow-300 bg-yellow-900/20 border-yellow-700/30" };
+              };
+
+              const isPrior = (arm: BanditArm) => arm.impressions === 0;
+
+              return (
+                <div className="bg-white/3 border border-white/8 rounded-xl overflow-hidden">
+                  <div className="px-5 py-4 border-b border-white/8 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-sm font-semibold text-white">📊 Bandit Ledger</h3>
+                      <p className="text-xs text-gray-500 mt-0.5">Every arm the bandit is tracking — voice × topic × persona × format. Refreshes with ⚡ Run Metrics Pipeline.</p>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                      <span>{armEntries.length} arms</span>
+                      <span>·</span>
+                      <span>{armEntries.filter(([, a]) => a.impressions > 0).length} with data</span>
+                      <span>·</span>
+                      <span>{armEntries.filter(([, a]) => a.impressions === 0).length} at Beta(1,1) prior</span>
+                    </div>
+                  </div>
+
+                  {/* Column headers */}
+                  <div className="grid grid-cols-[2fr_1fr_auto_auto_auto_auto_auto] gap-x-3 px-5 py-2 text-xs text-gray-500 border-b border-white/5 bg-black/10">
+                    <span>Arm key</span>
+                    <span>Voice</span>
+                    <span className="text-right w-16">Mean</span>
+                    <span className="text-right w-10">α</span>
+                    <span className="text-right w-10">β</span>
+                    <span className="text-right w-20">Impressions</span>
+                    <span className="text-right w-24">Status</span>
+                  </div>
+
+                  <div className="divide-y divide-white/5 max-h-96 overflow-y-auto">
+                    {sorted.map(([key, arm]) => {
+                      const status = getArmStatus(arm);
+                      const style = armStatusStyle(status);
+                      const prior = isPrior(arm);
+                      const parts = key.split(":");
+                      const armShortKey = parts.length >= 4
+                        ? `${parts[1] ?? "—"}  ·  ${parts[2] ?? "—"}  ·  ${parts[3] ?? "—"}`
+                        : key;
+                      return (
+                        <div
+                          key={key}
+                          className={`grid grid-cols-[2fr_1fr_auto_auto_auto_auto_auto] gap-x-3 px-5 py-2.5 items-center ${prior ? "opacity-40" : ""} hover:bg-white/2 transition-colors`}
+                          title={key}
+                        >
+                          {/* Arm key */}
+                          <span className="text-xs font-mono text-gray-400 truncate min-w-0">{armShortKey}</span>
+
+                          {/* Voice label */}
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${style.dot}`} />
+                            <span className="text-xs text-white truncate">{voiceLabelMap[arm.voiceId] ?? arm.voiceId}</span>
+                          </div>
+
+                          {/* Mean */}
+                          <span className={`text-right w-16 text-xs font-mono font-semibold tabular-nums ${prior ? "text-gray-600" : "text-white"}`}>
+                            {arm.mean.toFixed(3)}
+                          </span>
+
+                          {/* Alpha */}
+                          <span className={`text-right w-10 text-xs font-mono tabular-nums ${prior ? "text-gray-700" : "text-gray-400"}`}>
+                            {arm.alpha.toFixed(1)}
+                          </span>
+
+                          {/* Beta */}
+                          <span className={`text-right w-10 text-xs font-mono tabular-nums ${prior ? "text-gray-700" : "text-gray-400"}`}>
+                            {arm.beta.toFixed(1)}
+                          </span>
+
+                          {/* Impressions */}
+                          <span className="text-right w-20 text-xs font-mono text-gray-400 tabular-nums">
+                            {arm.impressions > 0 ? arm.impressions.toLocaleString() : "—"}
+                          </span>
+
+                          {/* Status badge */}
+                          <span className="text-right w-24">
+                            {prior ? (
+                              <span className="text-xs text-gray-600 italic">prior</span>
+                            ) : (
+                              <span className={`text-xs px-2 py-0.5 rounded-full border whitespace-nowrap ${style.badge}`}>
+                                {status === "under_test" ? "under test" : status}
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="px-5 py-3 border-t border-white/5 bg-black/10 flex flex-wrap gap-x-5 gap-y-1 text-xs text-gray-500">
+                    <span><span className="inline-block w-2 h-2 rounded-full bg-blue-400 mr-1.5 align-middle" />Active — graduated past impressions gate</span>
+                    <span><span className="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1.5 align-middle" />Under test — below impressions gate</span>
+                    <span><span className="inline-block w-2 h-2 rounded-full bg-gray-500 mr-1.5 align-middle" />Retired — voice disabled</span>
+                    <span className="text-gray-600">Faded rows are Beta(1,1) priors — no data yet</span>
                   </div>
                 </div>
               );
