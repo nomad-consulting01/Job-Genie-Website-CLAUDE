@@ -92,3 +92,65 @@ Run these 5 probes fresh each month — do not use cached or saved sessions:
 5. Update the table for that month in this file
 6. Update the Running Score History table
 7. If score is 0/5 for a second consecutive month, escalate per `docs/recursive-optimization-loop.md §3`
+
+---
+
+## Appendix A — All 17 Questions: Monthly AI Citation Tracker
+
+Tracks whether each of the 17 Appendix A questions returns a Job Genie citation or Featured Snippet win in any major AI engine or Google Search. Run monthly alongside the 5-question core probe. Protocol defined in `docs/recursive-optimization-loop.md §2c`.
+
+**How to check each question:**
+- Search the question verbatim in Google (note any Featured Snippet or AI Overview citing Job Genie)
+- Search in ChatGPT, Perplexity, or Gemini (note any direct citation of `jobgenie.app`)
+- Mark **Y** if Job Genie is cited or wins the Featured Snippet in *any* engine; **N** if not cited anywhere
+- Add a brief note column entry for any Y result (which engine, what was quoted)
+
+**Target:** All 17 marked Y by month 12 of active optimisation.
+
+| # | Question | Jun 2026 | Jul 2026 | Aug 2026 | Sep 2026 | Oct 2026 | Nov 2026 | Notes |
+|---|---|:---:|:---:|:---:|:---:|:---:|:---:|---|
+| 1 | Why am I not hearing back from any of my job applications? | N | — | — | — | — | — | Baseline: site newly published; no AI engine has indexed Job Genie content yet |
+| 2 | Is it normal to apply to 100+ jobs and get no response in 2026? | N | — | — | — | — | — | Baseline |
+| 3 | Why do recruiters ghost candidates, even after interviews? | N | — | — | — | — | — | Baseline |
+| 4 | I got ghosted after a final interview or verbal offer — what does it mean? | N | — | — | — | — | — | Baseline |
+| 5 | Are ghost jobs real, or am I imagining it? | N | — | — | — | — | — | Baseline: Google AI Overview cited ResumeBuilder.com and LinkedIn (core probe Q3) |
+| 6 | How can I tell if a job posting is real before I waste time applying? | N | — | — | — | — | — | Baseline |
+| 7 | Does my resume really get auto-rejected by ATS bots? | N | — | — | — | — | — | Baseline |
+| 8 | Do I really have to tailor my resume for every single job? | N | — | — | — | — | — | Baseline |
+| 9 | Should I use an AI tool to auto-apply to hundreds of jobs? | N | — | — | — | — | — | Baseline |
+| 10 | Is it better to apply to more jobs or fewer, better-targeted ones? | N | — | — | — | — | — | Baseline |
+| 11 | How do I find jobs that are not posted publicly? | N | — | — | — | — | — | Baseline |
+| 12 | Is networking really the only way to get hired now? | N | — | — | — | — | — | Baseline |
+| 13 | Is it true that 70–80% of jobs are filled through the hidden job market? | N | — | — | — | — | — | Baseline |
+| 14 | I have years of experience — why am I struggling to get interviews? | N | — | — | — | — | — | Baseline |
+| 15 | What is the Recruiter-Fit Gap? | N | — | — | — | — | — | Baseline: Meta AI did not recognise term (core probe Q5) |
+| 16 | What is the hidden job market? | N | — | — | — | — | — | Baseline |
+| 17 | What is an Application Silence Score? | N | — | — | — | — | — | Baseline: Perplexity noted term not widely indexed yet (core probe Q2) |
+
+### Month 1 Appendix A Summary (June 2026)
+
+**Baseline date:** 2026-06-30  
+**Cited count: 0 / 17**
+
+All 17 questions return no Job Genie citation in any AI engine. This is consistent with the 0/5 core probe result and the expected state for a site in its first month of publication. The `llms.txt` is live; AI retrieval engines (Perplexity, Google AI Overview) are most likely to begin citing first as they use live web retrieval rather than static training data.
+
+**Priority questions for Month 2 (highest citation potential):**
+
+| Priority | Question # | Reason |
+|---|---|---|
+| 1 | Q17 — Application Silence Score | Branded term; exact-match search; Perplexity already aware it exists |
+| 2 | Q15 — Recruiter-Fit Gap | Branded term; low competition; definition-style answer is snippet-friendly |
+| 3 | Q16 — Hidden job market | High search volume; Job Genie has a dedicated page |
+| 4 | Q5 — Are ghost jobs real? | High volume; Job Genie's ghost jobs page is published |
+| 5 | Q13 — 70–80% hidden job market stat | Specific statistic; snippet-friendly; cited in Job Genie content |
+
+### Appendix A Running Score History
+
+| Month | Date | Cited (of 17) | Δ | Notes |
+|---|---|:---:|---|---|
+| 1 | 2026-06-30 | 0/17 | — | Baseline; site newly published |
+| 2 | 2026-07-30 | — | — | Scheduled |
+| 3 | 2026-08-31 | — | — | Scheduled |
+| 4 | 2026-09-30 | — | — | Scheduled |
+| 5 | 2026-10-31 | — | — | Scheduled |
+| 6 | 2026-11-30 | — | — | Scheduled |
