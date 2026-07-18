@@ -26,7 +26,7 @@ function buildFAQSchema(page: LandingPage) {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: page.faqs.map((f) => ({
+    mainEntity: (page.faqs ?? []).map((f) => ({
       "@type": "Question",
       name: f.q,
       acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -35,7 +35,7 @@ function buildFAQSchema(page: LandingPage) {
 }
 
 function buildHowToSchema(page: LandingPage) {
-  const steps = page.sections.flatMap((s) => s.howToSteps ?? []);
+  const steps = (page.sections ?? []).flatMap((s) => s.howToSteps ?? []);
   if (steps.length === 0) return null;
   return {
     "@context": "https://schema.org",
@@ -231,7 +231,7 @@ export default function AEOPage({ slug }: AEOPageProps) {
                 Key Takeaways
               </h2>
               <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "10px" }}>
-                {page.keyTakeaways.map((item, i) => (
+                {(page.keyTakeaways ?? []).map((item, i) => (
                   <li key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start", color: "var(--w80, rgba(255,255,255,0.8))", lineHeight: 1.6, fontSize: "15px" }}>
                     <span style={{ color: "var(--teal, #2dd4bf)", flexShrink: 0, fontWeight: 700, fontSize: "13px", marginTop: "2px" }}>✓</span>
                     {item}
@@ -242,7 +242,7 @@ export default function AEOPage({ slug }: AEOPageProps) {
           </header>
 
           {/* Content sections */}
-          {page.sections.map((section, i) => (
+          {(page.sections ?? []).map((section, i) => (
             <section key={i} style={{ marginBottom: "48px" }}>
               <h2 style={{ fontSize: "clamp(20px,3vw,28px)", fontWeight: 700, color: "var(--wh, #fff)", marginBottom: "16px", lineHeight: 1.3 }}>
                 {section.heading}
@@ -327,7 +327,7 @@ export default function AEOPage({ slug }: AEOPageProps) {
               Frequently Asked Questions
             </h2>
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              {page.faqs.map((faq, i) => (
+              {(page.faqs ?? []).map((faq, i) => (
                 <div key={i} className="faq-item" style={{ padding: "24px", background: "rgba(255,255,255,0.03)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)" }}>
                   <h3 style={{ fontSize: "17px", fontWeight: 700, color: "var(--wh, #fff)", marginBottom: "12px", lineHeight: 1.4 }}>{faq.q}</h3>
                   <p style={{ color: "var(--w80, rgba(255,255,255,0.8))", lineHeight: 1.7, fontSize: "15px", margin: 0 }}>{faq.a}</p>
@@ -357,13 +357,13 @@ export default function AEOPage({ slug }: AEOPageProps) {
           </section>
 
           {/* Sources */}
-          {page.sources.length > 0 && (
+          {(page.sources ?? []).length > 0 && (
             <section style={{ marginBottom: "56px" }}>
               <h2 style={{ fontSize: "16px", fontWeight: 700, color: "var(--w60, rgba(255,255,255,0.6))", marginBottom: "16px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                 Sources
               </h2>
               <ol style={{ margin: 0, padding: "0 0 0 20px", display: "flex", flexDirection: "column", gap: "8px" }}>
-                {page.sources.map((src, i) => (
+                {(page.sources ?? []).map((src, i) => (
                   <li key={i} style={{ color: "var(--w40, rgba(255,255,255,0.4))", fontSize: "13px", lineHeight: 1.6 }}>
                     {src.text} — <em>{src.source}</em>
                   </li>

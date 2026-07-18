@@ -23,6 +23,7 @@ const ALLOWED_EVENTS = new Set([
   "newsletter_submit_success",
   "newsletter_submit_error",
   "pricing_cta_click",
+  "experiment_assigned",
 ]);
 
 router.post("/events", (req, res) => {
