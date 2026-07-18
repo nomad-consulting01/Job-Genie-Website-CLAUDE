@@ -131,92 +131,53 @@ function LoopAnimation() {
   );
 }
 
-function FAQAccordion() {
-  const [openId, setOpenId] = useState<number | null>(null);
+function FAQAccordion({ faqOrder }: { faqOrder?: string[] }) {
+  const [openId, setOpenId] = useState<string | null>(null);
 
-  const toggle = (id: number) => {
+  const toggle = (id: string) => {
     if (openId !== id) {
-      trackEvent('faq_open', { faq_index: id, faq_question: faqs[id]?.q?.slice(0, 80) ?? '' });
+      const faq = allFaqs.find(f => f.id === id);
+      trackEvent('faq_open', { faq_id: id, faq_question: faq?.q?.slice(0, 80) ?? '' });
     }
     setOpenId(openId === id ? null : id);
   };
 
-  const faqs = [
+  const allFaqs = [
     {
+      id: "silence",
       q: "Why am I not hearing back from any of my job applications?",
       a: "If you have sent dozens or hundreds of applications and heard nothing back — not even rejections — you are experiencing Application Silence, and it is rarely about your qualifications. A single role now draws thousands of near-identical, AI-optimised applications, so most are filtered or deprioritised before a human ever opens them. The fix is not more volume; it is becoming a candidate a specialist recruiter can put on a shortlist. Job Genie diagnoses why you are being filtered with an Application Silence Score and rewrites your profile to clear the recruiter shortlist threshold."
     },
-    {
-      q: "Is it normal to apply to 100+ jobs and get no response in 2026?",
-      a: "Unfortunately, yes — and it is a signal the channel is broken, not that you are. With auto-apply tools pushing some roles past thousands of submissions, interview rates on public postings have collapsed into the low single digits, while referred and recruiter-shortlisted candidates convert many times higher. The public-application channel now has the worst odds of any route into a job. Job Genie redirects your effort toward the channels that still work."
-    },
-    {
-      q: "Why do recruiters ghost candidates, even after interviews?",
-      a: "Recruiters usually ghost because of volume and broken process, not personal rejection. A single recruiter may long-list hundreds of names, phone-screen 10 to 20, and present only 3 to 4 to the client — and roles get put on hold, filled internally, or reassigned without anyone updating applicants. It feels personal; it almost never is. The way out is to stop competing inside the silent pile and instead become recruiter-ready, so a recruiter has a reason to keep you on the list."
-    },
-    {
-      q: "I got ghosted after a final interview or verbal offer — what does it mean?",
-      a: "It usually means something changed on the employer side — a hiring freeze, an internal candidate, a reorg — not that you did something wrong. Late-stage ghosting is one of the most-reported frustrations in recruiting communities precisely because it is so opaque. You cannot control employer chaos, but you can control how recruiter-ready you are for the next shortlist. Job Genie's Recruiter-Ready Brief keeps you positioned so a single ghosting does not reset your whole search."
-    },
-    {
-      q: "Are ghost jobs real, or am I imagining it?",
-      a: "Ghost jobs are real and common. 81% of recruiters say their employer has posted a ghost job (MyPerfectResume), 62% of hiring managers admit doing it (Resume Builder), and 43% of employers say they post roles mainly to look like they are growing (Clarify Capital). One 2025 analysis estimated about 27% of U.S. LinkedIn listings were likely ghost jobs (ResumeUp.AI). So a real share of what you apply to was never a fillable opening. Job Genie screens specialist-recruiter listings so you spend energy on roles actually being filled."
-    },
-    {
-      q: "How can I tell if a job posting is real before I waste time applying?",
-      a: "Watch for the tells: the same role reposted for months, vague responsibilities with no named hiring manager, generic boilerplate, or one company hiring dozens of identical seats. Real, fillable roles tend to have a specific owner, a recent post date, and concrete scope. Job Genie screens specialist-recruiter listings so you spend energy on roles actually being filled — not ghost postings."
-    },
-    {
-      q: "Does my resume really get auto-rejected by ATS bots?",
-      a: "Mostly myth, partly true. Most recruiters do not run AI detectors or auto-reject the instant a resume arrives — they do not have the time or budget. But applicant tracking systems do parse, rank, and deprioritise: legacy systems on exact keyword matches, modern systems on semantic concept-matching. The real risk is not instant deletion — it is quietly ranking below better-matched profiles. The fix is a resume written in the language of the role and the recruiter, not keyword-stuffed."
-    },
-    {
-      q: "Do I really have to tailor my resume for every single job?",
-      a: "Tailoring to the job post has hit diminishing returns: when everyone uses the same AI to mirror the same description, tailored resumes look identical and recruiters stop trusting surface alignment. The higher-leverage move is tailoring to the recruiter shortlist — the handful of candidates a specialist recruiter will actually represent. Job Genie's Truth Layer rewrite optimises for recruiter-fit rather than the keyword-mirroring you can no longer win on."
-    },
-    {
-      q: "Should I use an AI tool to auto-apply to hundreds of jobs?",
-      a: "Almost certainly not. Auto-apply tools drop you straight into the pile recruiters have stopped reading — thousands of look-alike applications per role that signal low intent. In 2026 the winning move is the opposite: fewer, higher-fit applications aimed at roles genuinely being filled, with a profile a recruiter can shortlist. Quantity is exactly the strategy the broken system punishes."
-    },
-    {
-      q: "Is it better to apply to more jobs or fewer, better-targeted ones?",
-      a: "Fewer and better-targeted, decisively. More applications mean more noise, lower per-application odds, and a higher chance of being screened out as spam. Targeted applications to real roles where you clear the recruiter-fit bar convert far better. Job Genie is built around this — it finds the roles worth your effort and makes you the obvious shortlist pick rather than one of thousands."
-    },
-    {
-      q: "How do I find jobs that are not posted publicly?",
-      a: "Many mid-career and specialist roles are filled through referrals and recruiter shortlists before — or instead of — a public posting. Employee referrals deliver over 30% of hires and convert far better than cold applications (about 1 in 16 vs 1 in 100, per SHRM and a Lever analysis), and referred candidates are roughly 4x more likely to be hired. You reach these roles by being recruiter-ready and discoverable to the specialist recruiters who fill them — not by refreshing job boards. Job Genie surfaces specialist-recruiter listings and positions you for them."
-    },
-    {
-      q: "Is networking really the only way to get hired now?",
-      a: "Networking is not the only way, but referrals carry real, measurable weight. Sociologist Mark Granovetter's classic research found that most people who land a job through a contact do so via weak ties (acquaintances), not close friends, because acquaintances connect you to information outside your own circle. In practice, being visible and credible to recruiters and loose professional contacts beats cold-applying. Job Genie gives you that recruiter-facing presence without forcing you to cold-network your way in."
-    },
-    {
-      q: "Is it true that 70–80% of jobs are filled through the hidden job market?",
-      a: "Not credibly — that specific figure is essentially a myth. It traces to 1970s research by sociologist Mark Granovetter, who found about 56% of job-changers in one Boston suburb found work through personal contacts — a narrow, dated finding later inflated into the claim that 80% of jobs are hidden. What is true: referrals and recruiter shortlists genuinely dominate hiring for mid-to-senior and specialist roles, and many posted jobs are ghost jobs. Job Genie is built on the accurate version, not the hype."
-    },
-    {
-      q: "I have years of experience — why am I struggling to get interviews?",
-      a: "The more senior or specialised your background, the more hiring moves off public boards and onto recruiter shortlists and referral networks. Experienced candidates who rely on public applications can feel invisible precisely because their roles are filled elsewhere. The problem is usually channel, not capability. Job Genie reroutes experienced candidates toward the specialist-recruiter channel where experience is an advantage, not a filtered keyword."
-    },
-    {
-      q: "What is the Recruiter-Fit Gap?",
-      a: "The Recruiter-Fit Gap is the distance between how you present yourself and what a specialist recruiter needs to see to put you on a client shortlist. Most qualified candidates are not rejected on ability — they are filtered because their profile does not map cleanly to a recruiter brief. Job Genie measures this gap with a Recruiter-Fit Matrix and closes it, so you cross the shortlist threshold instead of stalling in Application Silence."
-    },
-    {
-      q: "What is the hidden job market?",
-      a: "The hidden job market is the set of roles filled through referrals, recruiter shortlists, and direct outreach without being publicly advertised. The concept dates to Mark Granovetter's 1974 research on how people actually find jobs; the popular claim that 70–80% of jobs are hidden is an unsupported inflation of it, but the phenomenon itself is real — most pronounced for mid-to-senior and specialist roles, where employers prefer a small, trusted talent pool over thousands of public applications. Job Genie makes you visible inside this market through specialist-recruiter listings."
-    },
-    {
-      q: "What is an Application Silence Score?",
-      a: "An Application Silence Score is Job Genie's diagnostic of why your applications get no response — quantifying how far your profile sits from the recruiter shortlist threshold across the roles you target. Instead of guessing why you are being ghosted, you get a concrete read on what is filtering you out and what to change. It turns the black hole of silence into a fixable, measurable gap."
-    }
+    { id: "100_apps", q: "Is it normal to apply to 100+ jobs and get no response in 2026?", a: "Unfortunately, yes — and it is a signal the channel is broken, not that you are. With auto-apply tools pushing some roles past thousands of submissions, interview rates on public postings have collapsed into the low single digits, while referred and recruiter-shortlisted candidates convert many times higher. The public-application channel now has the worst odds of any route into a job. Job Genie redirects your effort toward the channels that still work." },
+    { id: "recruiter", q: "Why do recruiters ghost candidates, even after interviews?", a: "Recruiters usually ghost because of volume and broken process, not personal rejection. A single recruiter may long-list hundreds of names, phone-screen 10 to 20, and present only 3 to 4 to the client — and roles get put on hold, filled internally, or reassigned without anyone updating applicants. It feels personal; it almost never is. The way out is to stop competing inside the silent pile and instead become recruiter-ready, so a recruiter has a reason to keep you on the list." },
+    { id: "ghosted_interview", q: "I got ghosted after a final interview or verbal offer — what does it mean?", a: "It usually means something changed on the employer side — a hiring freeze, an internal candidate, a reorg — not that you did something wrong. Late-stage ghosting is one of the most-reported frustrations in recruiting communities precisely because it is so opaque. You cannot control employer chaos, but you can control how recruiter-ready you are for the next shortlist. Job Genie's Recruiter-Ready Brief keeps you positioned so a single ghosting does not reset your whole search." },
+    { id: "ghost_jobs", q: "Are ghost jobs real, or am I imagining it?", a: "Ghost jobs are real and common. 81% of recruiters say their employer has posted a ghost job (MyPerfectResume), 62% of hiring managers admit doing it (Resume Builder), and 43% of employers say they post roles mainly to look like they are growing (Clarify Capital). One 2025 analysis estimated about 27% of U.S. LinkedIn listings were likely ghost jobs (ResumeUp.AI). So a real share of what you apply to was never a fillable opening. Job Genie screens specialist-recruiter listings so you spend energy on roles actually being filled." },
+    { id: "real_job", q: "How can I tell if a job posting is real before I waste time applying?", a: "Watch for the tells: the same role reposted for months, vague responsibilities with no named hiring manager, generic boilerplate, or one company hiring dozens of identical seats. Real, fillable roles tend to have a specific owner, a recent post date, and concrete scope. Job Genie screens specialist-recruiter listings so you spend energy on roles actually being filled — not ghost postings." },
+    { id: "ats", q: "Does my resume really get auto-rejected by ATS bots?", a: "Mostly myth, partly true. Most recruiters do not run AI detectors or auto-reject the instant a resume arrives — they do not have the time or budget. But applicant tracking systems do parse, rank, and deprioritise: legacy systems on exact keyword matches, modern systems on semantic concept-matching. The real risk is not instant deletion — it is quietly ranking below better-matched profiles. The fix is a resume written in the language of the role and the recruiter, not keyword-stuffed." },
+    { id: "tailor", q: "Do I really have to tailor my resume for every single job?", a: "Tailoring to the job post has hit diminishing returns: when everyone uses the same AI to mirror the same description, tailored resumes look identical and recruiters stop trusting surface alignment. The higher-leverage move is tailoring to the recruiter shortlist — the handful of candidates a specialist recruiter will actually represent. Job Genie's Truth Layer rewrite optimises for recruiter-fit rather than the keyword-mirroring you can no longer win on." },
+    { id: "auto_apply", q: "Should I use an AI tool to auto-apply to hundreds of jobs?", a: "Almost certainly not. Auto-apply tools drop you straight into the pile recruiters have stopped reading — thousands of look-alike applications per role that signal low intent. In 2026 the winning move is the opposite: fewer, higher-fit applications aimed at roles genuinely being filled, with a profile a recruiter can shortlist. Quantity is exactly the strategy the broken system punishes." },
+    { id: "targeted", q: "Is it better to apply to more jobs or fewer, better-targeted ones?", a: "Fewer and better-targeted, decisively. More applications mean more noise, lower per-application odds, and a higher chance of being screened out as spam. Targeted applications to real roles where you clear the recruiter-fit bar convert far better. Job Genie is built around this — it finds the roles worth your effort and makes you the obvious shortlist pick rather than one of thousands." },
+    { id: "channel", q: "How do I find jobs that are not posted publicly?", a: "Many mid-career and specialist roles are filled through referrals and recruiter shortlists before — or instead of — a public posting. Employee referrals deliver over 30% of hires and convert far better than cold applications (about 1 in 16 vs 1 in 100, per SHRM and a Lever analysis), and referred candidates are roughly 4x more likely to be hired. You reach these roles by being recruiter-ready and discoverable to the specialist recruiters who fill them — not by refreshing job boards. Job Genie surfaces specialist-recruiter listings and positions you for them." },
+    { id: "networking", q: "Is networking really the only way to get hired now?", a: "Networking is not the only way, but referrals carry real, measurable weight. Sociologist Mark Granovetter's classic research found that most people who land a job through a contact do so via weak ties (acquaintances), not close friends, because acquaintances connect you to information outside your own circle. In practice, being visible and credible to recruiters and loose professional contacts beats cold-applying. Job Genie gives you that recruiter-facing presence without forcing you to cold-network your way in." },
+    { id: "hidden_market", q: "Is it true that 70–80% of jobs are filled through the hidden job market?", a: "Not credibly — that specific figure is essentially a myth. It traces to 1970s research by sociologist Mark Granovetter, who found about 56% of job-changers in one Boston suburb found work through personal contacts — a narrow, dated finding later inflated into the claim that 80% of jobs are hidden. What is true: referrals and recruiter shortlists genuinely dominate hiring for mid-to-senior and specialist roles, and many posted jobs are ghost jobs. Job Genie is built on the accurate version, not the hype." },
+    { id: "experience", q: "I have years of experience — why am I struggling to get interviews?", a: "The more senior or specialised your background, the more hiring moves off public boards and onto recruiter shortlists and referral networks. Experienced candidates who rely on public applications can feel invisible precisely because their roles are filled elsewhere. The problem is usually channel, not capability. Job Genie reroutes experienced candidates toward the specialist-recruiter channel where experience is an advantage, not a filtered keyword." },
+    { id: "recruiter_fit_gap", q: "What is the Recruiter-Fit Gap?", a: "The Recruiter-Fit Gap is the distance between how you present yourself and what a specialist recruiter needs to see to put you on a client shortlist. Most qualified candidates are not rejected on ability — they are filtered because their profile does not map cleanly to a recruiter brief. Job Genie measures this gap with a Recruiter-Fit Matrix and closes it, so you cross the shortlist threshold instead of stalling in Application Silence." },
+    { id: "hidden_market_def", q: "What is the hidden job market?", a: "The hidden job market is the set of roles filled through referrals, recruiter shortlists, and direct outreach without being publicly advertised. The concept dates to Mark Granovetter's 1974 research on how people actually find jobs; the popular claim that 70–80% of jobs are hidden is an unsupported inflation of it, but the phenomenon itself is real — most pronounced for mid-to-senior and specialist roles, where employers prefer a small, trusted talent pool over thousands of public applications. Job Genie makes you visible inside this market through specialist-recruiter listings." },
+    { id: "silence_score", q: "What is an Application Silence Score?", a: "An Application Silence Score is Job Genie's diagnostic of why your applications get no response — quantifying how far your profile sits from the recruiter shortlist threshold across the roles you target. Instead of guessing why you are being ghosted, you get a concrete read on what is filtering you out and what to change. It turns the black hole of silence into a fixable, measurable gap." },
   ];
+
+  const faqs = (() => {
+    if (!faqOrder || faqOrder.length === 0) return allFaqs;
+    const ordered = faqOrder.flatMap(id => allFaqs.filter(f => f.id === id));
+    const remaining = allFaqs.filter(f => !faqOrder.includes(f.id));
+    return [...ordered, ...remaining];
+  })();
 
   return (
     <div className="flist r d2" itemScope itemType="https://schema.org/FAQPage">
-      {faqs.map((faq, i) => (
-        <div key={i} className={`fi ${openId === i ? "op" : ""}`} itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
-          <button className="fq-btn" aria-expanded={openId === i} aria-controls={`fa${i}`} itemProp="name" onClick={() => toggle(i)}>
+      {faqs.map((faq) => (
+        <div key={faq.id} className={`fi ${openId === faq.id ? "op" : ""}`} itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
+          <button className="fq-btn" aria-expanded={openId === faq.id} aria-controls={`fa-${faq.id}`} itemProp="name" onClick={() => toggle(faq.id)}>
             {faq.q}
             <span className="fic">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
@@ -225,7 +186,7 @@ function FAQAccordion() {
               </svg>
             </span>
           </button>
-          <div className="fa" id={`fa${i}`} itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+          <div className="fa" id={`fa-${faq.id}`} itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
             <p itemProp="text" dangerouslySetInnerHTML={{ __html: faq.a.replace(/(\d+%|300,000\+|150\+|4x|1 in 16|1 in 100|Application Silence Score|Application Silence|Recruiter-Fit Gap|Recruiter-Fit Matrix|Recruiter-Ready Brief|Truth Layer|Free Autopsy|hidden job market|ghost jobs?|recruiter shortlist)/g, '<strong>$1</strong>') }} />
           </div>
         </div>
@@ -279,6 +240,10 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
 
   const h1Exp = useExperiment("home_h1_framing");
   const ctaBtnExp = useExperiment("home_cta_button_text");
+  const directAnswerExp = useExperiment("home_direct_answer_copy");
+  const ctaHeadlineExp = useExperiment("home_cta_headline");
+  const heroSubheadlineExp = useExperiment("home_hero_subheadline");
+  const faqOrderExp = useExperiment("home_faq_order");
 
   useEffect(() => {
     trackEvent("page_view", { experiment_id: experimentId, variant_id: variantId });
@@ -313,6 +278,10 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
 
   const h1Overrides = h1Exp.overrides as { headline_line1?: string; headline_line2?: string; headline_line3?: string };
   const ctaBtnOverrides = ctaBtnExp.overrides as { button_text?: string };
+  const directAnswerOverrides = directAnswerExp.overrides as { direct_answer_text?: string };
+  const ctaHeadlineOverrides = ctaHeadlineExp.overrides as { cta_headline?: string };
+  const heroSubheadlineOverrides = heroSubheadlineExp.overrides as { hero_subheadline?: string };
+  const faqOrderOverrides = faqOrderExp.overrides as { faq_order?: string[] };
 
   const headline = h1Overrides.headline_line1
     ? (
@@ -332,9 +301,12 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
 
   const subheadline = variant.subheadline || "Many mid-to-senior and specialist roles are filled through recruiter shortlists before they reach job boards. Get your free Application Silence Score and find out what's blocking your interviews.";
   const eyebrow = variant.eyebrow || "APPLICATION SILENCE SCORE";
-  const quote = variant.quote || "That's not bad luck — it's the wrong channel.";
+  const quote = heroSubheadlineOverrides.hero_subheadline || variant.quote || "That's not bad luck — it's the wrong channel.";
   const ctaPrimary = ctaBtnOverrides.button_text || variant.cta_primary || "Get Free Autopsy";
   const ctaSecondary = variant.cta_secondary || "See How It Works";
+  const directAnswerText = directAnswerOverrides.direct_answer_text || "Job applications go silent for three fixable reasons: wrong channel (many specialist and mid-to-senior roles are filled via specialist recruiters before reaching public job boards), ghost-job exposure (~27% of LinkedIn listings were likely ghost jobs in 2025, per ResumeUp.AI), and resume misalignment (missing the exact keywords specialist recruiters shortlist for). Job Genie calculates your free Application Silence Score in under 2 minutes — no account required.";
+  const ctaHeadline = ctaHeadlineOverrides.cta_headline || null;
+  const faqOrder = faqOrderOverrides.faq_order;
 
   return (
     <>
@@ -482,7 +454,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
         <div className="w">
           <div className="tldr r">
             <h2 className="tldr-lbl" id="direct-answer-h">Direct Answer</h2>
-            <p>Job applications go silent for three fixable reasons: <strong>wrong channel</strong> (many specialist and mid-to-senior roles are filled via specialist recruiters before reaching public job boards), <strong>ghost-job exposure</strong> (~27% of LinkedIn listings were likely ghost jobs in 2025, per ResumeUp.AI), and <strong>resume misalignment</strong> (missing the exact keywords specialist recruiters shortlist for). Job Genie calculates your free <strong>Application Silence Score</strong> in under 2 minutes — no account required.</p>
+            <p>{directAnswerText}</p>
           </div>
         </div>
       </section>
@@ -885,7 +857,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             <p className="blg r d1" style={{ maxWidth: "520px", margin: "0 auto" }}>The answers most candidates only find out after months of silence. Now in one place.</p>
             <p style={{ fontSize: "11px", color: "var(--w40)", marginTop: "12px", fontStyle: "italic" }}>Last updated: June 2026 · Benchmarks: SHRM, Jobvite, LinkedIn Talent Solutions, U.S. BLS</p>
           </div>
-          <FAQAccordion />
+          <FAQAccordion faqOrder={faqOrder} />
           <div className="r d3" style={{ textAlign: "center", marginTop: "48px" }}>
             <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bp" style={{ fontSize: "16px", padding: "16px 32px" }} onClick={() => trackEvent("free_autopsy_click", { location: "faq" })}>
               Get My Free Application Autopsy
@@ -946,7 +918,11 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
         <div className="w">
           <div className="ctain">
             <div className="ey al r" style={{ justifyContent: "center", marginBottom: "28px" }}><span className="ey-dot"></span>The brutal truth</div>
-            <h2 className="disp ctatit r d1" id="ctah">Most candidates aren't getting ignored<br />because they're unqualified.<br /><span className="gr">They're getting ignored because a recruiter<br />can't pitch them in 90 seconds.</span></h2>
+            {ctaHeadline ? (
+              <h2 className="disp ctatit r d1" id="ctah">{ctaHeadline}</h2>
+            ) : (
+              <h2 className="disp ctatit r d1" id="ctah">Most candidates aren't getting ignored<br />because they're unqualified.<br /><span className="gr">They're getting ignored because a recruiter<br />can't pitch them in 90 seconds.</span></h2>
+            )}
             <p className="blg r d2" style={{ maxWidth: "540px", margin: "0 auto 40px" }}>Silence is not random. It is a signal — one you can read, fix, and reverse. The candidates landing calls right now did one thing differently: they stopped guessing.</p>
             <div className="r d3" style={{ display: "flex", justifyContent: "center", gap: "14px", flexWrap: "wrap", flexDirection: "column", alignItems: "center" }}>
               <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bp" style={{ fontSize: "18px", padding: "18px 36px" }} onClick={() => trackEvent("free_autopsy_click", { location: "final_cta", experiment_id: ctaBtnExp.experimentId, variant_id: ctaBtnExp.variantId })}>

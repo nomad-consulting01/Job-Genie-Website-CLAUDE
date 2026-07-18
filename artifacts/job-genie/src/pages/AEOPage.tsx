@@ -4,6 +4,7 @@ import { SEO } from "../components/SEO";
 import { trackEvent } from "../lib/analytics";
 import { landingPages, type LandingPage } from "../data/landing-pages";
 import { SITE_URL } from "@workspace/site-config";
+import { useExperiment } from "@/hooks/useExperiment";
 
 interface AEOPageProps {
   slug: string;
@@ -130,6 +131,9 @@ function PageFooter({ page }: { page: LandingPage }) {
 export default function AEOPage({ slug }: AEOPageProps) {
   const page = landingPages.find((p) => p.slug === slug);
 
+  const ghostJobsExp = useExperiment("ghost_jobs_direct_answer");
+  const whyNoResponsesExp = useExperiment("why_no_responses_cta");
+
   useEffect(() => {
     const nav = document.getElementById("nav");
     if (!nav) return;
@@ -137,6 +141,17 @@ export default function AEOPage({ slug }: AEOPageProps) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const ghostJobsOverrides = ghostJobsExp.overrides as { direct_answer_text?: string };
+  const whyNoResponsesOverrides = whyNoResponsesExp.overrides as { button_text?: string };
+
+  const effectiveDirectAnswer = slug === "ghost-jobs" && ghostJobsOverrides.direct_answer_text
+    ? ghostJobsOverrides.direct_answer_text
+    : page?.directAnswer ?? "";
+
+  const effectiveCtaButtonText = slug === "why-no-responses-after-100-applications" && whyNoResponsesOverrides.button_text
+    ? whyNoResponsesOverrides.button_text
+    : page?.cta?.buttonText ?? "Run My Free Autopsy →";
 
   if (!page) {
     return (
@@ -214,7 +229,7 @@ export default function AEOPage({ slug }: AEOPageProps) {
                 Direct Answer
               </h2>
               <p style={{ fontSize: "17px", lineHeight: 1.7, color: "var(--w80, rgba(255,255,255,0.8))", margin: 0 }}>
-                {page.directAnswer}
+                {effectiveDirectAnswer}
               </p>
             </section>
 
@@ -385,7 +400,7 @@ export default function AEOPage({ slug }: AEOPageProps) {
               style={{ fontSize: "17px", padding: "17px 36px" }}
               onClick={() => trackEvent("free_autopsy_click", { location: "aeo_page_cta", slug })}
             >
-              {page.cta.buttonText}
+              {effectiveCtaButtonText}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
             </a>
             <p style={{ marginTop: "12px", fontSize: "13px", color: "var(--w40, rgba(255,255,255,0.4))" }}>
