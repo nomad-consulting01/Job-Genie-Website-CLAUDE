@@ -5,11 +5,15 @@ import type { AttributionEntry } from "./types.js";
 export interface AttributionResult {
   entriesWritten: number;
   entriesSkipped: number;
+  belowImpressions: number;
+  tooFresh: number;
+  /** @deprecated use belowImpressions + tooFresh instead */
   belowGate: number;
   errors: string[];
 }
 
 const MIN_IMPRESSIONS_GATE = parseInt(process.env["VOICE_LOOP_MIN_IMPRESSIONS"] ?? "500");
+const MIN_POST_AGE_HOURS = parseInt(process.env["VOICE_LOOP_MIN_POST_AGE_HOURS"] ?? "24");
 
 export async function runAttribution(opts: { dryRun?: boolean } = {}): Promise<AttributionResult> {
   const metricsFile = readFbMetrics();
@@ -18,7 +22,8 @@ export async function runAttribution(opts: { dryRun?: boolean } = {}): Promise<A
 
   let entriesWritten = 0;
   let entriesSkipped = 0;
-  let belowGate = 0;
+  let belowImpressions = 0;
+  let tooFresh = 0;
   const errors: string[] = [];
 
   const voiceLib = readVoiceLibrary();
@@ -43,7 +48,20 @@ export async function runAttribution(opts: { dryRun?: boolean } = {}): Promise<A
   }
 
   for (const published of publishedFile.entries) {
-    const { post_id, variant_id, voice_id, hook_type, instagram_post_id } = published;
+    const { post_id, variant_id, voice_id, hook_type, instagram_post_id, publishedAt } = published;
+
+    /** Age gate: skip posts that haven't been live long enough to accumulate stable signal. */
+    const postAgeHours = publishedAt
+      ? (Date.now() - new Date(publishedAt).getTime()) / (1000 * 60 * 60)
+      : Infinity;
+    if (postAgeHours < MIN_POST_AGE_HOURS) {
+      logger.debug(
+        { post_id, publishedAt, postAgeHours: Math.round(postAgeHours * 10) / 10, minAgeHours: MIN_POST_AGE_HOURS },
+        "Voice Loop Station ②: post too fresh — skipping attribution"
+      );
+      tooFresh++;
+      continue;
+    }
 
     /** Try Facebook metrics first; fall back to Instagram metrics when absent. */
     const fbMetrics = metricsByPost.get(post_id);
@@ -78,7 +96,7 @@ export async function runAttribution(opts: { dryRun?: boolean } = {}): Promise<A
     }
 
     const meetGate = impressions >= MIN_IMPRESSIONS_GATE;
-    if (!meetGate) belowGate++;
+    if (!meetGate) belowImpressions++;
 
     const engagement_rate = reach > 0 ? engagements / reach : 0;
 
@@ -118,6 +136,9 @@ export async function runAttribution(opts: { dryRun?: boolean } = {}): Promise<A
     writeAttribution(attributionFile);
   }
 
-  logger.info({ entriesWritten, entriesSkipped, belowGate, dryRun: opts.dryRun }, "Voice Loop Station ②: attribution complete");
-  return { entriesWritten, entriesSkipped, belowGate, errors };
+  logger.info(
+    { entriesWritten, entriesSkipped, belowImpressions, tooFresh, dryRun: opts.dryRun },
+    "Voice Loop Station ②: attribution complete"
+  );
+  return { entriesWritten, entriesSkipped, belowImpressions, tooFresh, belowGate: belowImpressions, errors };
 }

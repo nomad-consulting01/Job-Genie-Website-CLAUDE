@@ -79,9 +79,10 @@ async function main() {
   section("Station ② — Attribution Join");
   const attrResult = await runAttribution({ dryRun: true });
   const attrFile = readAttribution();
-  console.log(`  Published variants with FB metrics: ${attrResult.entriesWritten}`);
-  console.log(`  Below impressions gate (${process.env["VOICE_LOOP_MIN_IMPRESSIONS"] ?? "500"}): ${attrResult.belowGate}`);
-  console.log(`  Skipped (already attributed): ${attrResult.entriesSkipped}`);
+  console.log(`  Published variants attributed: ${attrResult.entriesWritten}`);
+  console.log(`  Too fresh (< ${process.env["VOICE_LOOP_MIN_POST_AGE_HOURS"] ?? "24"}h old): ${attrResult.tooFresh}`);
+  console.log(`  Below impressions gate (< ${process.env["VOICE_LOOP_MIN_IMPRESSIONS"] ?? "500"} impressions): ${attrResult.belowImpressions}`);
+  console.log(`  Skipped (no metrics): ${attrResult.entriesSkipped}`);
   console.log(`  Current attribution entries: ${attrFile.entries.length}`);
 
   section("Station ③ — Voice Ledger & Bandit Policy");
