@@ -98,6 +98,46 @@ interface VoiceVariantRow {
   question: { id: number; normalisedQuestion: string };
 }
 
+interface BanditArm {
+  voiceId: string;
+  topic: string;
+  persona: string;
+  format: string;
+  alpha: number;
+  beta: number;
+  mean: number;
+  impressions: number;
+  status: "under_test" | "active";
+  lastUpdatedAt: string;
+}
+
+interface VoiceLibraryResponse {
+  voiceLibrary: {
+    version: string;
+    updatedAt: string;
+    samplingPolicy: {
+      exploitWeight: number;
+      exploreWeight: number;
+      minImpressionsGate: number;
+      compositeWeights?: Record<string, number>;
+    };
+    voices: Array<{
+      id: string;
+      label: string;
+      description: string;
+      active: boolean;
+      samplingWeight: number;
+      beta?: { alpha: number; beta: number };
+    }>;
+  };
+  ledger: {
+    _schema: string;
+    lastUpdatedAt: string | null;
+    samplingPolicy: { exploitWeight: number; exploreWeight: number } | null;
+    arms: Record<string, BanditArm>;
+  };
+}
+
 const CHANNEL_LABELS: Record<string, string> = {
   newsletter: "📧 Newsletter",
   blog_post: "📝 Blog Post",
@@ -547,6 +587,7 @@ export default function AdminCorpus() {
   const [linkFbLinking, setLinkFbLinking] = useState<Record<number, boolean>>({});
   const [voiceMetricsRunning, setVoiceMetricsRunning] = useState(false);
   const [voiceMetricsStatus, setVoiceMetricsStatus] = useState<string | null>(null);
+  const [voiceLibraryData, setVoiceLibraryData] = useState<VoiceLibraryResponse | null>(null);
 
   // Blog marketing (Meta Ads + Instagram) state
   const [blogMarketing, setBlogMarketing] = useState<Record<string, BlogMarketing>>({});
@@ -666,12 +707,22 @@ export default function AdminCorpus() {
     } catch { /* non-blocking */ }
   }, []);
 
+  const fetchVoiceLibrary = useCallback(async () => {
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/voice-variants/voice-library`, { headers: authHeaders() });
+      if (!r.ok) return;
+      const d = await r.json() as VoiceLibraryResponse;
+      setVoiceLibraryData(d);
+    } catch { /* non-blocking */ }
+  }, []);
+
   useEffect(() => {
     if (tab === "voice" && token) {
       void fetchVoiceVariants();
       void fetchProposals();
+      void fetchVoiceLibrary();
     }
-  }, [tab, token, fetchVoiceVariants, fetchProposals]);
+  }, [tab, token, fetchVoiceVariants, fetchProposals, fetchVoiceLibrary]);
 
   const saveVariantEdit = async (assetId: number) => {
     if (!editBodyText.trim()) { alert("Body text cannot be empty"); return; }
@@ -1776,7 +1827,7 @@ export default function AdminCorpus() {
                   {voiceMetricsRunning ? "Running pipeline…" : "⚡ Run Metrics Pipeline (①②③)"}
                 </button>
                 <button
-                  onClick={fetchVoiceVariants}
+                  onClick={() => { void fetchVoiceVariants(); void fetchVoiceLibrary(); }}
                   className="text-sm bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 px-4 py-2 rounded-lg"
                 >
                   ↺ Refresh
@@ -1799,6 +1850,180 @@ export default function AdminCorpus() {
               </div>
               <p className="text-xs text-gray-500 max-w-xs">Publishing is gated on approval — your name is recorded as the approver on every variant you approve.</p>
             </div>
+
+            {/* Voice Performance Leaderboard */}
+            {voiceLibraryData && (() => {
+              const lib = voiceLibraryData.voiceLibrary;
+              const ledger = voiceLibraryData.ledger;
+              const policy = ledger.samplingPolicy ?? lib.samplingPolicy;
+              const minImpressions = lib.samplingPolicy.minImpressionsGate;
+
+              /* Aggregate all ledger arms by voiceId (arms are keyed as voiceId:topic:persona:format) */
+              const aggregated: Record<string, { alpha: number; beta: number; impressions: number; mean: number; armCount: number }> = {};
+              for (const arm of Object.values(ledger.arms)) {
+                const vid = arm.voiceId;
+                if (!aggregated[vid]) {
+                  aggregated[vid] = { alpha: 0, beta: 0, impressions: 0, mean: 0, armCount: 0 };
+                }
+                aggregated[vid].alpha += arm.alpha;
+                aggregated[vid].beta += arm.beta;
+                aggregated[vid].impressions += arm.impressions;
+                aggregated[vid].armCount++;
+              }
+              /* Recompute mean from aggregated alpha/beta */
+              for (const agg of Object.values(aggregated)) {
+                agg.mean = agg.alpha / (agg.alpha + agg.beta);
+              }
+
+              const rows = lib.voices.map((voice) => {
+                const agg = aggregated[voice.id];
+                const priorAlpha = voice.beta?.alpha ?? 1;
+                const priorBeta = voice.beta?.beta ?? 1;
+                const alpha = agg ? agg.alpha : priorAlpha;
+                const beta = agg ? agg.beta : priorBeta;
+                const impressions = agg ? agg.impressions : 0;
+                const mean = agg ? agg.mean : (priorAlpha / (priorAlpha + priorBeta));
+                return { voice, alpha, beta, impressions, mean };
+              });
+
+              const hasRealData = rows.some((r) => r.impressions > 0);
+              const sorted = [...rows].sort((a, b) => b.mean - a.mean);
+              const topMean = (hasRealData ? sorted.find((r) => r.impressions >= minImpressions)?.mean : undefined) ?? sorted[0]?.mean ?? 0.5;
+
+              /* Status classification — four tiers */
+              const getStatus = (r: typeof rows[0]) => {
+                if (!r.voice.active) return "retired";
+                if (r.impressions < minImpressions) return "under test";
+                if (r.mean >= topMean * 0.9) return "top performer";
+                if (r.mean < 0.45) return "below threshold";
+                return "active";
+              };
+
+              const statusStyle = (status: string) => {
+                if (status === "top performer")    return { dot: "bg-green-400",  badge: "text-green-300 bg-green-900/20 border-green-700/30",   row: "border-l-green-600 bg-green-900/5" };
+                if (status === "under test")       return { dot: "bg-yellow-400", badge: "text-yellow-300 bg-yellow-900/20 border-yellow-700/30", row: "border-l-yellow-600 bg-yellow-900/5" };
+                if (status === "below threshold")  return { dot: "bg-red-400",    badge: "text-red-300 bg-red-900/20 border-red-700/30",         row: "border-l-red-600 bg-red-900/5" };
+                if (status === "retired")          return { dot: "bg-gray-500",   badge: "text-gray-400 bg-gray-800/40 border-gray-700/30",      row: "border-l-gray-700 bg-gray-900/5 opacity-60" };
+                return { dot: "bg-blue-400", badge: "text-blue-300 bg-blue-900/20 border-blue-700/30", row: "border-l-blue-600 bg-white/2" };
+              };
+
+              const barColor = (status: string) => {
+                if (status === "top performer")   return "bg-green-500";
+                if (status === "under test")      return "bg-yellow-500";
+                if (status === "below threshold") return "bg-red-500";
+                if (status === "retired")         return "bg-gray-600";
+                return "bg-blue-500";
+              };
+
+              return (
+                <div className="bg-white/3 border border-white/8 rounded-xl overflow-hidden">
+                  {/* Header */}
+                  <div className="px-5 py-4 border-b border-white/8 flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-sm font-semibold text-white">🏆 Voice Performance Leaderboard</h3>
+                      {ledger.lastUpdatedAt ? (
+                        <span className="text-xs text-gray-500">Updated {new Date(ledger.lastUpdatedAt).toLocaleString()}</span>
+                      ) : (
+                        <span className="text-xs text-gray-600 italic">No ledger data yet — run the Metrics Pipeline (①②③) to seed the bandit</span>
+                      )}
+                    </div>
+                    {/* Sampling policy pills */}
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-gray-500">Sampling policy:</span>
+                      <span className="px-2 py-0.5 rounded-full bg-purple-900/30 text-purple-300 border border-purple-700/30 font-mono">
+                        {Math.round((policy?.exploitWeight ?? 0.75) * 100)}% exploit
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full bg-blue-900/30 text-blue-300 border border-blue-700/30 font-mono">
+                        {Math.round((policy?.exploreWeight ?? 0.25) * 100)}% explore
+                      </span>
+                      <span className="text-gray-600">gate: {minImpressions.toLocaleString()} impr.</span>
+                    </div>
+                  </div>
+
+                  {/* Table header */}
+                  <div className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-x-4 px-5 py-2 text-xs text-gray-500 border-b border-white/5 bg-black/10">
+                    <span>Voice</span>
+                    <span className="text-right w-16">Mean score</span>
+                    <span className="text-right w-10">α</span>
+                    <span className="text-right w-10">β</span>
+                    <span className="text-right w-20">Impressions</span>
+                    <span className="text-right w-28">Status</span>
+                  </div>
+
+                  {/* Rows */}
+                  <div className="divide-y divide-white/5">
+                    {sorted.map((r, rank) => {
+                      const status = getStatus(r);
+                      const style = statusStyle(status);
+                      const barWidth = Math.min(100, topMean > 0 ? (r.mean / topMean) * 100 : 0);
+                      return (
+                        <div key={r.voice.id} className={`grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-x-4 px-5 py-3 items-center border-l-2 ${style.row} transition-colors`}>
+                          {/* Name + score bar */}
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <span className="text-xs font-mono text-gray-600 w-4 flex-shrink-0">{rank + 1}.</span>
+                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${style.dot}`} />
+                              <span className="text-sm font-medium text-white truncate">{r.voice.label}</span>
+                              {rank === 0 && hasRealData && r.impressions >= minImpressions && (
+                                <span className="text-xs">👑</span>
+                              )}
+                            </div>
+                            {/* Proportional score bar */}
+                            <div className="ml-6 h-1 bg-white/5 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all duration-500 ${barColor(status)}`}
+                                style={{ width: `${barWidth}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Mean score */}
+                          <span className={`text-right w-16 text-sm font-mono font-semibold tabular-nums ${r.impressions > 0 ? "text-white" : "text-gray-600"}`}>
+                            {r.mean.toFixed(3)}
+                          </span>
+
+                          {/* Alpha */}
+                          <span className={`text-right w-10 text-xs font-mono tabular-nums ${r.impressions > 0 ? "text-gray-400" : "text-gray-700"}`}>
+                            {r.alpha.toFixed(1)}
+                          </span>
+
+                          {/* Beta */}
+                          <span className={`text-right w-10 text-xs font-mono tabular-nums ${r.impressions > 0 ? "text-gray-400" : "text-gray-700"}`}>
+                            {r.beta.toFixed(1)}
+                          </span>
+
+                          {/* Impressions */}
+                          <span className="text-right w-20 text-xs font-mono text-gray-400 tabular-nums">
+                            {r.impressions > 0 ? r.impressions.toLocaleString() : "—"}
+                            {r.impressions > 0 && r.impressions < minImpressions && (
+                              <span className="text-yellow-600 ml-1" title={`${minImpressions - r.impressions} more impressions needed to exit exploration`}>
+                                ↑{(minImpressions - r.impressions).toLocaleString()}
+                              </span>
+                            )}
+                          </span>
+
+                          {/* Status badge */}
+                          <span className="text-right w-28">
+                            <span className={`text-xs px-2 py-0.5 rounded-full border whitespace-nowrap ${style.badge}`}>
+                              {status}
+                            </span>
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Legend */}
+                  <div className="px-5 py-3 border-t border-white/5 bg-black/10 flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-gray-500">
+                    <span><span className="inline-block w-2 h-2 rounded-full bg-green-400 mr-1.5 align-middle" />Top performer — within 10% of leading mean &amp; ≥{minImpressions.toLocaleString()} impressions</span>
+                    <span><span className="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1.5 align-middle" />Under test — fewer than {minImpressions.toLocaleString()} impressions</span>
+                    <span><span className="inline-block w-2 h-2 rounded-full bg-blue-400 mr-1.5 align-middle" />Active — graduated, not leading</span>
+                    <span><span className="inline-block w-2 h-2 rounded-full bg-red-400 mr-1.5 align-middle" />Below threshold — mean &lt; 0.45, losing to the bandit baseline</span>
+                    <span><span className="inline-block w-2 h-2 rounded-full bg-gray-500 mr-1.5 align-middle" />Retired — disabled in voice library</span>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Error */}
             {voiceError && <p className="text-red-400 text-sm bg-red-900/10 rounded-lg p-3 border border-red-700/20">{voiceError}</p>}
