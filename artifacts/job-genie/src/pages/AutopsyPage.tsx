@@ -237,7 +237,7 @@ export default function AutopsyPage() {
       <header className="hero">
         <div className="wrap">
           <div className="topbar">
-            <a href="/"><img src={logoImg} alt="JobGenie" style={{ height: 36 }} /></a>
+            <a href="/"><img src={logoImg} alt="JobGenie" style={{ height: 54 }} /></a>
             <a href="#autopsy" className="navlink">Get my free Autopsy →</a>
           </div>
 
@@ -462,7 +462,7 @@ export default function AutopsyPage() {
 
       <footer>
         <div className="wrap foot-row">
-          <a href="/"><img src={logoImg} alt="JobGenie" style={{ height: 32 }} /></a>
+          <a href="/"><img src={logoImg} alt="JobGenie" style={{ height: 48 }} /></a>
           <div>
             <a href="/privacy">Privacy</a>
             <a href="/terms">Terms</a>
