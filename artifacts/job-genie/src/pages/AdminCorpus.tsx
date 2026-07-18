@@ -542,6 +542,7 @@ export default function AdminCorpus() {
   const [selectedBlogPostId, setSelectedBlogPostId] = useState<string>("");
   const [voiceGenerating, setVoiceGenerating] = useState(false);
   const [voiceGenerateStatus, setVoiceGenerateStatus] = useState<string | null>(null);
+  const [voiceForce, setVoiceForce] = useState(false);
   const [linkFbPostId, setLinkFbPostId] = useState<Record<number, string>>({});
   const [linkFbLinking, setLinkFbLinking] = useState<Record<number, boolean>>({});
   const [voiceMetricsRunning, setVoiceMetricsRunning] = useState(false);
@@ -825,22 +826,26 @@ export default function AdminCorpus() {
     }
   };
 
-  const generateVoiceVariantsForPost = async (assetId: string) => {
+  const generateVoiceVariantsForPost = async (assetId: string, force: boolean) => {
     if (!assetId) return;
     setVoiceGenerating(true);
-    setVoiceGenerateStatus("Generating 5 voice variants — this takes ~30 seconds…");
+    setVoiceGenerateStatus(force ? "Force-regenerating 5 voice variants — this takes ~30 seconds…" : "Generating 5 voice variants — this takes ~30 seconds…");
     try {
       const r = await fetch(`${API_BASE}/api/admin/voice-variants/blog-post/${assetId}/generate`, {
         method: "POST",
         headers: authHeaders(),
+        body: JSON.stringify({ force }),
       });
+      const data = await r.json().catch(() => ({})) as { error?: string; message?: string; generated?: number; stored?: number; autoRejected?: number };
       if (!r.ok) {
-        const err = await r.json().catch(() => ({})) as { error?: string };
-        setVoiceGenerateStatus(`Error: ${err.error ?? r.statusText}`);
+        setVoiceGenerateStatus(`Error: ${data.error ?? r.statusText}`);
+      } else if (data.message && !data.generated) {
+        setVoiceGenerateStatus(`ℹ️ ${data.message}`);
       } else {
-        setVoiceGenerateStatus("Variants generated — refreshing list…");
+        const summary = `✅ Generated ${data.generated ?? 0} variants (${data.stored ?? 0} stored, ${data.autoRejected ?? 0} auto-rejected). Refreshing list…`;
+        setVoiceGenerateStatus(summary);
         await fetchVoiceVariants();
-        setVoiceGenerateStatus("Done! Review and approve variants below.");
+        setVoiceGenerateStatus(summary.replace("Refreshing list…", "Review and approve variants below."));
       }
     } catch (e) {
       setVoiceGenerateStatus(`Error: ${String(e)}`);
@@ -1721,7 +1726,7 @@ export default function AdminCorpus() {
                 ))}
               </div>
               {/* Generate Variants for a specific post */}
-              <div className="flex flex-wrap gap-2 items-center mb-3">
+              <div className="flex flex-wrap gap-2 items-center mb-2">
                 <select
                   value={selectedBlogPostId}
                   onChange={(e) => setSelectedBlogPostId(e.target.value)}
@@ -1735,13 +1740,22 @@ export default function AdminCorpus() {
                   ))}
                 </select>
                 <button
-                  onClick={() => generateVoiceVariantsForPost(selectedBlogPostId)}
+                  onClick={() => generateVoiceVariantsForPost(selectedBlogPostId, voiceForce)}
                   disabled={!selectedBlogPostId || voiceGenerating}
                   className="text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold disabled:opacity-40 whitespace-nowrap"
                 >
-                  {voiceGenerating ? "Generating…" : "🎙️ Generate Variants"}
+                  {voiceGenerating ? "Generating…" : "🎙️ Generate 5 Variants"}
                 </button>
               </div>
+              <label className="flex items-center gap-2 mb-3 cursor-pointer w-fit">
+                <input
+                  type="checkbox"
+                  checked={voiceForce}
+                  onChange={(e) => setVoiceForce(e.target.checked)}
+                  className="w-4 h-4 accent-purple-500"
+                />
+                <span className="text-xs text-gray-400">Force regenerate — delete existing variants and re-run</span>
+              </label>
               {voiceGenerateStatus && (
                 <p className="mb-3 text-xs text-purple-300 bg-purple-900/10 rounded-lg p-2 border border-purple-700/20">{voiceGenerateStatus}</p>
               )}
