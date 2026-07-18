@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Link } from "wouter";
 import { trackEvent, useEngagementTracking } from "../lib/analytics";
 import { getExperiment } from "../lib/abtest";
+import { useExperiment } from "@/hooks/useExperiment";
 import { SEO } from "../components/SEO";
 import { NewsletterForm } from "../components/NewsletterForm";
 import { SITE_URL } from "@workspace/site-config";
@@ -272,6 +273,9 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
   useScrollNav();
   useEngagementTracking({ slug: variant.slug, experimentId, variantId });
 
+  const h1Exp = useExperiment("home_h1_framing");
+  const ctaBtnExp = useExperiment("home_cta_button_text");
+
   useEffect(() => {
     trackEvent("page_view", { experiment_id: experimentId, variant_id: variantId });
   }, [experimentId, variantId]);
@@ -303,18 +307,29 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
     return () => io.disconnect();
   }, [experimentId, variantId]);
 
-  const headline = variant.headline || (
-    <>
-      <span className="t1">100 applications.</span>
-      <span className="t2">0 replies.</span>
-      <span className="t3">Here's exactly why.</span>
-    </>
-  );
+  const h1Overrides = h1Exp.overrides as { headline_line1?: string; headline_line2?: string; headline_line3?: string };
+  const ctaBtnOverrides = ctaBtnExp.overrides as { button_text?: string };
+
+  const headline = h1Overrides.headline_line1
+    ? (
+      <>
+        <span className="t1">{h1Overrides.headline_line1}</span>
+        <span className="t2">{h1Overrides.headline_line2}</span>
+        <span className="t3">{h1Overrides.headline_line3}</span>
+      </>
+    )
+    : variant.headline || (
+      <>
+        <span className="t1">100 applications.</span>
+        <span className="t2">0 replies.</span>
+        <span className="t3">Here's exactly why.</span>
+      </>
+    );
 
   const subheadline = variant.subheadline || "Many mid-to-senior and specialist roles are filled through recruiter shortlists before they reach job boards. Get your free Application Silence Score and find out what's blocking your interviews.";
   const eyebrow = variant.eyebrow || "APPLICATION SILENCE SCORE";
   const quote = variant.quote || "That's not bad luck — it's the wrong channel.";
-  const ctaPrimary = variant.cta_primary || "Get Free Autopsy";
+  const ctaPrimary = ctaBtnOverrides.button_text || variant.cta_primary || "Get Free Autopsy";
   const ctaSecondary = variant.cta_secondary || "See How It Works";
 
   return (
@@ -864,8 +879,8 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             <h2 className="disp ctatit r d1" id="ctah">Most candidates aren't getting ignored<br />because they're unqualified.<br /><span className="gr">They're getting ignored because a recruiter<br />can't pitch them in 90 seconds.</span></h2>
             <p className="blg r d2" style={{ maxWidth: "540px", margin: "0 auto 40px" }}>Silence is not random. It is a signal — one you can read, fix, and reverse. The candidates landing calls right now did one thing differently: they stopped guessing.</p>
             <div className="r d3" style={{ display: "flex", justifyContent: "center", gap: "14px", flexWrap: "wrap", flexDirection: "column", alignItems: "center" }}>
-              <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bp" style={{ fontSize: "18px", padding: "18px 36px" }} onClick={() => trackEvent("free_autopsy_click", { location: "final_cta" })}>
-                Claim My Free Autopsy — See What's Blocking You
+              <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bp" style={{ fontSize: "18px", padding: "18px 36px" }} onClick={() => trackEvent("free_autopsy_click", { location: "final_cta", experiment_id: ctaBtnExp.experimentId, variant_id: ctaBtnExp.variantId })}>
+                {ctaPrimary}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
               </a>
               <div className="mt-8 w-full max-w-sm">
