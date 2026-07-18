@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { SEO } from "../components/SEO";
+import logoImg from "@assets/image_1784347309281.png";
 
 const API_BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -236,7 +237,7 @@ export default function AutopsyPage() {
       <header className="hero">
         <div className="wrap">
           <div className="topbar">
-            <a href="/" className="brand">Job<span>Genie</span></a>
+            <a href="/"><img src={logoImg} alt="JobGenie" style={{ height: 36 }} /></a>
             <a href="#autopsy" className="navlink">Get my free Autopsy →</a>
           </div>
 
@@ -461,7 +462,7 @@ export default function AutopsyPage() {
 
       <footer>
         <div className="wrap foot-row">
-          <a href="/" className="brand" style={{ fontSize: 16 }}>Job<span>Genie</span></a>
+          <a href="/"><img src={logoImg} alt="JobGenie" style={{ height: 32 }} /></a>
           <div>
             <a href="/privacy">Privacy</a>
             <a href="/terms">Terms</a>
