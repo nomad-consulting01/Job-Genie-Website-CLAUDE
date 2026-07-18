@@ -273,6 +273,10 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
   useScrollNav();
   useEngagementTracking({ slug: variant.slug, experimentId, variantId });
 
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [resourcesOpen, setResourcesOpen] = useState(false);
+  const [prosOpen, setProsOpen] = useState(false);
+
   const h1Exp = useExperiment("home_h1_framing");
   const ctaBtnExp = useExperiment("home_cta_button_text");
 
@@ -356,7 +360,72 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             </a>
           </li>
         </ul>
+        <button
+          className={`hbg-btn${mobileOpen ? " open" : ""}`}
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen((o) => !o)}
+        >
+          <span /><span /><span />
+        </button>
       </nav>
+
+      {mobileOpen && (
+        <div className="mob-menu" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+          <a href="#how" className="mob-link" onClick={() => setMobileOpen(false)}>How It Works</a>
+          <a href="#truth-layer" className="mob-link" onClick={() => setMobileOpen(false)}>Truth Layer</a>
+          <a href="#feat" className="mob-link" onClick={() => setMobileOpen(false)}>Features</a>
+          <a href="#price" className="mob-link" onClick={() => setMobileOpen(false)}>Pricing</a>
+          <a href="/blog" className="mob-link" onClick={() => setMobileOpen(false)}>Blog</a>
+          <a href="/qa" className="mob-link" onClick={() => setMobileOpen(false)}>FAQ</a>
+
+          <button
+            className={`mob-group-btn${resourcesOpen ? " open" : ""}`}
+            aria-expanded={resourcesOpen}
+            onClick={() => setResourcesOpen((o) => !o)}
+          >
+            Resources
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          {resourcesOpen && (
+            <div className="mob-group-links">
+              <a href="/glossary" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Job Search Glossary</a>
+              <a href="/ghost-jobs" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Ghost Jobs Explained</a>
+              <a href="/why-no-responses-after-100-applications" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Why No Responses?</a>
+              <a href="/job-genie-vs-auto-apply" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Job Genie vs Auto-Apply</a>
+            </div>
+          )}
+
+          <button
+            className={`mob-group-btn${prosOpen ? " open" : ""}`}
+            aria-expanded={prosOpen}
+            onClick={() => setProsOpen((o) => !o)}
+          >
+            For Professionals
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          {prosOpen && (
+            <div className="mob-group-links">
+              <a href="/for/mid-career-professionals" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Mid-Career Professionals</a>
+              <a href="/for/senior-engineers" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Senior Engineers</a>
+              <a href="/for/career-changers" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Career Changers</a>
+            </div>
+          )}
+
+          <a
+            href="https://modular-pipeline.replit.app/?upload=true"
+            className="btn bg"
+            style={{ color: "var(--wh)", marginTop: "8px", textAlign: "center" }}
+            onClick={() => { setMobileOpen(false); trackEvent("free_autopsy_click", { location: "mob_nav" }); }}
+          >
+            {ctaPrimary}
+          </a>
+        </div>
+      )}
 
       <section className="hero">
         <div className="hbg">
