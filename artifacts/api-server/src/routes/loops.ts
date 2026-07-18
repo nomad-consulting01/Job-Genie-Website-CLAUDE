@@ -214,7 +214,39 @@ router.post("/voice-loop/dry-run", async (_req, res) => {
 });
 
 router.get("/voice-loop/status", (_req, res) => {
-  res.json({ running: voiceLoopDryRunRunning });
+  res.json({ running: voiceLoopDryRunRunning, metricsRunning: voiceLoopMetricsRunning });
+});
+
+let voiceLoopMetricsRunning = false;
+
+/**
+ * Manually trigger the Voice Loop daily metrics pipeline (Stations ①②③):
+ *   ① FB metrics ingest  → fb-metrics-daily.json
+ *   ② Attribution join   → variant-attribution.json
+ *   ③ Ledger update      → voice-ledger.json
+ *
+ * Normally runs at 8 AM via the scheduler. This endpoint lets admins run it on demand
+ * after linking a real FB post_id so the bandit learns without waiting for 8 AM.
+ */
+router.post("/voice-loop/metrics/run", async (_req, res) => {
+  if (voiceLoopMetricsRunning) {
+    res.status(409).json({ error: "Voice Loop metrics pipeline is already running" });
+    return;
+  }
+  voiceLoopMetricsRunning = true;
+  res.json({ message: "Voice Loop metrics pipeline (Stations ①②③) triggered — running in background", status: "started" });
+
+  setImmediate(async () => {
+    try {
+      const { runDailyMetricsPipeline } = await import("../loops/voice-loop/index.js");
+      const result = await runDailyMetricsPipeline();
+      logger.info({ result }, "Manual Voice Loop metrics pipeline completed");
+    } catch (err) {
+      logger.error({ err }, "Manual Voice Loop metrics pipeline failed");
+    } finally {
+      voiceLoopMetricsRunning = false;
+    }
+  });
 });
 
 router.post("/scrape-listings/run", async (req, res) => {

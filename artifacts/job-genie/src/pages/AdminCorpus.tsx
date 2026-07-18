@@ -87,6 +87,8 @@ interface VoiceVariantAsset {
     rejectReason?: string;
     guardrail?: { passed: boolean; failReasons: string[] };
     editedAt?: string;
+    facebookPostId?: string;
+    publishedAt?: string;
   } | null;
 }
 
@@ -540,6 +542,10 @@ export default function AdminCorpus() {
   const [selectedBlogPostId, setSelectedBlogPostId] = useState<string>("");
   const [voiceGenerating, setVoiceGenerating] = useState(false);
   const [voiceGenerateStatus, setVoiceGenerateStatus] = useState<string | null>(null);
+  const [linkFbPostId, setLinkFbPostId] = useState<Record<number, string>>({});
+  const [linkFbLinking, setLinkFbLinking] = useState<Record<number, boolean>>({});
+  const [voiceMetricsRunning, setVoiceMetricsRunning] = useState(false);
+  const [voiceMetricsStatus, setVoiceMetricsStatus] = useState<string | null>(null);
 
   // Blog marketing (Meta Ads + Instagram) state
   const [blogMarketing, setBlogMarketing] = useState<Record<string, BlogMarketing>>({});
@@ -776,6 +782,46 @@ export default function AdminCorpus() {
       setVoiceDryRunStatus("Error triggering dry-run");
     } finally {
       setVoiceDryRunning(false);
+    }
+  };
+
+  const linkFbPost = async (assetId: number) => {
+    const fbId = (linkFbPostId[assetId] ?? "").trim();
+    if (!fbId) { alert("Paste the Facebook post ID first"); return; }
+    setLinkFbLinking((p) => ({ ...p, [assetId]: true }));
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/voice-variants/${assetId}/link-fb-post`, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify({ fbPostId: fbId }),
+      });
+      const d = await r.json() as { error?: string; facebookPostId?: string };
+      if (!r.ok) { setVoiceActionStatus((p) => ({ ...p, [assetId]: `Error linking: ${d.error ?? "Unknown"}` })); return; }
+      setVoiceActionStatus((p) => ({ ...p, [assetId]: `✅ FB post ID linked: ${d.facebookPostId}` }));
+      setLinkFbPostId((p) => ({ ...p, [assetId]: "" }));
+      await fetchVoiceVariants();
+    } catch {
+      setVoiceActionStatus((p) => ({ ...p, [assetId]: "Network error linking FB post ID" }));
+    } finally {
+      setLinkFbLinking((p) => ({ ...p, [assetId]: false }));
+    }
+  };
+
+  const triggerVoiceMetricsPipeline = async () => {
+    setVoiceMetricsRunning(true);
+    setVoiceMetricsStatus("Running Stations ①②③ (FB metrics → attribution → ledger)…");
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/loops/voice-loop/metrics/run`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const d = await r.json() as { message?: string; error?: string };
+      if (!r.ok) { setVoiceMetricsStatus(`Error: ${d.error ?? r.statusText}`); return; }
+      setVoiceMetricsStatus(`✅ ${d.message ?? "Metrics pipeline started"} — check logs for results.`);
+    } catch {
+      setVoiceMetricsStatus("Network error triggering metrics pipeline");
+    } finally {
+      setVoiceMetricsRunning(false);
     }
   };
 
@@ -1708,6 +1754,14 @@ export default function AdminCorpus() {
                   {voiceDryRunning ? "Running dry-run…" : "▶ Trigger Dry-Run (no publish)"}
                 </button>
                 <button
+                  onClick={triggerVoiceMetricsPipeline}
+                  disabled={voiceMetricsRunning}
+                  className="text-sm bg-teal-900/30 hover:bg-teal-900/50 text-teal-300 border border-teal-700/30 px-4 py-2 rounded-lg disabled:opacity-50"
+                  title="Runs Stations ①②③: FB metrics ingest → attribution join → bandit ledger update"
+                >
+                  {voiceMetricsRunning ? "Running pipeline…" : "⚡ Run Metrics Pipeline (①②③)"}
+                </button>
+                <button
                   onClick={fetchVoiceVariants}
                   className="text-sm bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 px-4 py-2 rounded-lg"
                 >
@@ -1715,6 +1769,7 @@ export default function AdminCorpus() {
                 </button>
               </div>
               {voiceDryRunStatus && <p className="mt-3 text-xs text-purple-300 bg-purple-900/10 rounded-lg p-2 border border-purple-700/20">{voiceDryRunStatus}</p>}
+              {voiceMetricsStatus && <p className="mt-2 text-xs text-teal-300 bg-teal-900/10 rounded-lg p-2 border border-teal-700/20">{voiceMetricsStatus}</p>}
             </div>
 
             {/* Approver input — sticky */}
@@ -1885,6 +1940,57 @@ export default function AdminCorpus() {
                     )}
                     {p.editedAt && <p className="text-xs text-blue-400/60 mt-1">Edited {new Date(p.editedAt).toLocaleString()}</p>}
                   </div>
+
+                  {/* Published variant — FB post ID status + linking UI */}
+                  {row.asset.status === "published" && (
+                    <div className="px-5 py-3 border-t border-white/8">
+                      {p?.facebookPostId ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-xs text-green-400">
+                            ✅ FB post linked:&nbsp;
+                            <a
+                              href={`https://www.facebook.com/${p.facebookPostId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="underline hover:text-green-300 font-mono"
+                            >
+                              {p.facebookPostId}
+                            </a>
+                          </span>
+                          <span className="text-xs text-gray-500">— Station ① will ingest metrics on next pipeline run</span>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <p className="text-xs text-amber-400 font-medium">
+                            ⚠ No Facebook post ID linked — bandit cannot learn from this variant yet.
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Paste the real Facebook post ID below (e.g.&nbsp;<span className="font-mono text-gray-400">123456789_987654321</span>).
+                            Find it in Facebook Page Insights or from the post URL.
+                          </p>
+                          <div className="flex flex-wrap gap-2 items-center">
+                            <input
+                              type="text"
+                              placeholder="Facebook post_id (e.g. 123456789_987654321)"
+                              value={linkFbPostId[assetId] ?? ""}
+                              onChange={(e) => setLinkFbPostId((prev) => ({ ...prev, [assetId]: e.target.value }))}
+                              className="flex-1 min-w-48 bg-white/5 border border-amber-700/40 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-amber-400 font-mono"
+                            />
+                            <button
+                              onClick={() => void linkFbPost(assetId)}
+                              disabled={linkFbLinking[assetId] || !(linkFbPostId[assetId] ?? "").trim()}
+                              className="text-xs bg-amber-700 hover:bg-amber-800 text-white px-3 py-1.5 rounded-lg font-semibold disabled:opacity-50 whitespace-nowrap"
+                            >
+                              {linkFbLinking[assetId] ? "Linking…" : "🔗 Link FB Post ID"}
+                            </button>
+                          </div>
+                          <p className="text-xs text-gray-500">
+                            After linking, click <strong className="text-teal-300">⚡ Run Metrics Pipeline (①②③)</strong> above to update the bandit ledger immediately.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Actions */}
                   {row.asset.status !== "rejected" && row.asset.status !== "published" && (

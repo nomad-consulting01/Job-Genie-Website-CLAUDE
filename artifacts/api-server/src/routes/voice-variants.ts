@@ -526,4 +526,83 @@ router.post("/run-fb-metrics", async (_req, res) => {
   });
 });
 
+/**
+ * Link a real Facebook post_id to a published voice variant.
+ * Used when the automatic FB post failed at publish time and the admin posted manually,
+ * or when FB creds were absent so a pending:${variantId} placeholder was written instead.
+ *
+ * Updates:
+ *   1. contentAssets.payloadJson.facebookPostId in the DB
+ *   2. The matching entry in data/published-variants.json (replaces any pending: prefix)
+ *   3. engagementMetricsJson on the blog post asset (so Loop 4 duplicate guard fires correctly)
+ */
+router.patch("/:variantAssetId/link-fb-post", async (req, res) => {
+  try {
+    const variantAssetId = parseInt(req.params["variantAssetId"] ?? "0");
+    const { fbPostId } = req.body as { fbPostId?: string };
+
+    if (!fbPostId || !fbPostId.trim()) {
+      res.status(400).json({ error: "fbPostId is required" });
+      return;
+    }
+    const trimmedPostId = fbPostId.trim();
+
+    const asset = await getContentAssetById(variantAssetId);
+    if (!asset || asset.channel !== "voice_variant") {
+      res.status(404).json({ error: "Voice variant not found" });
+      return;
+    }
+    if (asset.status !== "published") {
+      res.status(400).json({ error: "Only published variants can have an FB post ID linked" });
+      return;
+    }
+
+    const payload = (asset.payloadJson ?? {}) as Record<string, unknown>;
+    const variantId = payload["variantId"] as string | undefined;
+    const blogPostAssetId = payload["blogPostAssetId"] as number | undefined;
+
+    /** 1. Stamp facebookPostId into the DB asset payload. */
+    await db
+      .update(contentAssets)
+      .set({
+        payloadJson: {
+          ...payload,
+          facebookPostId: trimmedPostId,
+        },
+      })
+      .where(eq(contentAssets.id, variantAssetId));
+
+    /** 2. Update published-variants.json — replace pending: placeholder or overwrite stale id. */
+    if (variantId) {
+      const pvFile = readPublishedVariants();
+      const idx = pvFile.entries.findIndex((e) => e.variant_id === variantId);
+      if (idx >= 0) {
+        pvFile.entries[idx] = { ...pvFile.entries[idx], post_id: trimmedPostId };
+        pvFile.lastUpdatedAt = new Date().toISOString();
+        writePublishedVariants(pvFile);
+        logger.info({ variantId, trimmedPostId }, "link-fb-post: published-variants.json updated");
+      } else {
+        logger.warn({ variantId }, "link-fb-post: no entry found in published-variants.json for this variant — was publish() called?");
+      }
+    }
+
+    /** 3. Mark blog post facebook-shared so Loop 4 doesn't re-distribute. */
+    if (blogPostAssetId) {
+      try {
+        await markBlogPostFacebookShared(blogPostAssetId, trimmedPostId);
+        logger.info({ blogPostAssetId, trimmedPostId }, "link-fb-post: blog post marked facebook-shared");
+      } catch (markErr) {
+        logger.warn({ err: markErr }, "link-fb-post: failed to mark blog post facebook-shared — continuing");
+      }
+    }
+
+    logger.info({ variantAssetId, variantId, trimmedPostId }, "Voice variant FB post ID linked");
+    res.json({ ok: true, variantAssetId, variantId, facebookPostId: trimmedPostId });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    logger.error({ err: msg }, "PATCH /voice-variants/:id/link-fb-post failed");
+    res.status(500).json({ error: msg });
+  }
+});
+
 export default router;
