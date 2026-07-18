@@ -1,5 +1,8 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
+import { readFileSync } from "fs";
+import { join } from "path";
 import { getDb } from "../db/sqlite.js";
+
 
 const router = Router();
 
@@ -458,6 +461,126 @@ router.get("/export/metrics.csv", (_req, res) => {
   res.setHeader("Content-Type", "text/csv");
   res.setHeader("Content-Disposition", "attachment; filename=metrics.csv");
   return res.send(csv);
+});
+
+router.get("/experiment-results", (_req, res) => {
+  const db = getDb();
+
+  interface ExperimentConfig {
+    id: string;
+    name: string;
+    status: string;
+    primary_metric: string;
+    min_sample_per_variant: number;
+    variants: Array<{ id: string; name: string; weight: number }>;
+  }
+
+  let experiments: ExperimentConfig[] = [];
+  try {
+    const configPath = join(process.cwd(), "../../content/ab-tests.json");
+    const raw = readFileSync(configPath, "utf-8");
+    const config = JSON.parse(raw) as { experiments?: ExperimentConfig[] };
+    experiments = (config.experiments ?? []).filter((e) => e.status === "active");
+  } catch {
+    return res.status(500).json({ error: "Failed to read ab-tests.json" });
+  }
+
+  const METRIC_EVENTS: Record<string, string[]> = {
+    cta_click_rate: [
+      "free_autopsy_click", "hero_cta_click", "secondary_cta_click",
+      "truth_layer_cta_click", "pricing_cta_click",
+    ],
+    faq_expansion_rate: ["faq_open"],
+    scroll_depth_50: ["scroll_50"],
+  };
+
+  function zScore(n1: number, c1: number, n2: number, c2: number): number | null {
+    if (n1 < 1 || n2 < 1) return null;
+    const p1 = c1 / n1;
+    const p2 = c2 / n2;
+    const pPool = (c1 + c2) / (n1 + n2);
+    const se = Math.sqrt(pPool * (1 - pPool) * (1 / n1 + 1 / n2));
+    if (se === 0) return null;
+    return Math.abs((p1 - p2) / se);
+  }
+
+  const results = experiments.map((exp) => {
+    const min = exp.min_sample_per_variant ?? 0;
+    const metricEvents = METRIC_EVENTS[exp.primary_metric] ?? METRIC_EVENTS.cta_click_rate;
+    const placeholders = metricEvents.map(() => "?").join(",");
+
+    // Impressions: distinct visitors per variant who received this experiment assignment
+    const impressionRows = db.prepare(
+      `SELECT variant_id, COUNT(DISTINCT visitor_id) AS impressions
+       FROM conversion_events
+       WHERE event_name = 'experiment_assigned' AND experiment_id = ?
+         AND visitor_id IS NOT NULL
+       GROUP BY variant_id`
+    ).all(exp.id) as unknown as Array<{ variant_id: string; impressions: number }>;
+
+    const impressionMap = new Map<string, number>();
+    for (const r of impressionRows) impressionMap.set(r.variant_id, Number(r.impressions));
+
+    // Conversions: visitors in each variant who also fired the primary-metric event
+    // on the same page_slug as their assignment (prevents cross-page contamination).
+    // Within-page contamination from concurrent experiments on the same page is a
+    // separate concern addressed by limiting concurrent experiments.
+    const conversionRows = db.prepare(
+      `SELECT ea.variant_id, COUNT(DISTINCT ea.visitor_id) AS conversions
+       FROM conversion_events ea
+       INNER JOIN conversion_events ce
+         ON ce.visitor_id = ea.visitor_id
+        AND ce.event_name IN (${placeholders})
+        AND ce.page_slug = ea.page_slug
+       WHERE ea.event_name = 'experiment_assigned'
+         AND ea.experiment_id = ?
+         AND ea.visitor_id IS NOT NULL
+       GROUP BY ea.variant_id`
+    ).all(...metricEvents, exp.id) as unknown as Array<{ variant_id: string; conversions: number }>;
+
+    const conversionMap = new Map<string, number>();
+    for (const r of conversionRows) conversionMap.set(r.variant_id, Number(r.conversions));
+
+    const variantData = exp.variants.map((v) => {
+      const impressions = impressionMap.get(v.id) ?? 0;
+      const metricCount = conversionMap.get(v.id) ?? 0;
+      return {
+        variant_id: v.id,
+        variant_name: v.name,
+        weight: v.weight,
+        impressions,
+        metric_count: metricCount,
+        rate: impressions > 0 ? parseFloat(((metricCount / impressions) * 100).toFixed(2)) : 0,
+      };
+    });
+
+    const control = variantData.find((v) => v.variant_id === "control");
+    const withSig = variantData.map((v) => {
+      if (!control || v.variant_id === "control") {
+        return { ...v, z_score: null as number | null, significant: false };
+      }
+      if (control.impressions < min || v.impressions < min) {
+        return { ...v, z_score: null as number | null, significant: false };
+      }
+      const z = zScore(control.impressions, control.metric_count, v.impressions, v.metric_count);
+      return {
+        ...v,
+        z_score: z !== null ? parseFloat(z.toFixed(2)) : null,
+        significant: z !== null && z >= 1.96,
+      };
+    });
+
+    return {
+      experiment_id: exp.id,
+      experiment_name: exp.name,
+      primary_metric: exp.primary_metric,
+      min_sample_per_variant: min,
+      min_sample_met: variantData.every((v) => v.impressions >= min),
+      variants: withSig,
+    };
+  });
+
+  return res.json({ experiments: results });
 });
 
 export default router;
