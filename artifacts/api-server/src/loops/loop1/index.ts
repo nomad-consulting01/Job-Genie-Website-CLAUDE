@@ -3,6 +3,8 @@ import { processQuestion } from "./answer.js";
 import { startLoopRun, finishLoopRun, listQuestions } from "../../corpus/db.js";
 import { engineConfig } from "../../config/engine.js";
 import { logger } from "../../lib/logger.js";
+import { pingGoogleSitemap } from "../../lib/google-ping.js";
+import { invalidateSitemapCache } from "../../routes/sitemap.js";
 
 export interface Loop1RunResult {
   runId: number;
@@ -80,6 +82,11 @@ export async function run(): Promise<Loop1RunResult> {
       status: errors.length > 0 ? "completed_with_errors" : "completed",
       error: errors.length > 0 ? errors.join("; ") : undefined,
     });
+
+    if (passed > 0) {
+      invalidateSitemapCache();
+      pingGoogleSitemap();
+    }
 
     logger.info(
       { runId: run_.id, passed, failed, cost: costEstimate },
