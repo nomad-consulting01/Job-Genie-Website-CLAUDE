@@ -43,19 +43,39 @@ export async function runAttribution(opts: { dryRun?: boolean } = {}): Promise<A
   }
 
   for (const published of publishedFile.entries) {
-    const { post_id, variant_id, voice_id, hook_type } = published;
+    const { post_id, variant_id, voice_id, hook_type, instagram_post_id } = published;
 
-    const metrics = metricsByPost.get(post_id);
-    if (!metrics) {
-      logger.debug({ post_id }, "Voice Loop Station ②: no FB metrics for post — skipping attribution");
+    /** Try Facebook metrics first; fall back to Instagram metrics when absent. */
+    const fbMetrics = metricsByPost.get(post_id);
+    const igMetrics = instagram_post_id ? metricsByPost.get(instagram_post_id) : undefined;
+
+    if (!fbMetrics && !igMetrics) {
+      logger.debug({ post_id, instagram_post_id }, "Voice Loop Station ②: no FB or IG metrics for post — skipping attribution");
       entriesSkipped++;
       continue;
     }
 
-    const reach = metrics["post_impressions_unique"] ?? metrics["page_impressions_unique"] ?? 0;
-    const impressions = metrics["post_impressions"] ?? metrics["page_impressions"] ?? 0;
-    const engagements = metrics["post_engaged_users"] ?? metrics["page_post_engagements"] ?? 0;
-    const link_clicks = metrics["post_clicks"] ?? 0;
+    let reach: number;
+    let impressions: number;
+    let engagements: number;
+    let link_clicks: number;
+    let channel: "facebook" | "instagram";
+
+    if (fbMetrics) {
+      reach = fbMetrics["post_impressions_unique"] ?? fbMetrics["page_impressions_unique"] ?? 0;
+      impressions = fbMetrics["post_impressions"] ?? fbMetrics["page_impressions"] ?? 0;
+      engagements = fbMetrics["post_engaged_users"] ?? fbMetrics["page_post_engagements"] ?? 0;
+      link_clicks = fbMetrics["post_clicks"] ?? 0;
+      channel = "facebook";
+    } else {
+      /** IG metrics are stored with "ig_" prefix by Station ①. */
+      reach = igMetrics!["ig_reach"] ?? 0;
+      impressions = igMetrics!["ig_impressions"] ?? 0;
+      engagements = igMetrics!["ig_total_interactions"] ?? 0;
+      link_clicks = 0; // Instagram media insights do not surface link-click counts
+      channel = "instagram";
+      logger.debug({ post_id, instagram_post_id }, "Voice Loop Station ②: no FB metrics — attributing from Instagram signal");
+    }
 
     const meetGate = impressions >= MIN_IMPRESSIONS_GATE;
     if (!meetGate) belowGate++;
@@ -78,6 +98,8 @@ export async function runAttribution(opts: { dryRun?: boolean } = {}): Promise<A
       engagement_rate,
       meets_impressions_gate: meetGate,
       attributedAt: new Date().toISOString(),
+      channel,
+      ...(channel === "instagram" && instagram_post_id ? { instagram_post_id } : {}),
     };
 
     /** Upsert: overwrite stale attribution for same post_id so reruns recompute correctly. */

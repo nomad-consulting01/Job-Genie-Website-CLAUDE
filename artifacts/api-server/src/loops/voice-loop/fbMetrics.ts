@@ -1,5 +1,5 @@
 import { logger } from "../../lib/logger.js";
-import { readFbMetrics, writeFbMetrics } from "./fileStore.js";
+import { readFbMetrics, writeFbMetrics, readPublishedVariants } from "./fileStore.js";
 import type { FbMetricRow } from "./types.js";
 
 const FB_GRAPH_VERSION = process.env["FB_GRAPH_API_VERSION"] ?? "v19.0";
@@ -20,6 +20,11 @@ const DEFAULT_POST_METRICS = [
   "post_clicks",
   "post_reactions_by_type_total",
 ];
+
+/** Instagram media-level metrics fetched for every published variant that has an instagram_post_id.
+ *  Stored with an "ig_" prefix so they are distinct from FB metric names in the same file. */
+const DEFAULT_IG_METRICS = ["impressions", "reach", "total_interactions"];
+const IG_METRICS = resolveMetrics("IG_POST_METRICS", DEFAULT_IG_METRICS);
 
 /** Read metric lists from env so operators can update without a redeploy. */
 function resolveMetrics(envKey: string, defaults: string[]): string[] {
@@ -253,6 +258,83 @@ export async function runFbMetricsIngest(
         }
       }
     }
+  }
+
+  /** ── Instagram post-level insights ──────────────────────────────────────────
+   *  For every published variant that has an instagram_post_id, fetch media
+   *  insights from the Instagram Graph API endpoint.  The same Page Access Token
+   *  is used — it must belong to a Facebook Page connected to an IG Business /
+   *  Creator account.
+   *
+   *  Metrics are stored with an "ig_" prefix so they are unambiguously distinct
+   *  from FB metric names in the shared fb-metrics-daily.json file, and the
+   *  post_id stored is the instagram_post_id (not the FB post_id).
+   */
+  const publishedFile = readPublishedVariants();
+  const igPostIds = Array.from(
+    new Set(
+      publishedFile.entries
+        .map((e) => e.instagram_post_id)
+        .filter((id): id is string => Boolean(id))
+    )
+  );
+
+  let igRowsWritten = 0;
+  let igRowsSkipped = 0;
+
+  if (igPostIds.length > 0) {
+    /** Validate IG metrics against the first post ID before looping. */
+    const workingIgMetrics = await resolveWorkingMetrics(
+      IG_METRICS,
+      `${igPostIds[0]}/insights`,
+      {},
+      token,
+      missingPermissions
+    );
+
+    for (const igPostId of igPostIds) {
+      if (workingIgMetrics.length === 0) break;
+
+      const igResult = await graphGet(`${igPostId}/insights`, {
+        metric: workingIgMetrics.join(","),
+      }, token);
+
+      if (igResult.error) {
+        if (isPermissionError(igResult.error)) {
+          missingPermissions.push(`ig_post_insights(${igPostId}): ${igResult.error.message}`);
+          logger.warn({ igPostId, err: igResult.error.message }, "Voice Loop Station ①: missing IG post_insights permission");
+        } else {
+          errors.push(`ig_post_insights(${igPostId}): ${igResult.error.message}`);
+          logger.warn({ igPostId, err: igResult.error.message }, "Voice Loop Station ①: IG post insights error");
+        }
+        continue;
+      }
+
+      if (Array.isArray(igResult.data)) {
+        for (const item of igResult.data as Array<{ name: string; values?: Array<{ value: number; end_time?: string }> }>) {
+          const val = item.values?.[0]?.value ?? 0;
+          const row: FbMetricRow = {
+            post_id: igPostId,
+            metric: `ig_${item.name}`,
+            date: today,
+            value: typeof val === "number" ? val : 0,
+            ingestedAt: now,
+            channel: "instagram",
+          };
+          const result = upsertRow(row);
+          if (result === "written") igRowsWritten++; else igRowsSkipped++;
+        }
+      }
+    }
+
+    logger.info(
+      { igPostIds: igPostIds.length, igRowsWritten, igRowsSkipped },
+      "Voice Loop Station ①: Instagram metrics ingest complete"
+    );
+    rowsWritten += igRowsWritten;
+    rowsSkipped += igRowsSkipped;
+  } else {
+    logger.debug("Voice Loop Station ①: no instagram_post_ids found in published variants — skipping IG ingest");
   }
 
   file.lastIngestAt = now;

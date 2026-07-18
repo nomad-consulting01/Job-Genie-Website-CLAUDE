@@ -37,6 +37,8 @@ export interface FbMetricRow {
   date: string;
   value: number;
   ingestedAt: string;
+  /** Which platform produced this row. Defaults to "facebook" when absent (backwards-compatible). */
+  channel?: "facebook" | "instagram";
 }
 
 export interface FbMetricsFile {
@@ -62,6 +64,10 @@ export interface AttributionEntry {
   engagement_rate: number;
   meets_impressions_gate: boolean;
   attributedAt: string;
+  /** Which platform's metrics were used for attribution. */
+  channel?: "facebook" | "instagram";
+  /** Instagram post ID if IG metrics were used. */
+  instagram_post_id?: string;
 }
 
 export interface AttributionFile {
