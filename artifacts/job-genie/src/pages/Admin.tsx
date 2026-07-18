@@ -2,6 +2,18 @@ import { useEffect, useState, useCallback } from "react";
 import { useLocation } from "wouter";
 import { trackEvent } from "../lib/analytics";
 import experimentsData from "../data/experiments.json";
+import geoScoresData from "../data/geo-scores.json";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  ReferenceLine,
+} from "recharts";
 
 interface ReactorPost {
   post_id: string;
@@ -216,6 +228,90 @@ export default function Admin() {
               </div>
             </div>
           )}
+        </section>
+
+        {/* GEO Score Trend */}
+        <section className="space-y-4">
+          <div className="border-b border-zinc-800 pb-2">
+            <h2 className="text-xl font-semibold text-white">GEO Score Trend</h2>
+            <p className="text-sm text-zinc-500 mt-0.5">
+              Monthly AI citation score (0–5). Target: 5/5 by month 6 (Nov 2026).
+            </p>
+          </div>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart
+                data={geoScoresData.months.map((m) => ({
+                  label: m.label,
+                  score: m.score,
+                  target: Math.round(((m.month - 1) / (geoScoresData.targetMonth - 1)) * geoScoresData.target * 10) / 10,
+                }))}
+                margin={{ top: 10, right: 20, left: -10, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fill: "#71717a", fontSize: 12 }}
+                  axisLine={{ stroke: "#3f3f46" }}
+                  tickLine={false}
+                />
+                <YAxis
+                  domain={[0, 5]}
+                  ticks={[0, 1, 2, 3, 4, 5]}
+                  tick={{ fill: "#71717a", fontSize: 12 }}
+                  axisLine={{ stroke: "#3f3f46" }}
+                  tickLine={false}
+                  tickFormatter={(v) => `${v}/5`}
+                />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: "8px", color: "#f4f4f5" }}
+                  labelStyle={{ color: "#a1a1aa", marginBottom: "4px", fontWeight: 600 }}
+                  formatter={(value: any, name: string) => {
+                    if (name === "Actual Score") return value !== null ? [`${value}/5`, name] : ["Scheduled", name];
+                    return [`${value}/5`, name];
+                  }}
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: "13px", paddingTop: "16px" }}
+                  formatter={(value) => <span style={{ color: "#a1a1aa" }}>{value}</span>}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="target"
+                  name="Target (5/5 by M6)"
+                  stroke="#3f3f46"
+                  strokeDasharray="5 4"
+                  strokeWidth={1.5}
+                  dot={false}
+                  activeDot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="score"
+                  name="Actual Score"
+                  stroke="#10b981"
+                  strokeWidth={2.5}
+                  dot={{ r: 5, fill: "#10b981", strokeWidth: 0 }}
+                  activeDot={{ r: 7, fill: "#34d399", strokeWidth: 0 }}
+                  connectNulls={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+            <div className="mt-4 grid grid-cols-3 gap-4 border-t border-zinc-800 pt-4">
+              {geoScoresData.months.filter((m) => m.score !== null).map((m) => (
+                <div key={m.month} className="space-y-0.5">
+                  <p className="text-xs text-zinc-500">{m.label}</p>
+                  <p className="text-lg font-bold text-emerald-400">{m.score}/5</p>
+                </div>
+              ))}
+              {geoScoresData.months.filter((m) => m.score !== null).length === 0 && (
+                <p className="text-xs text-zinc-500 col-span-3">No completed probes yet.</p>
+              )}
+            </div>
+            <p className="text-xs text-zinc-600 mt-3">
+              Source: <code className="text-zinc-500">docs/geo-probe-log.md</code> — update <code className="text-zinc-500">src/data/geo-scores.json</code> after each monthly probe.
+            </p>
+          </div>
         </section>
 
         {/* Experiments */}
