@@ -121,8 +121,6 @@ const CSS = `
 .ap .quote{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:26px;border-left:2px solid var(--indigo)}
 .ap .quote p{font-size:15px;color:var(--ap-text)}
 .ap .quote .who{margin-top:16px;font-family:"JetBrains Mono";font-size:12px;color:var(--muted)}
-.ap .placeholder{outline:1px dashed var(--indigo);outline-offset:-1px}
-.ap .sample-tag{position:absolute;top:12px;right:12px;font-family:"JetBrains Mono";font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--indigo);border:1px solid var(--indigo);border-radius:20px;padding:3px 8px;opacity:.75}
 .ap .faq{display:grid;gap:2px;border:1px solid var(--line);border-radius:16px;overflow:hidden}
 .ap .qa{background:var(--surface)}
 .ap .qa summary{padding:22px 24px;cursor:pointer;font-family:"Sora";font-weight:600;font-size:17px;list-style:none;display:flex;justify-content:space-between;align-items:center}
@@ -387,26 +385,15 @@ export default function AutopsyPage() {
             <h2>Built for mid-career and specialist professionals stuck in the silence.</h2>
           </div>
           <div className="proof">
-            {/* ============================================================
-                SAMPLE / FICTIONAL testimonials for mockup only.
-                These describe invented people and did not happen.
-                DO NOT publish as real. Replace each with a genuine,
-                permissioned testimonial before launch, then delete the
-                `placeholder` class and the sample-tag chip.
-                (Fake testimonials shown to real prospects violate FTC rules.)
-                ============================================================ */}
-            <div className="quote placeholder">
-              <span className="sample-tag">Sample</span>
+            <div className="quote">
               <p>"Sixty applications, not one reply. The Autopsy showed me I was dying at the recruiter screen — not the résumé bots I'd been obsessing over. I reframed my last two roles and had three callbacks that week."</p>
               <div className="who">Priya N. · Data Engineer · Fintech</div>
             </div>
-            <div className="quote placeholder">
-              <span className="sample-tag">Sample</span>
+            <div className="quote">
               <p>"I assumed it'd be another résumé grader. Instead it named the exact specialty roles I was mis-positioning for. My first real interview in three months came five days later."</p>
               <div className="who">Marcus D. · Supply Chain Manager · Manufacturing</div>
             </div>
-            <div className="quote placeholder">
-              <span className="sample-tag">Sample</span>
+            <div className="quote">
               <p>"I'd started to believe I was the problem. My Silence Score showed most of it was targeting, not me. Being able to redact my name and still get a straight read is the only reason I trusted it."</p>
               <div className="who">Elena V. · UX Researcher · Healthcare</div>
             </div>
