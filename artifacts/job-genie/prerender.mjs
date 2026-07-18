@@ -31,6 +31,7 @@ const ROUTES = [
   '/terms',
   '/privacy',
   '/data-deletion',
+  '/free-autopsy',
 ];
 
 async function main() {
