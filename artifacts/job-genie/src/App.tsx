@@ -18,6 +18,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DataDeletion from "./pages/DataDeletion";
 import AutopsyPage from "./pages/AutopsyPage";
+import ResourcesPage from "./pages/ResourcesPage";
 import "./styles/brand.css";
 
 const queryClient = new QueryClient();
@@ -52,6 +53,8 @@ function Router() {
       {/* GEO answer pages */}
       <Route path="/answers" component={AnswerIndex} />
       <Route path="/answers/:slug" component={AnswerPage} />
+      {/* Resources hub — must be before /:slug wildcard */}
+      <Route path="/resources" component={ResourcesPage} />
       {/* Standalone landing pages — must be before /:slug wildcard */}
       <Route path="/free-autopsy" component={AutopsyPage} />
       {/* Legal pages */}

@@ -21,6 +21,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const ROUTES = [
   '/',
+  '/resources',
   '/why-no-responses-after-100-applications',
   '/ghost-jobs',
   '/glossary',

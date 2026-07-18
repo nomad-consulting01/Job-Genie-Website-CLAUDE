@@ -11,6 +11,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import Home from './pages/Home';
 import LandingPage from './pages/LandingPage';
 import AEOPage from './pages/AEOPage';
+import ResourcesPage from './pages/ResourcesPage';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import DataDeletion from './pages/DataDeletion';
@@ -89,6 +90,13 @@ const AEO_ROUTES: Record<string, RouteHead> = {
     canonical: `${SITE_URL}/job-genie-vs-auto-apply`,
     robots: 'index, follow',
     aeoQuestion: 'Should I use an AI auto-apply tool to send hundreds of job applications?',
+  },
+  '/resources': {
+    title: 'Job Search Resources & Guides | Job Genie',
+    description: 'All Job Genie educational guides in one place — Application Silence, ghost jobs, glossary, career-changer advice, and more. Start here.',
+    canonical: `${SITE_URL}/resources`,
+    robots: 'index, follow',
+    aeoQuestion: 'Where can I find all the Job Genie job search guides?',
   },
   '/terms': {
     title: 'Terms of Service | Job Genie',
@@ -482,6 +490,7 @@ export function render(url: string): string {
             <Route path="/job-genie-vs-auto-apply">
               {() => <AEOPage slug="job-genie-vs-auto-apply" />}
             </Route>
+            <Route path="/resources" component={ResourcesPage} />
             <Route path="/terms" component={TermsOfService} />
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/data-deletion" component={DataDeletion} />

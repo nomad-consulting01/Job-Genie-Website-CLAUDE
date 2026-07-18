@@ -74,6 +74,7 @@ function PageNav() {
       <ul className="nlinks">
         <li><Link href="/#how">How It Works</Link></li>
         <li><Link href="/#feat">Features</Link></li>
+        <li><Link href="/resources">Resources</Link></li>
         <li><Link href="/glossary">Glossary</Link></li>
         <li><Link href="/blog">Blog</Link></li>
         <li><Link href="/qa">FAQ</Link></li>
@@ -105,6 +106,7 @@ function PageFooter({ page }: { page: LandingPage }) {
           </div>
           <nav className="footlk" aria-label="Footer navigation">
             <Link href="/">Home</Link>
+            <Link href="/resources">All Resources</Link>
             <Link href="/why-no-responses-after-100-applications">Application Silence</Link>
             <Link href="/ghost-jobs">Ghost Jobs</Link>
             <Link href="/glossary">Glossary</Link>

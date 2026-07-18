@@ -391,6 +391,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           </button>
           {resourcesOpen && (
             <div className="mob-group-links">
+              <a href="/resources" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>All Guides (Start Here)</a>
               <a href="/glossary" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Job Search Glossary</a>
               <a href="/ghost-jobs" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Ghost Jobs Explained</a>
               <a href="/why-no-responses-after-100-applications" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Why No Responses?</a>
@@ -992,6 +993,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             </nav>
             <nav className="footlk" aria-label="Resources navigation">
               <span style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--w40, rgba(255,255,255,0.4))", display: "block", marginBottom: "4px" }}>Resources</span>
+              <a href="/resources">All Guides (Start Here)</a>
               <a href="/glossary">Job Search Glossary</a>
               <a href="/ghost-jobs">Ghost Jobs Explained</a>
               <a href="/why-no-responses-after-100-applications">Why No Responses?</a>
