@@ -2243,6 +2243,18 @@ export default function AdminCorpus() {
                           {voiceApproving[assetId] ? "Approving…" : "✅ Approve"}
                         </button>
                       )}
+                      {row.asset.status === "draft" && p.guardrail?.passed === false && (
+                        <button
+                          onClick={() => {
+                            if (!confirm(`This variant failed guardrails:\n\n${(p.guardrail?.failReasons ?? []).join("\n")}\n\nApprove and publish anyway?`)) return;
+                            approveVoiceVariant(assetId);
+                          }}
+                          disabled={voiceApproving[assetId]}
+                          className="text-xs bg-amber-700 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg font-semibold disabled:opacity-50"
+                        >
+                          {voiceApproving[assetId] ? "Approving…" : "⚠️ Override & Approve"}
+                        </button>
+                      )}
                       {row.asset.status === "approved" && (
                         <button
                           onClick={() => publishVoiceVariant(assetId)}
