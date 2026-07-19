@@ -50,7 +50,7 @@ vi.mock("../../lib/logger.js", () => ({
   },
 }));
 
-import { getContentAssetById } from "../../corpus/db.js";
+import { getContentAssetById, getBlogPostById } from "../../corpus/db.js";
 
 const ADMIN_TOKEN = "test-admin-token";
 
@@ -174,6 +174,59 @@ describe("POST /voice-variants/:id/approve — approver gate", () => {
 
     expect(res.status).toBe(409);
     expect(res.body.error).toMatch(/rejected/i);
+  });
+});
+
+describe("POST /voice-variants/blog-post/:id/generate — answer guard", () => {
+  beforeEach(() => {
+    vi.mocked(getBlogPostById).mockReset();
+    vi.mocked(getContentAssetById).mockReset();
+  });
+
+  it("returns 422 when blog post asset exists but answer row is missing", async () => {
+    vi.mocked(getBlogPostById).mockResolvedValue(null as never);
+    vi.mocked(getContentAssetById).mockResolvedValue({
+      id: 42,
+      channel: "blog_post",
+      answerId: 99,
+      status: "published",
+      payloadJson: {},
+    } as never);
+
+    const res = await authed(
+      request(app).post("/voice-variants/blog-post/42/generate").send({})
+    );
+
+    expect(res.status).toBe(422);
+    expect(res.body.error).toMatch(/answer/i);
+    expect(res.body.error).toMatch(/Loop 1/i);
+  });
+
+  it("returns 404 when blog post asset does not exist at all", async () => {
+    vi.mocked(getBlogPostById).mockResolvedValue(null as never);
+    vi.mocked(getContentAssetById).mockResolvedValue(null as never);
+
+    const res = await authed(
+      request(app).post("/voice-variants/blog-post/99/generate").send({})
+    );
+
+    expect(res.status).toBe(404);
+    expect(res.body.error).toMatch(/not found/i);
+  });
+
+  it("returns 422 when blog post is found but answerMd is empty", async () => {
+    vi.mocked(getBlogPostById).mockResolvedValue({
+      asset: { id: 1, channel: "blog_post", externalId: "slug", engagementMetricsJson: {}, payloadJson: {} },
+      answer: { id: 10, answerMd: "   ", questionId: 5 },
+      question: { id: 5, normalisedQuestion: "How do I get a job?" },
+    } as never);
+
+    const res = await authed(
+      request(app).post("/voice-variants/blog-post/1/generate").send({})
+    );
+
+    expect(res.status).toBe(422);
+    expect(res.body.error).toMatch(/empty or corrupted/i);
   });
 });
 

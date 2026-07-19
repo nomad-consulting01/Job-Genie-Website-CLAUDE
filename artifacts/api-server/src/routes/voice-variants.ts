@@ -100,7 +100,22 @@ router.post("/blog-post/:assetId/generate", async (req, res) => {
     const { force } = req.body as { force?: boolean };
     const blogAsset = await getBlogPostById(blogAssetId);
     if (!blogAsset) {
-      res.status(404).json({ error: "Blog post not found" });
+      // Distinguish "asset doesn't exist" from "asset exists but its answer row is missing"
+      const rawAsset = await getContentAssetById(blogAssetId);
+      if (!rawAsset || rawAsset.channel !== "blog_post") {
+        res.status(404).json({ error: "Blog post not found" });
+      } else {
+        res.status(422).json({
+          error: "This blog post does not have an answer yet. Run Loop 1 to generate an answer before creating voice variants.",
+        });
+      }
+      return;
+    }
+
+    if (!blogAsset.answer.answerMd?.trim()) {
+      res.status(422).json({
+        error: "This blog post's answer is empty or corrupted. Re-run Loop 1 to regenerate the answer before creating voice variants.",
+      });
       return;
     }
 
