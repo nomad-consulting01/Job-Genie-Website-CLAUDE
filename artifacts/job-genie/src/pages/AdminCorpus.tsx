@@ -1784,27 +1784,40 @@ export default function AdminCorpus() {
                 ))}
               </div>
               {/* Generate Variants for a specific post */}
-              <div className="flex flex-wrap gap-2 items-center mb-2">
-                <select
-                  value={selectedBlogPostId}
-                  onChange={(e) => setSelectedBlogPostId(e.target.value)}
-                  className="flex-1 min-w-48 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-purple-500"
-                >
-                  <option value="">— Select a blog post —</option>
-                  {blogPosts.map((p) => (
-                    <option key={p.id} value={String(p.id)}>
-                      {p.seoTitle || p.slug}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => generateVoiceVariantsForPost(selectedBlogPostId, voiceForce)}
-                  disabled={!selectedBlogPostId || voiceGenerating}
-                  className="text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold disabled:opacity-40 whitespace-nowrap"
-                >
-                  {voiceGenerating ? "Generating…" : "🎙️ Generate 5 Variants"}
-                </button>
-              </div>
+              {(() => {
+                const variantCountByPostId: Record<number, number> = {};
+                for (const v of voiceVariants) {
+                  const pid = v.asset.payloadJson?.blogPostAssetId;
+                  if (pid != null) variantCountByPostId[pid] = (variantCountByPostId[pid] ?? 0) + 1;
+                }
+                return (
+                  <div className="flex flex-wrap gap-2 items-center mb-2">
+                    <select
+                      value={selectedBlogPostId}
+                      onChange={(e) => setSelectedBlogPostId(e.target.value)}
+                      className="flex-1 min-w-48 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-purple-500"
+                    >
+                      <option value="">— Select a blog post —</option>
+                      {blogPosts.map((p) => {
+                        const count = variantCountByPostId[p.id] ?? 0;
+                        const label = p.seoTitle || p.slug;
+                        return (
+                          <option key={p.id} value={String(p.id)}>
+                            {count > 0 ? `✓ ${count} variants — ${label}` : label}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    <button
+                      onClick={() => generateVoiceVariantsForPost(selectedBlogPostId, voiceForce)}
+                      disabled={!selectedBlogPostId || voiceGenerating}
+                      className="text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold disabled:opacity-40 whitespace-nowrap"
+                    >
+                      {voiceGenerating ? "Generating…" : "🎙️ Generate 5 Variants"}
+                    </button>
+                  </div>
+                );
+              })()}
               <label className="flex items-center gap-2 mb-3 cursor-pointer w-fit">
                 <input
                   type="checkbox"
