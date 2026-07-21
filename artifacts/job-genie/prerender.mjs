@@ -263,6 +263,156 @@ async function main() {
   if (blogPosts.length > 0) {
     console.log(`[prerender] Blog posts done — ${blogPosts.length} posts pre-rendered.`);
   }
+
+  // ── Sitemap ──────────────────────────────────────────────────────────────────
+  // Generate sitemap.xml dynamically, merging static pages with all published
+  // blog posts, /answers pages, and /qa pages fetched from the API.
+  // Each dynamic list is fully paginated so no posts are silently dropped when
+  // counts exceed a single page's cap.
+  // Writes to dist/public/sitemap.xml, overwriting any static copy from public/.
+
+  const SITEMAP_SITE_URL = 'https://www.job-genie.ai';
+  const today = new Date().toISOString().split('T')[0];
+
+  const STATIC_SITEMAP_PAGES = [
+    { loc: '/', changefreq: 'weekly', priority: '1.0' },
+    { loc: '/why-no-responses-after-100-applications', changefreq: 'monthly', priority: '0.9' },
+    { loc: '/ghost-jobs', changefreq: 'monthly', priority: '0.85' },
+    { loc: '/glossary', changefreq: 'monthly', priority: '0.8' },
+    { loc: '/for/mid-career-professionals', changefreq: 'monthly', priority: '0.8' },
+    { loc: '/for/senior-engineers', changefreq: 'monthly', priority: '0.8' },
+    { loc: '/for/career-changers', changefreq: 'monthly', priority: '0.8' },
+    { loc: '/job-genie-vs-auto-apply', changefreq: 'monthly', priority: '0.75' },
+    { loc: '/free-autopsy', changefreq: 'monthly', priority: '0.9' },
+    { loc: '/resources', changefreq: 'monthly', priority: '0.8' },
+    { loc: '/answers', changefreq: 'daily', priority: '0.9' },
+    { loc: '/blog', changefreq: 'daily', priority: '0.85' },
+    { loc: '/qa', changefreq: 'daily', priority: '0.85' },
+    { loc: '/terms', changefreq: 'yearly', priority: '0.3' },
+    { loc: '/privacy', changefreq: 'yearly', priority: '0.3' },
+    { loc: '/data-deletion', changefreq: 'yearly', priority: '0.2' },
+  ];
+
+  /**
+   * Fetch all pages of a paginated list endpoint.
+   * The endpoint must accept ?limit=N&offset=N and return { hasMore: boolean }.
+   * The response items are extracted with the provided `getItems` callback.
+   */
+  async function fetchAllPages(urlTemplate, getItems, pageSize = 100) {
+    const all = [];
+    let offset = 0;
+    let hasMore = true;
+    while (hasMore) {
+      const url = `${urlTemplate}?limit=${pageSize}&offset=${offset}`;
+      const resp = await fetch(url, { signal: AbortSignal.timeout(10000) });
+      if (!resp.ok) {
+        console.warn(`[prerender] ${url} returned ${resp.status} — stopping pagination`);
+        break;
+      }
+      const data = await resp.json();
+      const items = getItems(data);
+      all.push(...items);
+      hasMore = data.hasMore === true;
+      offset += pageSize;
+    }
+    return all;
+  }
+
+  // We already have blogPosts from the blog-prerender section above, but that
+  // fetch filtered to source==='internal' and used a single request. Re-fetch
+  // with full pagination to ensure the sitemap captures every published post.
+  let allBlogPosts = [];
+  let answerPages = [];
+  let qaPages = [];
+
+  if (API_BASE) {
+    try {
+      allBlogPosts = await fetchAllPages(
+        `${API_BASE}/api/blog`,
+        (d) => (d.posts ?? []).filter((p) => p.source === 'internal'),
+        100
+      );
+      console.log(`[prerender] ${allBlogPosts.length} blog posts for sitemap`);
+    } catch (err) {
+      console.warn('[prerender] Could not fetch blog posts for sitemap:', err.message);
+      allBlogPosts = blogPosts;
+    }
+
+    try {
+      answerPages = await fetchAllPages(
+        `${API_BASE}/api/answers`,
+        (d) => d.answers ?? [],
+        200
+      );
+      console.log(`[prerender] ${answerPages.length} answer pages for sitemap`);
+    } catch (err) {
+      console.warn('[prerender] Could not fetch answers for sitemap:', err.message);
+    }
+
+    try {
+      qaPages = await fetchAllPages(
+        `${API_BASE}/api/qa/list`,
+        (d) => (d.items ?? []).filter((q) => q.slug),
+        200
+      );
+      console.log(`[prerender] ${qaPages.length} Q&A pages for sitemap`);
+    } catch (err) {
+      console.warn('[prerender] Could not fetch Q&A pages for sitemap:', err.message);
+    }
+  } else {
+    console.warn('[prerender] No API source reachable — sitemap will include static pages only');
+    allBlogPosts = blogPosts;
+  }
+
+  function sitemapUrl(loc, changefreq, priority, lastmod) {
+    return [
+      '  <url>',
+      `    <loc>${loc}</loc>`,
+      `    <changefreq>${changefreq}</changefreq>`,
+      `    <priority>${priority}</priority>`,
+      `    <lastmod>${lastmod}</lastmod>`,
+      '  </url>',
+    ].join('\n');
+  }
+
+  const urlEntries = [
+    ...STATIC_SITEMAP_PAGES.map(({ loc, changefreq, priority }) =>
+      sitemapUrl(`${SITEMAP_SITE_URL}${loc}`, changefreq, priority, today)
+    ),
+    ...allBlogPosts.map((post) => {
+      const lastmod = post.publishedAt
+        ? new Date(post.publishedAt).toISOString().split('T')[0]
+        : today;
+      return sitemapUrl(`${SITEMAP_SITE_URL}/blog/${post.slug}`, 'monthly', '0.8', lastmod);
+    }),
+    ...answerPages.map((a) => {
+      const lastmod = a.publishedAt
+        ? new Date(a.publishedAt).toISOString().split('T')[0]
+        : today;
+      return sitemapUrl(`${SITEMAP_SITE_URL}/answers/${a.slug}`, 'monthly', '0.9', lastmod);
+    }),
+    ...qaPages.map((q) => {
+      const lastmod = q.published_at
+        ? new Date(q.published_at).toISOString().split('T')[0]
+        : today;
+      return sitemapUrl(`${SITEMAP_SITE_URL}/qa/${q.slug}`, 'monthly', '0.85', lastmod);
+    }),
+  ];
+
+  const sitemapXml = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    urlEntries.join('\n'),
+    '</urlset>',
+  ].join('\n');
+
+  const sitemapOutFile = path.resolve(__dirname, 'dist/public/sitemap.xml');
+  fs.writeFileSync(sitemapOutFile, sitemapXml, 'utf-8');
+  console.log(
+    `[prerender] ✓ sitemap.xml → ${urlEntries.length} URLs` +
+    ` (${STATIC_SITEMAP_PAGES.length} static, ${allBlogPosts.length} blog,` +
+    ` ${answerPages.length} answers, ${qaPages.length} Q&A)`
+  );
 }
 
 main().catch((err) => {

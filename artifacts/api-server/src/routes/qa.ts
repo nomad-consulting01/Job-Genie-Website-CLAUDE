@@ -212,20 +212,22 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/list", async (_req, res) => {
+router.get("/list", async (req, res) => {
   try {
-    const items = await listPublishedQAs(100);
-    res.json({
-      items: items.map((r) => ({
-        id: r.asset.id,
-        slug: (r.asset.payloadJson as { slug?: string })?.slug ?? "",
-        title: r.question.normalisedQuestion,
-        answer_first_block: r.answer.answerFirstBlock,
-        pain_point_tags: r.question.painPointTags,
-        published_at: r.asset.publishedAt,
-        quality_score: r.answer.qualityScore,
-      })),
-    });
+    const limit = Math.min(parseInt(String(req.query["limit"] ?? "100")), 200);
+    const offset = parseInt(String(req.query["offset"] ?? "0"));
+    const rows = await listPublishedQAs(limit + 1, offset);
+    const hasMore = rows.length > limit;
+    const items = rows.slice(0, limit).map((r) => ({
+      id: r.asset.id,
+      slug: (r.asset.payloadJson as { slug?: string })?.slug ?? "",
+      title: r.question.normalisedQuestion,
+      answer_first_block: r.answer.answerFirstBlock,
+      pain_point_tags: r.question.painPointTags,
+      published_at: r.asset.publishedAt,
+      quality_score: r.answer.qualityScore,
+    }));
+    res.json({ items, limit, offset, hasMore });
   } catch (err) {
     logger.error({ err }, "GET /qa/list failed");
     res.status(500).json({ error: "Internal server error" });

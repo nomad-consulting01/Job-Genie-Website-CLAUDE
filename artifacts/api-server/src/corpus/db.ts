@@ -90,7 +90,7 @@ export async function getContentAssetBySlug(slug: string) {
   return row ?? null;
 }
 
-export async function listPublishedQAs(limit: number | null = 100) {
+export async function listPublishedQAs(limit: number | null = 100, offset = 0) {
   const q = db
     .select({
       asset: contentAssets,
@@ -106,7 +106,8 @@ export async function listPublishedQAs(limit: number | null = 100) {
         eq(contentAssets.status, "published")
       )
     )
-    .orderBy(desc(contentAssets.publishedAt));
+    .orderBy(desc(contentAssets.publishedAt))
+    .offset(offset);
   return limit === null ? q : q.limit(limit);
 }
 
