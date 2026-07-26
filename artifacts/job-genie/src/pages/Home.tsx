@@ -324,6 +324,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           <li><a href="#truth-layer">Truth Layer</a></li>
           <li><a href="#feat">Features</a></li>
           <li><a href="#price">Pricing</a></li>
+          <li><a href="/resources">Resources</a></li>
           <li><a href="/blog">Blog</a></li>
           <li><a href="/qa">FAQ</a></li>
           <li>
