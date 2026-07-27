@@ -30,7 +30,7 @@ router.post("/newsletter", async (req, res) => {
           body: JSON.stringify({
             email,
             reactivate_existing: true,
-            send_welcome_email: true,
+            send_welcome_email: false,
             utm_source: body.utm_source ?? "job-genie-website",
             utm_medium: body.utm_medium ?? "landing-page",
             utm_campaign: body.utm_campaign ?? body.page_slug ?? "homepage",
