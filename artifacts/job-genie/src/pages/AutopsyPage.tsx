@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { SEO } from "../components/SEO";
 
 const API_BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -153,15 +153,27 @@ const CSS = `
 }
 `;
 
+const BEEHIIV_FORM_ID = "98e29d7f-f7c1-4713-adfa-70c5f0b34f7f";
+
+function BeehiivForm({ id }: { id?: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const script = document.createElement("script");
+    script.src = "https://subscribe-forms.beehiiv.com/v3/loader.js";
+    script.async = true;
+    script.setAttribute("data-beehiiv-form", BEEHIIV_FORM_ID);
+    container.appendChild(script);
+    return () => { container.innerHTML = ""; };
+  }, []);
+  return <div ref={containerRef} id={id} />;
+}
+
 const REPLIES = [7, 19, 34, 58, 71, 88];
 
 export default function AutopsyPage() {
   const gridRef = useRef<HTMLDivElement>(null);
-  const [email1, setEmail1] = useState("");
-  const [email2, setEmail2] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const el = document.createElement("style");
@@ -186,40 +198,6 @@ export default function AutopsyPage() {
     }
     return () => { grid.innerHTML = ""; };
   }, []);
-
-  const showToast = (msg: string, ok: boolean) => {
-    setToast({ msg, ok });
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 2800);
-  };
-
-  const submitOptin = async (email: string) => {
-    const trimmed = email.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      showToast("Enter a valid email to get your Autopsy.", false);
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const res = await fetch(`${API_BASE}/api/newsletter`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed, variant_id: "autopsy-landing" }),
-      });
-      if (res.ok) {
-        showToast("Check your inbox — your Autopsy is on the way.", true);
-        setEmail1("");
-        setEmail2("");
-      } else {
-        const d = await res.json().catch(() => ({})) as { error?: string };
-        showToast(d.error ?? "Something went wrong — please try again.", false);
-      }
-    } catch {
-      showToast("Network error — please try again.", false);
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   return (
     <div className="ap">
@@ -251,26 +229,7 @@ export default function AutopsyPage() {
               <h1>You sent 100 applications. Something <span className="kill">killed them</span> before a human ever read one.</h1>
               <p className="sub">The Autopsy shows you exactly where your applications died — the résumé screen, the recruiter pass, or the void — and why. Then it hands you the first fix. About 10 minutes.</p>
 
-              <div className="optin" id="autopsy">
-                <div className="optin-row">
-                  <input
-                    type="email"
-                    placeholder="Your email"
-                    aria-label="Your email"
-                    value={email1}
-                    onChange={(e) => setEmail1(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && submitOptin(email1)}
-                  />
-                  <button className="btn-ap" onClick={() => submitOptin(email1)} disabled={submitting}>
-                    {submitting ? "Sending…" : "Get My Free Autopsy"}
-                  </button>
-                </div>
-                <div className="micro">
-                  <span><i className="dot" />Redact your name &amp; contact first</span>
-                  <span><i className="dot" />No card, no catch</span>
-                  <span><i className="dot" />~10 minutes</span>
-                </div>
-              </div>
+              <BeehiivForm id="autopsy" />
             </div>
 
             <div className="autopsy-card" aria-hidden="true">
@@ -441,26 +400,7 @@ export default function AutopsyPage() {
         <div className="wrap">
           <span className="eyebrow" style={{ justifyContent: "center" }}>Get my free Autopsy</span>
           <h2>Stop guessing why they went quiet.</h2>
-          <div className="optin">
-            <div className="optin-row">
-              <input
-                type="email"
-                placeholder="Your email"
-                aria-label="Your email"
-                value={email2}
-                onChange={(e) => setEmail2(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && submitOptin(email2)}
-              />
-              <button className="btn-ap" onClick={() => submitOptin(email2)} disabled={submitting}>
-                {submitting ? "Sending…" : "Get My Free Autopsy"}
-              </button>
-            </div>
-            <div className="micro" style={{ justifyContent: "center" }}>
-              <span><i className="dot" />Free</span>
-              <span><i className="dot" />~10 minutes</span>
-              <span><i className="dot" />Yours to keep</span>
-            </div>
-          </div>
+          <BeehiivForm />
         </div>
       </section>
 
@@ -480,11 +420,6 @@ export default function AutopsyPage() {
         </div>
       </footer>
 
-      {toast && (
-        <div className={`toast show${toast.ok ? "" : " error"}`}>
-          {toast.msg}
-        </div>
-      )}
     </div>
   );
 }
