@@ -1,6 +1,6 @@
 import { db } from "@workspace/db";
-import { questions, answers, contentAssets, loopRuns, type InsertQuestion, type InsertAnswer, type InsertContentAsset } from "@workspace/db";
-import { eq, desc, and, sql, notExists, isNull, isNotNull } from "drizzle-orm";
+import { questions, answers, contentAssets, loopRuns, blogRedirects, type InsertQuestion, type InsertAnswer, type InsertContentAsset } from "@workspace/db";
+import { eq, desc, and, sql, notExists, isNull, isNotNull, ne } from "drizzle-orm";
 
 export async function insertQuestion(data: InsertQuestion) {
   const [row] = await db.insert(questions).values(data).returning();
@@ -392,7 +392,8 @@ export async function listPublishedBlogPosts(limit: number | null = 20, offset =
       and(
         eq(contentAssets.channel, "blog_post"),
         eq(contentAssets.variant, "standard"),
-        isNotNull(contentAssets.externalId)
+        isNotNull(contentAssets.externalId),
+        ne(contentAssets.externalId, "_cannibalised")
       )
     )
     .orderBy(desc(contentAssets.scheduledFor))
@@ -747,4 +748,69 @@ export async function getBlogPostById(id: number) {
       )
     );
   return row ?? null;
+}
+
+// ─── Blog redirect (auto-cannibalization detection) ───────────────────────────
+
+/**
+ * Returns all published blog posts' normalisedQuestion + slug for cannibalization comparison.
+ */
+export async function listPublishedBlogQuestionsAndSlugs(): Promise<
+  { normalisedQuestion: string; slug: string }[]
+> {
+  const rows = await db
+    .select({
+      normalisedQuestion: questions.normalisedQuestion,
+      slug: contentAssets.externalId,
+    })
+    .from(contentAssets)
+    .innerJoin(answers, eq(contentAssets.answerId, answers.id))
+    .innerJoin(questions, eq(answers.questionId, questions.id))
+    .where(
+      and(
+        eq(contentAssets.channel, "blog_post"),
+        eq(contentAssets.variant, "standard"),
+        isNotNull(contentAssets.externalId),
+        ne(contentAssets.externalId, "_cannibalised")
+      )
+    );
+  return rows.map((r) => ({ normalisedQuestion: r.normalisedQuestion, slug: r.slug! }));
+}
+
+/**
+ * Records a detected cannibalization redirect and marks the duplicate asset so it won't
+ * be re-processed by Loop 3.
+ */
+export async function insertBlogRedirect(
+  assetId: number,
+  duplicateSlug: string,
+  keeperSlug: string,
+  normalisedQuestion: string,
+  similarityScore: number
+): Promise<void> {
+  await db.transaction(async (tx) => {
+    await tx
+      .insert(blogRedirects)
+      .values({ duplicateSlug, keeperSlug, normalisedQuestion, similarityScore })
+      .onConflictDoNothing();
+
+    await tx
+      .update(contentAssets)
+      .set({ externalId: "_cannibalised", scheduledFor: new Date() })
+      .where(eq(contentAssets.id, assetId));
+  });
+}
+
+/**
+ * Returns all auto-detected redirects from the DB (for merging into the redirect router).
+ */
+export async function listBlogRedirects(): Promise<
+  { duplicateSlug: string; keeperSlug: string }[]
+> {
+  return db
+    .select({
+      duplicateSlug: blogRedirects.duplicateSlug,
+      keeperSlug: blogRedirects.keeperSlug,
+    })
+    .from(blogRedirects);
 }

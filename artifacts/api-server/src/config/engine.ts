@@ -15,6 +15,8 @@ export interface EngineConfig {
     cronSchedule: string;
     maxPostsPerRun: number;
     costBudgetUsd: number;
+    /** Cosine-like similarity threshold above which a new blog post is auto-redirected to its keeper. */
+    cannibalThreshold: number;
   };
   loop1: {
     cronSchedule: string;
@@ -61,6 +63,7 @@ export const engineConfig: EngineConfig = {
     cronSchedule: process.env["LOOP3_CRON"] ?? "0 5 * * *",
     maxPostsPerRun: parseInt(process.env["LOOP3_MAX_POSTS"] ?? "5"),
     costBudgetUsd: parseFloat(process.env["LOOP3_COST_BUDGET_USD"] ?? "1.00"),
+    cannibalThreshold: parseFloat(process.env["LOOP3_CANNIBAL_THRESHOLD"] ?? "0.65"),
   },
   loop1: {
     cronSchedule: process.env["LOOP1_CRON"] ?? "0 3 * * *",

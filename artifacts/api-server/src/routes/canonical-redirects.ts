@@ -1,11 +1,13 @@
 /**
  * canonical-redirects.ts
  * 301 redirect map for cannibalising blog posts → keeper URLs.
- * Generated from AEO/GEO cannibalization audit (August 2026).
- * Each cluster has one keeper; all duplicates 301 to it permanently.
+ * Two sources merged at runtime:
+ *   1. Static audit map (AEO/GEO audit, August 2026)
+ *   2. DB-detected redirects written by Loop 3's cannibalization guard (auto-refreshed every 10 min)
  */
 import { Router } from "express";
 import { SITE_URL } from "@workspace/site-config";
+import { listBlogRedirects } from "../corpus/db.js";
 
 const router = Router();
 
@@ -65,13 +67,39 @@ const BLOG_REDIRECTS: Record<string, string> = {
 };
 
 // ---------------------------------------------------------------------------
-// Middleware: intercept /blog/:slug and 301 to keeper if in redirect map
+// DB-detected redirects cache (refreshed every 10 minutes)
 // ---------------------------------------------------------------------------
 
-router.get("/blog/:slug", (req, res, next) => {
-  const keeper = BLOG_REDIRECTS[req.params.slug];
-  if (keeper) {
-    return res.redirect(301, `${SITE_URL}/blog/${keeper}`);
+let dbRedirectCache: Record<string, string> = {};
+let cacheLoadedAt = 0;
+const CACHE_TTL_MS = 10 * 60 * 1000;
+
+async function getDbRedirects(): Promise<Record<string, string>> {
+  if (Date.now() - cacheLoadedAt < CACHE_TTL_MS) return dbRedirectCache;
+  try {
+    const rows = await listBlogRedirects();
+    dbRedirectCache = Object.fromEntries(rows.map((r) => [r.duplicateSlug, r.keeperSlug]));
+    cacheLoadedAt = Date.now();
+  } catch {
+    // Non-fatal: fall back to stale cache or empty
+  }
+  return dbRedirectCache;
+}
+
+// ---------------------------------------------------------------------------
+// Middleware: intercept /blog/:slug and 301 to keeper if in either map
+// ---------------------------------------------------------------------------
+
+router.get("/blog/:slug", async (req, res, next) => {
+  const { slug } = req.params;
+  const staticKeeper = BLOG_REDIRECTS[slug];
+  if (staticKeeper) {
+    return res.redirect(301, `${SITE_URL}/blog/${staticKeeper}`);
+  }
+  const db = await getDbRedirects();
+  const dbKeeper = db[slug];
+  if (dbKeeper) {
+    return res.redirect(301, `${SITE_URL}/blog/${dbKeeper}`);
   }
   next();
 });

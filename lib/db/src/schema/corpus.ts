@@ -63,3 +63,18 @@ export const loopRuns = pgTable("loop_runs", {
 export const insertLoopRunSchema = createInsertSchema(loopRuns).omit({ id: true, startedAt: true });
 export type LoopRun = typeof loopRuns.$inferSelect;
 export type InsertLoopRun = z.infer<typeof insertLoopRunSchema>;
+
+/**
+ * Auto-detected blog post cannibalization redirects.
+ * Populated by Loop 3 when a new blog slug is too similar to an existing published post.
+ */
+export const blogRedirects = pgTable("blog_redirects", {
+  id: serial("id").primaryKey(),
+  duplicateSlug: text("duplicate_slug").notNull().unique(),
+  keeperSlug: text("keeper_slug").notNull(),
+  normalisedQuestion: text("normalised_question").notNull(),
+  similarityScore: real("similarity_score").notNull(),
+  detectedAt: timestamp("detected_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export type BlogRedirect = typeof blogRedirects.$inferSelect;

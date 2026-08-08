@@ -46,7 +46,7 @@ export async function run(): Promise<Loop3RunResult> {
         break;
       }
 
-      const result = await enrichBlogPost(asset, answer, question);
+      const result = await enrichBlogPost(asset, answer, question, cfg.cannibalThreshold);
       totalTokens += result.tokensUsed;
 
       if (result.error) {
