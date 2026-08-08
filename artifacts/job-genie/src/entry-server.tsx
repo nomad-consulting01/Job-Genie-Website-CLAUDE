@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import Home from './pages/Home';
 import LandingPage from './pages/LandingPage';
+import AutopsyPage from './pages/AutopsyPage';
 import AEOPage from './pages/AEOPage';
 import ResourcesPage from './pages/ResourcesPage';
 import TermsOfService from './pages/TermsOfService';
@@ -90,6 +91,14 @@ const AEO_ROUTES: Record<string, RouteHead> = {
     canonical: `${SITE_URL}/job-genie-vs-auto-apply`,
     robots: 'index, follow',
     aeoQuestion: 'Should I use an AI auto-apply tool to send hundreds of job applications?',
+  },
+  '/free-autopsy': {
+    title: 'Free Application Autopsy — Find Out Why Your Applications Go Silent | Job Genie',
+    description:
+      'Get your free Application Silence Score in 2 minutes — no account, no credit card. Discover your ghost-job exposure and what is blocking recruiter callbacks.',
+    canonical: `${SITE_URL}/free-autopsy`,
+    robots: 'index, follow',
+    aeoQuestion: 'How do I find out why my job applications never get a response?',
   },
   '/resources': {
     title: 'Job Search Resources & Guides | Job Genie',
@@ -377,15 +386,20 @@ export function renderBlogPost(data: BlogPostSSRData): string {
   );
 }
 
+/** Serialises an object as JSON-LD, escaping `<` so DB content can't break out of the script tag. */
+function jsonLd(obj: unknown): string {
+  return JSON.stringify(obj).replace(/</g, '\\u003c');
+}
+
 /** Returns the full <head> HTML fragment for a blog post, ready to inject into index.html. */
 export function getBlogPostHeadHtml(data: BlogPostSSRData): string {
-  const { post, question } = data;
+  const { post, question, answer } = data;
   const canonical = `${SITE_URL}/blog/${post.slug}`;
   const title = post.seoTitle.includes('| Job Genie') ? post.seoTitle : `${post.seoTitle} | Job Genie`;
   const description = post.metaDescription;
   const OG_IMAGE = post.featuredImageUrl ?? `${SITE_URL}/brand/blog-og-dark-teal.png`;
 
-  const articleSchema = JSON.stringify({
+  const articleSchema = jsonLd({
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     '@id': `${canonical}#article`,
@@ -393,6 +407,7 @@ export function getBlogPostHeadHtml(data: BlogPostSSRData): string {
     description,
     url: canonical,
     mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+    image: OG_IMAGE,
     datePublished: post.publishedAt ?? undefined,
     dateModified: post.publishedAt ?? undefined,
     author: { '@type': 'Organization', '@id': `${SITE_URL}/#organization`, name: SITE_NAME },
@@ -404,7 +419,7 @@ export function getBlogPostHeadHtml(data: BlogPostSSRData): string {
     })),
   });
 
-  const breadcrumbSchema = JSON.stringify({
+  const breadcrumbSchema = jsonLd({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
@@ -419,14 +434,15 @@ export function getBlogPostHeadHtml(data: BlogPostSSRData): string {
     ],
   });
 
-  const questionSchema = JSON.stringify({
+  // Use the full answerFirstBlock for AEO citability — richer than the truncated description.
+  const questionSchema = jsonLd({
     '@context': 'https://schema.org',
     '@type': 'Question',
     name: question.normalisedQuestion,
-    acceptedAnswer: { '@type': 'Answer', text: description },
+    acceptedAnswer: { '@type': 'Answer', text: answer.answerFirstBlock || description },
   });
 
-  const faqSchema = post.faqJsonLd ? JSON.stringify(post.faqJsonLd) : null;
+  const faqSchema = post.faqJsonLd ? jsonLd(post.faqJsonLd) : null;
 
   const lines: (string | null)[] = [
     `<title>${esc(title)}</title>`,
@@ -490,6 +506,7 @@ export function render(url: string): string {
             <Route path="/job-genie-vs-auto-apply">
               {() => <AEOPage slug="job-genie-vs-auto-apply" />}
             </Route>
+            <Route path="/free-autopsy" component={AutopsyPage} />
             <Route path="/resources" component={ResourcesPage} />
             <Route path="/terms" component={TermsOfService} />
             <Route path="/privacy" component={PrivacyPolicy} />

@@ -41,6 +41,11 @@ export function invalidatePrerenderedBlogPost(slug: string): void {
   }
 }
 
+/** Serialises an object as JSON-LD, escaping `<` so DB content can't break out of the script tag. */
+function jsonLdStr(obj: unknown): string {
+  return JSON.stringify(obj).replace(/</g, "\\u003c");
+}
+
 function esc(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -228,7 +233,7 @@ function buildBlogPostHtml(opts: {
   const canonical = `${SITE_URL}/blog/${opts.slug}`;
   const displayTitle = opts.title.includes("| Job Genie") ? opts.title : `${opts.title} | Job Genie`;
 
-  const articleSchema = JSON.stringify({
+  const articleSchema = jsonLdStr({
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "@id": `${canonical}#article`,
@@ -245,7 +250,7 @@ function buildBlogPostHtml(opts: {
     about: opts.painPointTags.map((t) => ({ "@type": "Thing", name: t.replace(/_/g, " ") })),
   });
 
-  const breadcrumbSchema = JSON.stringify({
+  const breadcrumbSchema = jsonLdStr({
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
@@ -256,7 +261,7 @@ function buildBlogPostHtml(opts: {
   });
 
   // Use the full answerFirstBlock for AEO citability — richer than the truncated description.
-  const questionSchema = JSON.stringify({
+  const questionSchema = jsonLdStr({
     "@context": "https://schema.org",
     "@type": "Question",
     name: opts.normalisedQuestion,
@@ -293,7 +298,7 @@ function buildBlogPostHtml(opts: {
   <script type="application/ld+json">${articleSchema}</script>
   <script type="application/ld+json">${breadcrumbSchema}</script>
   <script type="application/ld+json">${questionSchema}</script>
-  ${opts.faqJsonLd ? `<script type="application/ld+json">${JSON.stringify(opts.faqJsonLd)}</script>` : ""}
+  ${opts.faqJsonLd ? `<script type="application/ld+json">${jsonLdStr(opts.faqJsonLd)}</script>` : ""}
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   ${spaScripts}
@@ -349,7 +354,7 @@ async function buildBlogIndexHtml(posts: Array<{ slug: string; title: string; de
       }).join("\n")
     : "<li style='color:#9ca3af'>No posts published yet — check back soon.</li>";
 
-  const collectionSchema = JSON.stringify({
+  const collectionSchema = jsonLdStr({
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "@id": `${canonical}#webpage`,
