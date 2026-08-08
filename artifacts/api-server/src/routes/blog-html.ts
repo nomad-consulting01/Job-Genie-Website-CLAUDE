@@ -236,7 +236,9 @@ function buildBlogPostHtml(opts: {
     description: opts.description,
     url: canonical,
     mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
+    image: opts.featuredImageUrl ?? OG_IMAGE,
     datePublished: opts.publishedAt ?? undefined,
+    dateModified: opts.publishedAt ?? undefined,
     author: { "@type": "Organization", "@id": `${SITE_URL}/#organization`, name: SITE_NAME },
     publisher: { "@id": `${SITE_URL}/#organization` },
     inLanguage: "en-GB",
@@ -253,11 +255,12 @@ function buildBlogPostHtml(opts: {
     ],
   });
 
+  // Use the full answerFirstBlock for AEO citability — richer than the truncated description.
   const questionSchema = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Question",
     name: opts.normalisedQuestion,
-    acceptedAnswer: { "@type": "Answer", text: opts.description },
+    acceptedAnswer: { "@type": "Answer", text: opts.answerFirstBlock || opts.description },
   });
 
   const dateStr = opts.publishedAt

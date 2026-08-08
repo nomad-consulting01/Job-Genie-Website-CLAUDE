@@ -14,6 +14,7 @@ import answersHtmlRouter from "./routes/answers-html.js";
 import redditAeoRouter from "./routes/reddit-aeo.js";
 import reactorInvitesRouter from "./routes/reactor-invites.js";
 import voiceVariantsRouter from "./routes/voice-variants.js";
+import canonicalRedirectsRouter from "./routes/canonical-redirects.js";
 import { logger } from "./lib/logger.js";
 import { startScheduler } from "./scheduler/index.js";
 
@@ -75,6 +76,9 @@ app.use("/api", sitemapRouter);
 // Also expose at conventional root paths so /llms.txt and /sitemap.xml resolve
 // for AI crawlers and search engines without a path prefix.
 app.use("/", sitemapRouter);
+
+// Cannibalization 301s — must come before blogHtmlRouter so duplicates redirect before SSR runs.
+app.use("/", canonicalRedirectsRouter);
 
 // Blog post server-side HTML — per-post canonical, metadata, and article body for crawlers.
 // Handles /blog and /blog/:slug with correct metadata. Prerendered static files are served first

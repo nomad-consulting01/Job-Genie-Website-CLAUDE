@@ -293,3 +293,10 @@ id = "tZi16kIsl96pcKZOrX5c_"
 uri = "file://Direct-Response-Growth-Engine.docx"
 type = "word_document"
 title = "Direct Response Growth Engine"
+
+[[outputs]]
+id = "uRiEcLw_2yJi9C3hwm_PT"
+uri = "file://attached_assets/job-genie-aeo-audit-august-2026.docx"
+type = "word_document"
+title = "Job Genie — AEO/GEO Crawler Readiness Audit (August 2026)"
+description = "Five-phase remediation report: discoverability diagnosis, canonical/redirect fixes, 27-post cannibalization redirect map, on-page AEO signal improvements, and authority recommendations."
