@@ -19,6 +19,22 @@ import { startScheduler } from "./scheduler/index.js";
 
 const app: Express = express();
 
+// Trust Replit's reverse proxy so host/proto headers are accurate.
+app.set("trust proxy", 1);
+
+// Permanent redirect: job-genie.ai (apex) → https://www.job-genie.ai
+// Skips *.replit.app preview URLs and localhost so dev/preview are unaffected.
+const CANONICAL_HOST = "www.job-genie.ai";
+app.use((req, res, next) => {
+  const host = (req.headers.host ?? "").toLowerCase().split(":")[0];
+  const proto = ((req.headers["x-forwarded-proto"] as string | undefined) ?? req.protocol ?? "http").split(",")[0].trim();
+  const isOurDomain = host === "job-genie.ai" || host === CANONICAL_HOST;
+  if (isOurDomain && (host !== CANONICAL_HOST || proto !== "https")) {
+    return res.redirect(301, `https://${CANONICAL_HOST}${req.originalUrl}`);
+  }
+  next();
+});
+
 app.use(
   pinoHttp({
     logger,
