@@ -53,7 +53,7 @@ interface Proposal {
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 function adminFetch(path: string, opts: RequestInit = {}) {
-  const token = localStorage.getItem("adminToken") ?? "";
+  const token = localStorage.getItem("admin_token") ?? "";
   return fetch(`${BASE}${path}`, {
     ...opts,
     headers: {
