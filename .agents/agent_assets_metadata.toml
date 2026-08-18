@@ -300,3 +300,10 @@ uri = "file://attached_assets/job-genie-aeo-audit-august-2026.docx"
 type = "word_document"
 title = "Job Genie — AEO/GEO Crawler Readiness Audit (August 2026)"
 description = "Five-phase remediation report: discoverability diagnosis, canonical/redirect fixes, 27-post cannibalization redirect map, on-page AEO signal improvements, and authority recommendations."
+
+[[outputs]]
+id = "tC9QR4ObrCLe1Oq0i6Y03"
+uri = "file://attached_assets/job-genie-cs-explainer.docx"
+type = "word_document"
+title = "Job Genie — How It Works (CS Student Edition)"
+description = "Plain-English explainer of the full system for a first-year CS student, covering all five nightly loops, the background services, the A/B experiment system, and a glossary of CS concepts used throughout."
