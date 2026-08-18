@@ -9,6 +9,7 @@ import Admin from "./pages/Admin";
 import QAPage from "./pages/QAPage";
 import AdminCorpus from "./pages/AdminCorpus";
 import AdminRedditAEO from "./pages/AdminRedditAEO";
+import AdminLoopControl from "./pages/AdminLoopControl";
 import AEOPage from "./pages/AEOPage";
 import BlogIndex from "./pages/BlogIndex";
 import BlogPost from "./pages/BlogPost";
@@ -38,6 +39,7 @@ function Router() {
       <Route path="/admin" component={Admin} />
       <Route path="/admin/corpus" component={AdminCorpus} />
       <Route path="/admin/reddit-aeo" component={AdminRedditAEO} />
+      <Route path="/admin/loop-control" component={AdminLoopControl} />
       <Route path="/qa/:slug" component={QAPage} />
       {/* AEO pillar pages — must be before /:slug wildcard */}
       <Route path="/why-no-responses-after-100-applications" component={WhyNoResponsesPage} />
@@ -73,6 +75,7 @@ if (
   typeof window !== "undefined" &&
   window.location.hostname !== CANONICAL_HOST &&
   window.location.hostname !== "localhost" &&
+  window.location.hostname !== "127.0.0.1" &&
   !window.location.hostname.endsWith(".replit.app") &&
   !window.location.hostname.endsWith(".replit.dev") &&
   !window.location.hostname.endsWith(".replit.co") &&
