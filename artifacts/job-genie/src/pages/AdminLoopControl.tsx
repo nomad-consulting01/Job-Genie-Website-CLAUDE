@@ -364,25 +364,37 @@ function ProposalCard({ proposal, onRefresh }: { proposal: Proposal; onRefresh: 
 export default function AdminLoopControl() {
   const qc = useQueryClient();
   const { toast } = useToast();
+  const [token, setToken] = useState(() => localStorage.getItem("admin_token") ?? "");
+  const [tokenInput, setTokenInput] = useState("");
+
+  function saveToken(t: string) {
+    const trimmed = t.trim();
+    localStorage.setItem("admin_token", trimmed);
+    setToken(trimmed);
+    qc.invalidateQueries({ queryKey: ["loop-control-status"] });
+    qc.invalidateQueries({ queryKey: ["loop-control-proposals"] });
+  }
 
   const statusQ = useQuery<SchedulerStatus>({
-    queryKey: ["loop-control-status"],
+    queryKey: ["loop-control-status", token],
     queryFn: async () => {
       const r = await adminFetch("/api/admin/loop-control/status");
       if (!r.ok) throw new Error("Failed to fetch scheduler status");
       return r.json();
     },
     refetchInterval: 10_000,
+    enabled: !!token,
   });
 
   const proposalsQ = useQuery<{ proposals: Proposal[] }>({
-    queryKey: ["loop-control-proposals"],
+    queryKey: ["loop-control-proposals", token],
     queryFn: async () => {
       const r = await adminFetch("/api/admin/loop-control/proposals");
       if (!r.ok) throw new Error("Failed to fetch proposals");
       return r.json();
     },
     refetchInterval: 15_000,
+    enabled: !!token,
   });
 
   const runSelfImprove = useMutation({
@@ -443,6 +455,30 @@ export default function AdminLoopControl() {
   const allPaused = status
     ? Object.values(status).every((v) => typeof v === "object" && "paused" in v && v.paused)
     : false;
+
+  // ── Token gate ───────────────────────────────────────────────────────────────
+  if (!token) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
+        <div className="bg-white border border-slate-200 rounded-2xl p-8 w-full max-w-sm shadow-sm">
+          <h1 className="text-lg font-bold text-slate-900 mb-1">Loop Control</h1>
+          <p className="text-sm text-muted-foreground mb-6">Enter your admin token to continue.</p>
+          <input
+            type="password"
+            placeholder="Admin token"
+            value={tokenInput}
+            onChange={(e) => setTokenInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && saveToken(tokenInput)}
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm mb-3 outline-none focus:border-slate-500"
+            autoFocus
+          />
+          <Button className="w-full" onClick={() => saveToken(tokenInput)}>
+            Access Admin
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
