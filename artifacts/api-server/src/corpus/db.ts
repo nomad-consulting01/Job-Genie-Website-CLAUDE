@@ -435,6 +435,7 @@ export async function listPublishedBlogPostsNotOnFacebook(limit = 5) {
         eq(contentAssets.channel, "blog_post"),
         eq(contentAssets.variant, "standard"),
         isNotNull(contentAssets.externalId),
+        ne(contentAssets.externalId, "_cannibalised"),
         sql`(${contentAssets.engagementMetricsJson}->>'facebookPostId') IS NULL`
       )
     )
@@ -470,6 +471,7 @@ export async function listPublishedBlogPostsNotOnInstagram(limit = 5) {
         eq(contentAssets.channel, "blog_post"),
         eq(contentAssets.variant, "standard"),
         isNotNull(contentAssets.externalId),
+        ne(contentAssets.externalId, "_cannibalised"),
         sql`(${contentAssets.engagementMetricsJson}->>'instagramPostId') IS NULL`,
         sql`(${contentAssets.engagementMetricsJson}->>'featuredImageUrl') IS NOT NULL`,
         sql`EXISTS (

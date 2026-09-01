@@ -8,57 +8,25 @@ export interface FacebookPostResult {
 }
 
 /**
- * Post a native photo to a Facebook Page using the /photos endpoint.
- * Facebook downloads the image from `imageUrl`, attaches it as a real
- * photo (satisfying the "contains a photo" content requirement), and
- * displays `message` as the caption — which should include the blog URL
- * as plain text so readers can click through.
+ * Publish a Facebook link-share card through the /feed endpoint.
  *
- * This replaces the previous /feed + link approach, which created a
- * "link share" post that Facebook flags as having no photo/reel.
+ * Facebook scrapes the supplied blog URL's Open Graph metadata to build the
+ * clickable image, title, and description card. Do not switch to /photos when
+ * an image URL is available: that creates a native photo post with the blog
+ * URL only in the caption, which is a different presentation from a link card.
  *
- * Falls back to /feed (link post) when no imageUrl is provided.
+ * `imageUrl` remains in the public function signature because other callers
+ * already provide it, but the canonical blog page's og:image is the source of
+ * truth for the link preview.
  */
 export async function postToFacebookPage(
   pageId: string,
   pageAccessToken: string,
   caption: string,
   link: string,
-  imageUrl?: string | null
+  _imageUrl?: string | null
 ): Promise<FacebookPostResult> {
-  if (imageUrl) {
-    return postPhotoToFacebookPage(pageId, pageAccessToken, caption, imageUrl);
-  }
   return postLinkToFacebookPage(pageId, pageAccessToken, caption, link);
-}
-
-async function postPhotoToFacebookPage(
-  pageId: string,
-  pageAccessToken: string,
-  message: string,
-  imageUrl: string
-): Promise<FacebookPostResult> {
-  const params = new URLSearchParams({
-    url: imageUrl,
-    message,
-    access_token: pageAccessToken,
-  });
-
-  const resp = await fetch(`${GRAPH_API}/${pageId}/photos`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: params.toString(),
-  });
-
-  const json = (await resp.json()) as { id?: string; post_id?: string; error?: { message: string } };
-
-  if (!resp.ok || json.error) {
-    const msg = json.error?.message ?? `HTTP ${resp.status}`;
-    logger.warn({ pageId, imageUrl: imageUrl.slice(0, 80), msg }, "Facebook Graph API: photo post failed");
-    return { postId: null, error: msg };
-  }
-
-  return { postId: json.post_id ?? json.id ?? `fb:photo:${Date.now()}` };
 }
 
 async function postLinkToFacebookPage(
