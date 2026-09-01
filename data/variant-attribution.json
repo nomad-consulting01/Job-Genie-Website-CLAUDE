@@ -1,6 +1,6 @@
 {
   "_schema": "variant-attribution-v1",
   "_description": "Attribution join: post_id → variant_id with normalized engagement metrics. Written by Station ② runAttribution().",
-  "lastRunAt": null,
+  "lastRunAt": "2026-08-18T08:00:07.202Z",
   "entries": []
 }

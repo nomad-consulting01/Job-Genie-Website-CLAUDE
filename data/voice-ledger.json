@@ -1,7 +1,79 @@
 {
   "_schema": "voice-ledger-v1",
   "_description": "Thompson-sampling Beta(α,β) per voice arm. Updated by Station ③ runLedgerUpdate().",
-  "lastUpdatedAt": null,
-  "samplingPolicy": null,
-  "arms": {}
+  "lastUpdatedAt": "2026-08-18T08:00:07.204Z",
+  "samplingPolicy": {
+    "exploitWeight": 0.75,
+    "exploreWeight": 0.25,
+    "minImpressionsGate": 500,
+    "compositeWeights": {
+      "w1_reach_rate": 0.25,
+      "w2_engagement_quality": 0.35,
+      "w3_on_brand_score": 0.15,
+      "w4_guardrail_risk": 0.15,
+      "w5_cta_action_rate": 0.1
+    }
+  },
+  "arms": {
+    "sabri_suby_dr:career_advice:job_seekers:blog_post": {
+      "voiceId": "sabri_suby_dr",
+      "topic": "career_advice",
+      "persona": "job_seekers",
+      "format": "blog_post",
+      "alpha": 1,
+      "beta": 1,
+      "mean": 0.5,
+      "impressions": 0,
+      "status": "under_test",
+      "lastUpdatedAt": "2026-08-18T08:00:07.204Z"
+    },
+    "empathetic_peer:career_advice:job_seekers:blog_post": {
+      "voiceId": "empathetic_peer",
+      "topic": "career_advice",
+      "persona": "job_seekers",
+      "format": "blog_post",
+      "alpha": 1,
+      "beta": 1,
+      "mean": 0.5,
+      "impressions": 0,
+      "status": "under_test",
+      "lastUpdatedAt": "2026-08-18T08:00:07.204Z"
+    },
+    "data_analyst:career_advice:job_seekers:blog_post": {
+      "voiceId": "data_analyst",
+      "topic": "career_advice",
+      "persona": "job_seekers",
+      "format": "blog_post",
+      "alpha": 1,
+      "beta": 1,
+      "mean": 0.5,
+      "impressions": 0,
+      "status": "under_test",
+      "lastUpdatedAt": "2026-08-18T08:00:07.204Z"
+    },
+    "contrarian_myth_buster:career_advice:job_seekers:blog_post": {
+      "voiceId": "contrarian_myth_buster",
+      "topic": "career_advice",
+      "persona": "job_seekers",
+      "format": "blog_post",
+      "alpha": 1,
+      "beta": 1,
+      "mean": 0.5,
+      "impressions": 0,
+      "status": "under_test",
+      "lastUpdatedAt": "2026-08-18T08:00:07.204Z"
+    },
+    "story_narrative:career_advice:job_seekers:blog_post": {
+      "voiceId": "story_narrative",
+      "topic": "career_advice",
+      "persona": "job_seekers",
+      "format": "blog_post",
+      "alpha": 1,
+      "beta": 1,
+      "mean": 0.5,
+      "impressions": 0,
+      "status": "under_test",
+      "lastUpdatedAt": "2026-08-18T08:00:07.204Z"
+    }
+  }
 }
