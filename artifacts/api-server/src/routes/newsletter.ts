@@ -37,6 +37,9 @@ router.post("/newsletter", async (req, res) => {
             utm_content: body.utm_content ?? null,
             utm_term: body.utm_term ?? null,
             custom_fields: [
+              ...(body.first_name
+                ? [{ name: "First Name", value: body.first_name }]
+                : []),
               ...(body.page_slug
                 ? [{ name: "page_slug", value: body.page_slug }]
                 : []),

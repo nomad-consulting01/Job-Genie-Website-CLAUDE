@@ -1,5 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { SEO } from "../components/SEO";
+import { trackEvent } from "../lib/analytics";
+import { getVisitorId } from "../lib/abtest";
 
 const API_BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -50,10 +52,15 @@ const CSS = `
 .ap h1 .kill{color:var(--indigo)}
 .ap .sub{margin-top:22px;font-size:clamp(16px,1.6vw,19px);color:var(--muted);max-width:34ch}
 .ap .optin{margin-top:34px;max-width:440px}
-.ap .optin-row{display:flex;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:7px 7px 7px 16px;transition:border-color .2s,box-shadow .2s}
-.ap .optin-row:focus-within{border-color:var(--indigo);box-shadow:0 0 0 4px var(--indigo-soft)}
-.ap .optin-row input{flex:1;background:transparent;border:0;color:var(--ap-text);font-family:"DM Sans";font-size:16px;outline:none;min-width:0}
-.ap .optin-row input::placeholder{color:var(--muted-2)}
+.ap .optin-fields{display:grid;gap:12px}
+.ap .optin-field{display:grid;gap:7px}
+.ap .optin-field label{font-family:"Sora";font-size:13px;font-weight:600;color:var(--ap-text)}
+.ap .optin-field input{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;color:var(--ap-text);font-family:"DM Sans";font-size:16px;outline:none;padding:14px 16px;transition:border-color .2s,box-shadow .2s}
+.ap .optin-field input:focus{border-color:var(--indigo);box-shadow:0 0 0 4px var(--indigo-soft)}
+.ap .optin-field input::placeholder{color:var(--muted-2)}
+.ap .optin .btn-ap{width:100%;margin-top:12px}
+.ap .optin-status{margin-top:12px;font-size:14px;color:var(--muted)}
+.ap .optin-status.error{color:#ff8585}
 .ap .btn-ap{
   font-family:"Sora";font-weight:700;font-size:15px;
   background:var(--indigo);color:#0a0e1c;border:0;border-radius:9px;
@@ -153,21 +160,87 @@ const CSS = `
 }
 `;
 
-const BEEHIIV_FORM_ID = "98e29d7f-f7c1-4713-adfa-70c5f0b34f7f";
+function AutopsyForm({ id }: { id?: string }) {
+  const [firstName, setFirstName] = useState("");
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
 
-function BeehiivForm({ id }: { id?: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const script = document.createElement("script");
-    script.src = "https://subscribe-forms.beehiiv.com/v3/loader.js";
-    script.async = true;
-    script.setAttribute("data-beehiiv-form", BEEHIIV_FORM_ID);
-    container.appendChild(script);
-    return () => { container.innerHTML = ""; };
-  }, []);
-  return <div ref={containerRef} id={id} />;
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!firstName.trim() || !email.trim() || status === "submitting") return;
+
+    setStatus("submitting");
+    trackEvent("newsletter_submit_attempt");
+
+    const query = new URLSearchParams(window.location.search);
+    try {
+      const response = await fetch(`${API_BASE}/api/newsletter`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: firstName.trim(),
+          email: email.trim(),
+          page_slug: window.location.pathname,
+          visitor_id: getVisitorId(),
+          lead_magnet: "100-application-autopsy",
+          utm_source: query.get("utm_source") ?? undefined,
+          utm_medium: query.get("utm_medium") ?? undefined,
+          utm_campaign: query.get("utm_campaign") ?? undefined,
+          utm_content: query.get("utm_content") ?? undefined,
+          utm_term: query.get("utm_term") ?? undefined,
+        }),
+      });
+      if (!response.ok) throw new Error("Subscription failed");
+      setStatus("success");
+      setFirstName("");
+      setEmail("");
+      trackEvent("newsletter_submit_success");
+    } catch {
+      setStatus("error");
+      trackEvent("newsletter_submit_error");
+    }
+  }
+
+  return (
+    <form className="optin" id={id} onSubmit={handleSubmit}>
+      <div className="optin-fields">
+        <div className="optin-field">
+          <label htmlFor={`${id ?? "final"}-first-name`}>First name</label>
+          <input
+            id={`${id ?? "final"}-first-name`}
+            name="first_name"
+            type="text"
+            autoComplete="given-name"
+            placeholder="Alex"
+            value={firstName}
+            onChange={(event) => setFirstName(event.target.value)}
+            required
+          />
+        </div>
+        <div className="optin-field">
+          <label htmlFor={`${id ?? "final"}-email`}>Email</label>
+          <input
+            id={`${id ?? "final"}-email`}
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@email.com"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+          />
+        </div>
+      </div>
+      <button className="btn-ap" type="submit" disabled={status === "submitting" || status === "success"}>
+        {status === "submitting" ? "Sending…" : status === "success" ? "Check your inbox!" : "Get my free Autopsy →"}
+      </button>
+      <div className="micro">
+        <span><i className="dot" />Free · no card</span>
+        <span><i className="dot" />Unsubscribe anytime</span>
+      </div>
+      {status === "error" && <p className="optin-status error" role="alert">Something went wrong. Please try again.</p>}
+    </form>
+  );
 }
 
 const REPLIES = [7, 19, 34, 58, 71, 88];
@@ -229,7 +302,7 @@ export default function AutopsyPage() {
               <h1>You sent 100 applications. Something <span className="kill">killed them</span> before a human ever read one.</h1>
               <p className="sub">The Autopsy shows you exactly where your applications died — the résumé screen, the recruiter pass, or the void — and why. Then it hands you the first fix. About 10 minutes.</p>
 
-              <BeehiivForm id="autopsy" />
+              <AutopsyForm id="autopsy" />
             </div>
 
             <div className="autopsy-card" aria-hidden="true">
@@ -400,7 +473,7 @@ export default function AutopsyPage() {
         <div className="wrap">
           <span className="eyebrow" style={{ justifyContent: "center" }}>Get my free Autopsy</span>
           <h2>Stop guessing why they went quiet.</h2>
-          <BeehiivForm />
+          <AutopsyForm />
         </div>
       </section>
 

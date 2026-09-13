@@ -116,6 +116,8 @@ export interface SlugMetrics {
 }
 
 export interface NewsletterInput {
+  /** @nullable */
+  first_name?: string | null;
   email: string;
   /** @nullable */
   page_slug?: string | null;

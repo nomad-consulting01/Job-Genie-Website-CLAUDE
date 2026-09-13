@@ -113,6 +113,7 @@ export const GetSlugMetricsResponse = zod.object({
  * @summary Subscribe to newsletter via Beehiiv
  */
 export const SubscribeNewsletterBody = zod.object({
+  "first_name": zod.string().max(100).nullish(),
   "email": zod.string().email(),
   "page_slug": zod.string().nullish(),
   "visitor_id": zod.string().nullish(),

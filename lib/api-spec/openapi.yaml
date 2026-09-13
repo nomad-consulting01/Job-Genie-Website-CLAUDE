@@ -450,6 +450,9 @@ components:
       required:
         - email
       properties:
+        first_name:
+          type: ["string", "null"]
+          maxLength: 100
         email:
           type: string
           format: email
