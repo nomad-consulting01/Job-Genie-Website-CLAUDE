@@ -63,12 +63,12 @@ const CSS = `
 .ap .optin-status.error{color:#ff8585}
 .ap .btn-ap{
   font-family:"Sora";font-weight:700;font-size:15px;
-  background:var(--indigo);color:#0a0e1c;border:0;border-radius:9px;
+  background:#D62828;color:#fff;border:0;border-radius:9px;
   padding:13px 20px;cursor:pointer;white-space:nowrap;
   transition:transform .12s ease,box-shadow .2s ease;
-  box-shadow:0 8px 24px -8px var(--indigo-glow);
+  box-shadow:0 8px 24px -8px rgba(214,40,40,.65);
 }
-.ap .btn-ap:hover{transform:translateY(-1px);box-shadow:0 12px 30px -8px var(--indigo-glow)}
+.ap .btn-ap:hover{background:#B91C1C;transform:translateY(-1px);box-shadow:0 12px 30px -8px rgba(214,40,40,.75)}
 .ap .btn-ap:active{transform:translateY(0)}
 .ap .btn-ap:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .ap .btn-ap:disabled{opacity:.6;cursor:default;transform:none}
