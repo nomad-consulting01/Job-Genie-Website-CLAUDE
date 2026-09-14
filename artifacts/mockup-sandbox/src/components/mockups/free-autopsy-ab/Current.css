@@ -80,6 +80,43 @@
 .question-page { padding-top: 19px; }
 .step-label { margin: 0 0 10px; color: #a6a4c4; font-size: 13px; }
 .question-page h1 { max-width: 330px; font-size: 23px; letter-spacing: -.035em; }
+.text-step h1 { max-width: 325px; }
+.text-step-supporting {
+  max-width: 315px;
+  margin: 13px 0 13px;
+  color: #d0cce8;
+  font-size: 15px;
+  line-height: 1.42;
+}
+.funnel-textarea {
+  display: block;
+  width: 100%;
+  min-height: 99px;
+  box-sizing: border-box;
+  resize: vertical;
+  border: 1px solid rgba(180, 174, 255, .17);
+  border-radius: 7px;
+  outline: none;
+  background: #17163f;
+  color: #f5f3ff;
+  padding: 13px;
+  font: 14px/1.45 "DM Sans", sans-serif;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+.funnel-textarea::placeholder { color: #77739c; }
+.funnel-textarea:focus {
+  border-color: #f5edbb;
+  box-shadow: 0 0 0 1px #f5edbb;
+}
+.privacy-copy {
+  max-width: 315px;
+  margin: 15px 0 0;
+  color: #aaa6c5;
+  font-size: 13px;
+  line-height: 1.48;
+}
+.text-step-action { margin-top: 16px; padding: 11px 16px; }
+.text-step-action:disabled { background: #4313a9; color: #9e98bd; opacity: 1; }
 .answer-list { display: grid; gap: 8px; margin-top: 16px; }
 .answer-option {
   width: 100%;

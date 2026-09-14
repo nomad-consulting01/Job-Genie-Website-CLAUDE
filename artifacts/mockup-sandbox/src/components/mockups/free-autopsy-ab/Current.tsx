@@ -112,10 +112,15 @@ function IntakeForm({ onComplete }: { onComplete: () => void }) {
 export function Current() {
   const [page, setPage] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
+  const [jobDescription, setJobDescription] = useState("");
+  const [experience, setExperience] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const question = QUESTIONS[page - 1];
   const isIntro = page === 0;
   const isFinal = page === QUESTIONS.length;
+  const isTextStep = page === 5 || page === 6;
+  const currentText = page === 5 ? jobDescription : experience;
+  const setCurrentText = page === 5 ? setJobDescription : setExperience;
 
   return (
     <main className="mobile-autopsy">
@@ -148,7 +153,7 @@ export function Current() {
               </button>
             </>
           )}
-          {!isIntro && !isFinal && (
+          {!isIntro && !isFinal && !isTextStep && (
             <div className="question-page">
               <p className="step-label">Step {page} of 6</p>
               <h1>{question.title}</h1>
@@ -177,6 +182,36 @@ export function Current() {
               ) : selected !== null ? <div className="insight">{question.insights[selected]}</div> : null}
             </div>
           )}
+          {isTextStep && (
+            <div className="question-page text-step">
+              <p className="step-label">Step {page} of 6</p>
+              <h1>
+                {page === 5
+                  ? "Paste a job description you were genuinely qualified for — and heard nothing about."
+                  : "Last step. Paste the experience you sent them."}
+              </h1>
+              <p className="text-step-supporting">
+                {page === 5
+                  ? "Not the best one. A normal one you’d have been good at."
+                  : "Rough is fine — we’re reading substance, not formatting."}
+              </p>
+              <textarea
+                className="funnel-textarea"
+                value={currentText}
+                onChange={(event) => setCurrentText(event.target.value)}
+                placeholder={page === 5 ? "Paste the job posting here" : "Paste your resume or profile text..."}
+                aria-label={page === 5 ? "Job description" : "Resume or profile text"}
+              />
+              {page === 6 && (
+                <p className="privacy-copy">
+                  We don’t store this to sell it, we don’t scrape LinkedIn, and we don’t apply anywhere on your behalf.
+                </p>
+              )}
+              <button className="primary-button text-step-action" type="button" disabled={!currentText.trim()}>
+                {page === 5 ? "Read it" : "See my verdict"}
+              </button>
+            </div>
+          )}
           {isFinal && !submitted && <IntakeForm onComplete={() => setSubmitted(true)} />}
           {submitted && (
             <div className="success-card" role="status">
@@ -191,7 +226,12 @@ export function Current() {
           <button className="footer-back" type="button" onClick={() => { setPage(Math.max(0, page - 1)); setSelected(null); }} disabled={page === 0 || submitted}>Back</button>
           <span className="footer-step">{isIntro ? " " : `${page} / 6`}</span>
           {!isFinal && !submitted ? (
-            <button className="footer-next" type="button" onClick={() => { setPage(Math.min(6, page + 1)); setSelected(null); }} disabled={!isIntro && selected === null}>
+            <button
+              className="footer-next"
+              type="button"
+              onClick={() => { setPage(Math.min(6, page + 1)); setSelected(null); }}
+              disabled={!isIntro && (isTextStep ? !currentText.trim() : selected === null)}
+            >
               {isIntro ? "Next" : "Next"}
             </button>
           ) : <span />}
