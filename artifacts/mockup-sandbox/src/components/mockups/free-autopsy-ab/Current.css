@@ -18,6 +18,7 @@
 }
 
 .mobile-screen {
+  position: relative;
   width: min(100%, 382px);
   min-height: min(690px, calc(100dvh - 28px));
   background:
@@ -296,12 +297,44 @@
       var(--navy);
     box-shadow: 0 35px 100px rgba(0, 0, 0, .46), inset 0 0 0 1px rgba(255,255,255,.025);
   }
+  .mobile-screen::after {
+    content: "CASE 01\A\AAPPLICATION SILENCE\A\ASTATUS              OPEN\A\A100+ applications\A\AThe ranking system\Ais the evidence.";
+    white-space: pre;
+    position: absolute;
+    top: 116px;
+    right: 54px;
+    width: 232px;
+    min-height: 246px;
+    padding: 22px 20px;
+    border: 1px solid rgba(180, 174, 255, .18);
+    border-radius: 12px;
+    background:
+      linear-gradient(135deg, rgba(94, 74, 255, .14), transparent 48%),
+      rgba(10, 10, 42, .7);
+    color: #aaa6c5;
+    font: 10px/1.65 "JetBrains Mono", monospace;
+    letter-spacing: .08em;
+    box-shadow: 0 18px 46px rgba(0, 0, 0, .2);
+    pointer-events: none;
+  }
+  .mobile-screen::before {
+    content: "";
+    position: absolute;
+    top: 104px;
+    right: 42px;
+    width: 256px;
+    height: 270px;
+    border: 1px solid rgba(116, 95, 255, .08);
+    border-radius: 14px;
+    transform: rotate(2deg);
+    pointer-events: none;
+  }
   .progress { gap: 8px; padding: 21px 42px 0; }
   .progress span { height: 4px; }
   .mobile-content {
     width: min(100%, 1030px);
     margin: 0 auto;
-    padding: 42px 58px 54px;
+    padding: 42px 360px 54px 58px;
   }
   .brand-line { font-size: 11px; }
   .brand-mark { width: 30px; height: 30px; border-radius: 8px; }
