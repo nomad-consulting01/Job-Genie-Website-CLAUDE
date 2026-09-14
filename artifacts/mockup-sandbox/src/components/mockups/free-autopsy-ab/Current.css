@@ -1,15 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap");
 
 .mobile-autopsy {
-  --navy: #0b0a28;
-  --navy-soft: #12113a;
-  --purple: #6418ff;
-  --purple-bright: #7b31ff;
+  --navy: #0a102a;
+  --navy-soft: #11193d;
+  --purple: #4a47ff;
+  --purple-bright: #5d5bff;
   --ink: #f5f3ff;
   --muted: #a6a4c4;
   --line: rgba(180, 174, 255, .18);
   min-height: 100vh;
-  background: #03030d;
+  background: #050817;
   color: var(--ink);
   font-family: "DM Sans", sans-serif;
   display: grid;
@@ -21,7 +21,7 @@
   width: min(100%, 390px);
   min-height: min(844px, calc(100dvh - 36px));
   background:
-    radial-gradient(circle at 15% 8%, rgba(101, 24, 255, .12), transparent 28%),
+    radial-gradient(circle at 15% 8%, rgba(74, 71, 255, .16), transparent 28%),
     var(--navy);
   border: 1px solid rgba(255, 255, 255, .05);
   border-radius: 28px;
@@ -55,15 +55,12 @@
 }
 
 .brand-mark {
-  width: 23px;
-  height: 23px;
-  border-radius: 7px;
-  display: grid;
-  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: block;
+  object-fit: contain;
   background: var(--purple);
-  color: #fff;
-  font: 700 9px "Sora", sans-serif;
-  letter-spacing: -.08em;
 }
 
 .case-label { margin-left: auto; color: #716d9d; font-size: 9px; }

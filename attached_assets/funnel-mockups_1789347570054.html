@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autopsy funnel mockups — v1 to v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --midnight:#0A102A; --deep:#11193D; --indigo:#4A47FF; --violet:#5D5BFF;
+  --white:#F5F5F2; --slate:#8E96B8; --line:#232C55; --text2:#C8CDE4;
+  --green:#34C77B; --amber:#E8A93A;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--midnight);color:var(--white);font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.55}
+h1,h2,h3{font-family:Sora,Inter,sans-serif;font-weight:600;letter-spacing:-0.02em;margin:0;line-height:1.2}
+p{margin:0 0 .8em}
+.wrap{max-width:74rem;margin:0 auto;padding:0 1.5rem}
+
+header.top{padding:2rem 0 1.2rem;border-bottom:1px solid var(--line)}
+header.top h1{font-size:clamp(1.5rem,3.4vw,2rem)}
+header.top p{color:var(--slate);max-width:40rem;margin-top:.6rem}
+
+/* ---------- version tabs ---------- */
+.tabs{display:flex;gap:.6rem;flex-wrap:wrap;margin:1.6rem 0 .4rem}
+.tab{
+  background:var(--deep);border:1px solid var(--line);color:var(--slate);
+  padding:.7rem 1.1rem;border-radius:8px;cursor:pointer;font:inherit;font-weight:500;
+  text-align:left;flex:1;min-width:12rem;
+}
+.tab b{display:block;color:var(--white);font-family:Sora,sans-serif;font-size:.98rem;margin-bottom:.15rem}
+.tab span{font-size:.83rem;display:block}
+.tab.active{border-color:var(--indigo);background:#161d47}
+.tab.active b{color:var(--white)}
+.tab.active::after{content:"";display:block;height:2px;background:var(--indigo);margin-top:.6rem;border-radius:2px}
+
+.whatschanged{
+  background:var(--deep);border:1px solid var(--line);border-radius:8px;
+  padding:1.1rem 1.3rem;margin:1.2rem 0 2rem;color:var(--text2);font-size:.94rem;
+}
+.whatschanged b{color:var(--white);font-family:Sora,sans-serif;font-weight:600}
+
+/* ---------- layout: phone + sidebar ---------- */
+.stage{display:grid;grid-template-columns:min-content 1fr;gap:2.6rem;align-items:start;padding-bottom:4rem}
+
+/* ---------- phone frame ---------- */
+.phone{
+  width:360px;background:#000;border-radius:34px;padding:10px;
+  box-shadow:0 30px 60px -20px rgba(0,0,0,.6);
+}
+.phone-screen{
+  background:var(--midnight);border-radius:26px;overflow:hidden;
+  height:680px;display:flex;flex-direction:column;position:relative;
+}
+.dots{display:flex;gap:5px;padding:14px 18px 0}
+.dot{flex:1;height:3px;border-radius:2px;background:var(--line)}
+.dot.done{background:var(--indigo)}
+.screen-body{flex:1;overflow-y:auto;padding:1.3rem 1.4rem 1rem}
+.screen-body::-webkit-scrollbar{width:0}
+.chrome-nav{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:.9rem 1.3rem 1.1rem;border-top:1px solid var(--line);gap:.8rem;
+}
+.chrome-nav button{
+  font:inherit;font-family:Sora,sans-serif;font-weight:600;font-size:.9rem;
+  border-radius:8px;padding:.6rem 1.1rem;cursor:pointer;border:0;
+}
+.btn-back{background:transparent;color:var(--slate)}
+.btn-back:disabled{opacity:.3;cursor:default}
+.btn-next{background:var(--indigo);color:#fff}
+.btn-next:hover:not(:disabled){background:var(--violet)}
+.btn-next:disabled{background:var(--line);color:var(--slate);cursor:not-allowed}
+
+/* ---------- in-screen content styles ---------- */
+.kicker{color:var(--slate);font-size:.82rem;margin-bottom:.5rem}
+.sh1{font-size:1.32rem;margin-bottom:.5rem}
+.sh-sub{color:var(--text2);font-size:.92rem}
+.opt{
+  display:block;width:100%;text-align:left;background:var(--deep);
+  border:1px solid var(--line);color:var(--white);padding:.75rem .9rem;
+  border-radius:8px;font:inherit;font-size:.92rem;margin-top:.5rem;cursor:pointer;
+}
+.opt:hover{border-color:var(--indigo)}
+.opt.picked{border-color:var(--indigo);background:#161d47}
+.opt.doorbtn{display:inline-block;width:auto;margin-right:.5rem}
+.qgroup{margin-bottom:1.1rem;padding-bottom:1rem;border-bottom:1px solid var(--line)}
+.qgroup:last-child{border-bottom:0}
+.qlabel{font-weight:500;font-size:.94rem;margin-bottom:.3rem}
+.echo{
+  margin-top:.55rem;padding:.7rem .85rem;background:#0f1638;border-left:2px solid var(--indigo);
+  border-radius:0 6px 6px 0;font-size:.86rem;color:var(--text2);
+}
+textarea{
+  width:100%;min-height:6.2rem;background:var(--deep);border:1px solid var(--line);
+  color:var(--white);border-radius:8px;padding:.7rem .8rem;font:inherit;font-size:.9rem;resize:vertical;
+}
+textarea::placeholder{color:#5c648c}
+.microcopy{color:var(--slate);font-size:.8rem;margin-top:.5rem}
+.finding-card{background:var(--deep);border:1px solid var(--line);border-radius:8px;padding:.95rem 1rem;margin-top:.7rem}
+.finding-label{color:var(--slate);font-size:.78rem;text-transform:none;margin-bottom:.2rem}
+.finding-text{font-size:.9rem;color:var(--text2)}
+.delta-row{display:flex;flex-direction:column;gap:.5rem;margin-top:.6rem}
+.delta-box{padding:.6rem .75rem;border-radius:6px;font-size:.85rem}
+.delta-before{background:#2b1a1a;border:1px solid #4a2a2a;color:#e8b8b8}
+.delta-after{background:#16281f;border:1px solid #234a34;color:#a9e6c6}
+.cta-inline{
+  display:inline-block;margin-top:.9rem;background:var(--indigo);color:#fff;
+  padding:.6rem 1rem;border-radius:8px;font-family:Sora,sans-serif;font-weight:600;
+  font-size:.88rem;border:0;cursor:pointer;
+}
+.cta-inline.ghost{background:transparent;border:1px solid var(--line);color:var(--slate)}
+.exit-card{background:#241a3d;border:1px solid #3d2e6b;border-radius:8px;padding:.95rem 1rem;margin-top:.7rem}
+.exit-card b{display:block;margin-bottom:.4rem;font-family:Sora,sans-serif}
+.score-row{display:flex;align-items:baseline;gap:.7rem;margin-bottom:.15rem}
+.score-num{font-family:Sora,sans-serif;font-size:2.1rem;font-weight:600}
+.score-band{color:var(--violet);font-weight:500;font-size:.9rem}
+.score-conf{color:var(--slate);font-size:.8rem;margin-bottom:.9rem}
+.vsec{padding-top:.75rem;border-top:1px solid var(--line);margin-top:.75rem}
+.vsec:first-of-type{border-top:0;margin-top:0;padding-top:0}
+.vlabel{color:var(--slate);font-size:.78rem;margin-bottom:.2rem}
+.vtitle{font-size:.98rem;font-weight:600;font-family:Sora,sans-serif;margin-bottom:.25rem}
+.vtext{font-size:.88rem;color:var(--text2)}
+.variant-toggle{display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap}
+.vt-btn{
+  font-size:.76rem;padding:.35rem .6rem;border-radius:6px;border:1px solid var(--line);
+  background:var(--deep);color:var(--slate);cursor:pointer;font:inherit;
+}
+.vt-btn.on{border-color:var(--indigo);color:var(--white);background:#161d47}
+.disclosed{
+  margin-top:1rem;padding-left:.85rem;border-left:2px solid var(--line);
+  color:var(--slate);font-size:.83rem;
+}
+.compare-table{width:100%;border-collapse:collapse;margin-top:1rem;font-size:.8rem}
+.compare-table th{color:var(--slate);text-align:left;font-weight:500;padding:.4rem .5rem;border-bottom:1px solid var(--line)}
+.compare-table td{padding:.5rem;border-bottom:1px solid var(--line);color:var(--text2);vertical-align:top}
+.compare-table td:first-child{color:var(--white);font-weight:500;width:34%}
+.ad-preview{background:var(--deep);border:1px solid var(--line);border-radius:8px;padding:.9rem 1rem;margin-bottom:1rem}
+.ad-tag{color:var(--slate);font-size:.75rem;margin-bottom:.4rem}
+.ad-headline{font-family:Sora,sans-serif;font-weight:600;font-size:1rem;margin-bottom:.3rem}
+.ad-body{font-size:.85rem;color:var(--text2)}
+.email-input{
+  width:100%;background:var(--deep);border:1px solid var(--line);color:var(--white);
+  padding:.7rem .85rem;border-radius:8px;font:inherit;font-size:.92rem;margin-top:.6rem;
+}
+.paywall-price{font-family:Sora,sans-serif;font-size:1.6rem;font-weight:600;margin:.7rem 0 .3rem}
+.icon-cards{display:flex;gap:.5rem;flex-wrap:wrap}
+.icon-card{
+  flex:1;min-width:6.2rem;text-align:center;background:var(--deep);border:1px solid var(--line);
+  border-radius:8px;padding:.7rem .4rem;cursor:pointer;font-size:.82rem;
+}
+.icon-card .emo{font-size:1.3rem;display:block;margin-bottom:.3rem}
+.icon-card.picked{border-color:var(--indigo);background:#161d47}
+
+/* ---------- sidebar notes ---------- */
+.notes{padding-top:.3rem}
+.notes h2{font-size:1.15rem;margin-bottom:.7rem}
+.notes ul{margin:0 0 1.6rem;padding-left:1.1rem;color:var(--text2);font-size:.92rem}
+.notes li{margin-bottom:.5rem}
+.notes .tag{
+  display:inline-block;font-size:.72rem;color:var(--slate);border:1px solid var(--line);
+  border-radius:5px;padding:.1rem .4rem;margin-right:.4rem;font-family:Sora,sans-serif;
+}
+.step-label{color:var(--slate);font-size:.85rem;margin-bottom:1rem}
+.step-label b{color:var(--white)}
+
+@media (max-width: 900px){
+  .stage{grid-template-columns:1fr;justify-items:center}
+  .phone{width:100%;max-width:360px}
+}
+</style>
+</head>
+<body>
+
+<header class="top wrap">
+  <h1>The 100-Application Autopsy — funnel mockups</h1>
+  <p>Four architectures, same product. Click through each to see what actually changed step to step — this is the spec documents made clickable, not new copy.</p>
+  <p id="welcomeLine" style="display:none;color:var(--slate);margin-top:.6rem"></p>
+</header>
+
+<div class="wrap">
+  <div class="tabs" id="tabs"></div>
+  <div class="whatschanged" id="whatschanged"></div>
+
+  <div class="stage">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="dots" id="dots"></div>
+        <div class="screen-body" id="screenBody"></div>
+        <div class="chrome-nav">
+          <button class="btn-back" id="btnBack">Back</button>
+          <button class="btn-next" id="btnNext">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <div class="step-label" id="stepLabel"></div>
+      <h2 id="notesTitle">What this screen is doing</h2>
+      <ul id="notesBody"></ul>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= shared render helpers ================= */
+function h(strings, ...vals){ return strings.reduce((a,s,i)=>a+s+(vals[i]??''),''); }
+
+function kickerBlock(kicker,title,sub){
+  return h`<div class="kicker">${kicker}</div><h3 class="sh1">${title}</h3>${sub?`<p class="sh-sub">${sub}</p>`:''}`;
+}
+
+/* generic tap-question renderer used inside escalation screens */
+function renderQuestion(container, qid, label, options, responses, state, onPick){
+  const group = document.createElement('div');
+  group.className='qgroup';
+  group.innerHTML = `<div class="qlabel">${label}</div>` +
+    options.map((o,i)=>`<button class="opt" data-q="${qid}" data-i="${i}">${o}</button>`).join('') +
+    `<div class="echo" style="display:none"></div>`;
+  container.appendChild(group);
+  const echo = group.querySelector('.echo');
+  const prev = state.answers[qid];
+  if(prev!==undefined){
+    group.querySelectorAll('.opt').forEach((b,i)=>{ if(i===prev) b.classList.add('picked'); });
+    echo.style.display='block'; echo.textContent = responses[prev];
+  }
+  group.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const i = +btn.dataset.i;
+      group.querySelectorAll('.opt').forEach(b=>b.classList.remove('picked'));
+      btn.classList.add('picked');
+      echo.style.display='block'; echo.textContent = responses[i];
+      state.answers[qid]=i;
+      onPick && onPick(i);
+    });
+  });
+}
+
+/* ================= V1 — ladder architecture ================= */
+const V1_VOL = ["10–25","25–50","50–100","100+"];
+const V1_VOL_R = [
+ "Enough to see the start of a pattern. Not yet enough to be certain it isn't variance — we'll tell you which.",
+ "That's past the point where bad luck explains it. Something systematic is happening.",
+ "At this volume, the odds of this being chance are effectively gone. There's a cause, and it's findable.",
+ "This isn't a numbers problem. Sending more of the same has already been tested — a hundred times — and the answer came back the same each time."
+];
+const V1_CHAN = ["Job boards (LinkedIn, Indeed, company sites)","In-house recruiters at the company","Specialist or agency recruiters","A mix of all three"];
+const V1_CHAN_R = [
+ "Board applications usually enter a ranking system before any person sees them. That's the harshest filter and the one that explains the most silence.",
+ "In-house recruiters are measured on time-to-fill. Their screen is fast and unexplained by design — nobody is required to tell you why.",
+ "A named recruiter with an inbox is accountable in a way an ATS isn't. If they went silent too, that's a different signal.",
+ "Good. Silence from a board and silence from a named recruiter mean different things."
+];
+const V1_LEVEL = ["Under 5 years","5–12 years","12–20 years","20+ years"];
+const V1_LEVEL_R = [
+ "The filters that catch early-career candidates are mostly about evidence volume. Fixable, usually quickly.",
+ "The awkward band. Too experienced for junior screens, not yet legible as senior. A lot of silence lives here.",
+ "At this level the screen stops reading skills and starts reading scope, comp band, and trajectory.",
+ "The filters here are rarely about capability. They're about cost, risk, and whether your path reads as still-ascending."
+];
+const V1_EXIT_OPT = ["None at all","A few, then nothing","Regularly — I get calls but no offers"];
+
+function v1Screens(){
+  return [
+  // 0 landing
+  s => { s.innerHTML = kickerBlock('For mid-career professionals getting no response',
+    'You didn\u2019t get rejected. You got ranked.',
+    'Recruiting platforms rank and label candidates rather than accepting or rejecting them. Run the 100-Application Autopsy free and find out where you\u2019re sorting.')
+    + `<button class="cta-inline" data-adv>Run my free Autopsy</button>`;
+  },
+  // 1 volume
+  (s,state,adv)=>{ s.innerHTML = kickerBlock('Step 1 of 6','How many applications have you sent without hearing back?','');
+    renderQuestion(s,'vol','',V1_VOL,V1_VOL_R,state, ()=>adv.enable()); },
+  // 2 channel
+  (s,state,adv)=>{ s.innerHTML = kickerBlock('Step 2 of 6','Where did most of them go?','');
+    renderQuestion(s,'chan','',V1_CHAN,V1_CHAN_R,state, ()=>adv.enable()); },
+  // 3 level
+  (s,state,adv)=>{ s.innerHTML = kickerBlock('Step 3 of 6','Where are you in your career?','');
+    renderQuestion(s,'level','',V1_LEVEL,V1_LEVEL_R,state, ()=>adv.enable()); },
+  // 4 exit check
+  (s,state,adv)=>{
+    s.innerHTML = kickerBlock('Step 4 of 6','Have any led to a first conversation — a screening call, a recruiter reply, anything?','');
+    const div=document.createElement('div');
+    const resp=["That's what this tool is built for. You're not failing interviews — you're not reaching them. Keep going.",
+      "Useful. You're getting past the first filter sometimes — we'll look at what's different about the ones that landed.",
+      null];
+    renderQuestion(div,'conv','',V1_EXIT_OPT,resp,state,(i)=>{
+      if(i===2){
+        const exit=document.createElement('div');
+        exit.className='exit-card';
+        exit.innerHTML = `<b>Then the Autopsy is the wrong tool for you, and we'd rather say so.</b>
+          <p style="margin-bottom:.6rem">You don't have a silence problem. You're clearing the screen — the filter we diagnose isn't what's stopping you. Your gap is between the first conversation and the offer: interview performance, positioning, or negotiation.</p>
+          <p style="margin-bottom:.7rem">We don't sell that and we're not going to pretend otherwise.</p>
+          <button class="cta-inline">Show me anyway</button> <button class="cta-inline ghost">That's fair — close</button>`;
+        div.appendChild(exit);
+      }
+      adv.enable();
+    });
+    s.appendChild(div);
+  },
+  // 5 job description paste
+  (s,state,adv)=>{
+    s.innerHTML = kickerBlock('Step 5 of 6','Paste a job description you were genuinely qualified for — and heard nothing about.','Not the best one. A normal one you\u2019d have been good at.')
+    + `<textarea placeholder="Paste the job posting here..."></textarea>
+       <button class="cta-inline" data-req="ta">Read it</button>`;
+    wireTextareaGate(s,adv);
+  },
+  // 6 experience paste
+  (s,state,adv)=>{
+    s.innerHTML = kickerBlock('Step 6 of 6','Last step. Paste the experience you sent them.','Rough is fine — we\u2019re reading substance, not formatting.')
+    + `<textarea placeholder="Paste your resume or profile text..."></textarea>
+       <div class="microcopy">We don\u2019t store this to sell it, we don\u2019t scrape LinkedIn, and we don\u2019t apply anywhere on your behalf.</div>
+       <button class="cta-inline" data-req="ta">See my verdict</button>`;
+    wireTextareaGate(s,adv);
+  },
+  // 7 verdict
+  (s)=>{ s.innerHTML = kickerBlock('Your verdict','Application Silence Score','')
+    + verdictCard('standard',6)
+    + `<button class="cta-inline" data-adv>Get the full written Autopsy</button>`;
+  },
+  // 8 email
+  (s,state,adv)=>{ s.innerHTML = kickerBlock('Almost done','Where should we send the full Autopsy?','Covers all six gap categories and the evidence behind each.')
+    + `<input class="email-input" type="email" placeholder="you@email.com">
+       <button class="cta-inline" data-req="email">Send it</button>`;
+    wireEmailGate(s,adv);
+  },
+  // 9 paywall
+  (s)=>{ s.innerHTML = kickerBlock('The Truth Layer','You\u2019ve seen what\u2019s stopping you. This shows the rest.','Every gap category scored. Your Recruiter-Ready Brief. Re-run as you change things.')
+    + `<div class="paywall-price">$49.99<span style="font-size:.9rem;color:var(--slate)">/month</span></div>
+       <p class="sh-sub">Card now, first charge day 14 — after you've used it. Cancel in one click.</p>
+       <button class="cta-inline" data-adv>Start the Truth Layer</button>`;
+  }
+  ];
+}
+
+/* ================= shared spine for v2/v3/v4 ================= */
+const ESC_VOL_R = V1_VOL_R, ESC_CHAN_R = V1_CHAN_R;
+const CONV_OPT = ["None at all","A few, then nothing","Regularly — calls but no offers"];
+const STATUS_OPT = ["Between roles","Employed and looking","Freelance or contract","First job / still studying"];
+const STATUS_R = [
+ "A gap is accruing and it's visible to the screen — that changes how the evidence reads.",
+ "Then you're a passive candidate applying actively — the segment recruiters are increasingly advised to look past.",
+ "The strongest signal of the four. Scope grows without titles changing for contractors — this often distorts the read badly.",
+ null // second exit
+];
+
+function verdictCard(kind, gapsTotal){
+  if(kind==='structural'){
+    return h`
+    <div class="score-row"><span class="score-num">82</span><span class="score-band">Structural</span></div>
+    <div class="score-conf">Confidence: moderate</div>
+    <div class="vsec"><div class="vlabel">What this means</div>
+      <div class="vtext">Some of what's stopping you isn't fixable by anything you write — comp band, geography, internal competition, or the fact that active applicants are increasingly the segment recruiters are advised to look past. We'd rather tell you that than sell you a rewrite that wouldn't have worked.</div>
+    </div>`;
+  }
+  if(kind==='mismatch'){
+    return h`
+    <div class="score-row"><span class="score-num">—</span><span class="score-band">Target mismatch</span></div>
+    <div class="score-conf">Confidence: pattern across 3 postings</div>
+    <div class="vsec"><div class="vlabel">The filter catching you</div><div class="vtitle">Target mismatch</div>
+      <div class="vtext">Your experience is legible — that's not the problem. Across the postings you gave us, the required scope sits outside what your evidence shows, consistently.</div>
+    </div>
+    <div class="vsec"><div class="vlabel">One thing we can't tell from the outside</div>
+      <div class="vtext">Is this deliberate — you're changing direction — or did the targeting drift without you meaning it to?</div>
+      <button class="cta-inline" style="margin-top:.5rem">Deliberate</button> <button class="cta-inline ghost" style="margin-top:.5rem">Not deliberate</button>
+    </div>`;
+  }
+  return h`
+  <div class="score-row"><span class="score-num">68</span><span class="score-band">Positioning-side</span></div>
+  <div class="score-conf">Confidence: moderate — 1 experience document${gapsTotal===8?', 3 postings, 60+ applications reported':''}</div>
+  <div class="vsec"><div class="vlabel">The filter catching you</div><div class="vtitle">Achievement legibility</div>
+    <div class="vtext">Nine of your twelve bullets describe what you were accountable for. Three describe what changed because you were there.</div>
+  </div>
+  <div class="vsec"><div class="vlabel">Secondary</div><div class="vtitle">Title lineage</div>
+    <div class="vtext">Your progression reads as lateral to a system expecting ascent.</div>
+  </div>
+  <div class="vsec"><div class="vlabel">What we can't see</div>
+    <div class="vtext">Which system screened you, or whether an internal candidate ranked above you.</div>
+  </div>`;
+}
+
+function wireTextareaGate(container, adv){
+  const ta = container.querySelector('textarea');
+  const btn = container.querySelector('[data-req="ta"]');
+  btn.disabled = true; btn.style.opacity=.5;
+  ta.addEventListener('input', ()=>{
+    const ok = ta.value.trim().length>4;
+    btn.disabled=!ok; btn.style.opacity= ok?1:.5;
+    if(ok) adv.enable();
+  });
+  btn.addEventListener('click', ()=>{ if(!btn.disabled) adv.enable(true); });
+}
+function wireEmailGate(container, adv){
+  const inp=container.querySelector('.email-input');
+  const btn=container.querySelector('[data-req="email"]');
+  inp.addEventListener('input', ()=> adv.enable(inp.value.includes('@')) );
+  btn.addEventListener('click', ()=>{ if(inp.value.includes('@')) adv.enable(true); });
+}
+
+function buildSpine(opts){
+  const { delta, door, comparisonBlock, adSelector, test7, planLabel } = opts;
+
+  const landing = (s,state,adv)=>{
+    let html='';
+    if(adSelector){
+      const ads = window.AD_VARIANTS;
+      html += `<div class="ad-preview"><div class="ad-tag">Ad you clicked — try the others:</div>
+        <div class="variant-toggle">${['A','B','C','D'].map(k=>`<button class="vt-btn ${state.ad===k?'on':''}" data-ad="${k}">${k}</button>`).join('')}</div>
+        <div class="ad-headline">${ads[state.ad].h}</div>
+        <div class="ad-body">${ads[state.ad].b}</div>
+      </div>`;
+    }
+    html += kickerBlock('For mid-career professionals getting no response','See what a screen reads in your experience.','');
+    html += door
+      ? `<div class="variant-toggle">
+           <button class="vt-btn ${state.door!=='full'?'on':''}" data-door="line">One line</button>
+           <button class="vt-btn ${state.door==='full'?'on':''}" data-door="full">The whole thing</button>
+         </div>
+         <textarea placeholder="${state.door==='full' ? 'Paste your resume or profile text...' : 'Paste one bullet from your resume...'}"></textarea>`
+      : `<textarea placeholder="Paste your resume or profile text..."></textarea>`;
+    html += `<button class="cta-inline" data-req="ta">Show me</button>`;
+    if(comparisonBlock){
+      html += `<table class="compare-table">
+        <tr><th></th><th>General agent</th><th>The Autopsy</th></tr>
+        <tr><td>What it reads</td><td>The document you paste</td><td>The event — volume, channel, target pattern</td></tr>
+        <tr><td>Confidence</td><td>None stated</td><td>Stated, and refuses to guess when thin</td></tr>
+        <tr><td>Sources</td><td>None</td><td>Linked under every claim</td></tr>
+      </table>`;
+    }
+    html += `<div class="disclosed">There is a paid product at the end of this. It's $49.99/month, it appears after your verdict, and the verdict is yours either way.</div>`;
+    s.innerHTML = html;
+    if(adSelector){
+      s.querySelectorAll('[data-ad]').forEach(b=>b.addEventListener('click', ()=>{ state.ad=b.dataset.ad; landing(s,state,adv); }));
+    }
+    if(door){
+      s.querySelectorAll('[data-door]').forEach(b=>b.addEventListener('click', ()=>{ state.door=b.dataset.door; landing(s,state,adv); }));
+    }
+    wireTextareaGate(s,adv);
+  };
+
+  const input = (s,state,adv)=>{
+    let html='';
+    if(door){
+      html += `<div class="variant-toggle">
+        <button class="vt-btn ${state.door!=='full'?'on':''}" data-door="line">Just one line</button>
+        <button class="vt-btn ${state.door==='full'?'on':''}" data-door="full">The whole thing</button>
+      </div>`;
+      html += kickerBlock('Step 1', state.door==='full' ? 'Paste the experience you\u2019ve been sending them.' : 'Paste one line from your resume.', 'Rough is fine — we\u2019re reading substance, not formatting.');
+      html += `<textarea placeholder="${state.door==='full'?'Paste your resume or profile text...':'e.g. Managed the ERP implementation for a mid-market manufacturer.'}"></textarea>`;
+    } else {
+      html += kickerBlock('Step 1','Paste the experience you\u2019ve been sending them.','Rough is fine — we\u2019re reading substance, not formatting.');
+      html += `<textarea placeholder="Paste your resume or profile text..."></textarea>`;
+    }
+    html += `<button class="cta-inline" data-req="ta">Read it</button>
+      <div class="microcopy">We don\u2019t sell this, we don\u2019t scrape LinkedIn, and we don\u2019t apply anywhere on your behalf.</div>`;
+    s.innerHTML = html;
+    if(door) s.querySelectorAll('[data-door]').forEach(b=>b.addEventListener('click', ()=>{ state.door=b.dataset.door; input(s,state,adv); }));
+    wireTextareaGate(s,adv);
+  };
+
+  const finding = (s,state,adv)=>{
+    let html = kickerBlock('Your finding','What a screen reads in your experience','');
+    if(delta){
+      html += `<div class="finding-card"><div class="finding-label">You wrote</div>
+        <div class="delta-row">
+          <div class="delta-box delta-before">"Managed the ERP implementation for a mid-market manufacturer."<br><span style="opacity:.7">— reads as duty, not outcome</span></div>
+          <div class="delta-box delta-after">"Delivered a [ ]-month ERP migration [ ] early and [$ ] under budget by restructuring vendor sprints across four workstreams."<br><span style="opacity:.7">— you fill in your numbers, we never invent them</span></div>
+        </div>
+      </div>`;
+    } else {
+      html += `<div class="finding-card"><div class="finding-label">Strongest signal</div><div class="finding-text">Three roles state the size of what you ran — team, budget, systems touched.</div></div>
+      <div class="finding-card"><div class="finding-label">Weakest signal — achievement legibility</div><div class="finding-text">Nine of twelve bullets describe what you were accountable for, not what changed because you were there.</div></div>`;
+    }
+    html += `<p style="margin-top:.9rem" class="sh-sub">This is what your experience shows on its own. It doesn't tell us why applications went silent — for that we need to know what happened.</p>
+      <button class="cta-inline" data-adv>Tell us what happened</button>`;
+    s.innerHTML = html;
+  };
+
+  const escalation = (s,state,adv)=>{
+    s.innerHTML = kickerBlock('A few questions',test7?'Step 2 of 3 (4 quick ones)':'Step 2 of 3','');
+    const div=document.createElement('div');
+    renderQuestion(div,'vol','How many applications have you sent without a reply?',V1_VOL,ESC_VOL_R,state,()=>checkDone());
+    renderQuestion(div,'chan','Where did most of them go?',V1_CHAN,ESC_CHAN_R,state,()=>checkDone());
+    const convResp=["That's what this tool is built for.","Useful — we'll look at what's different about the ones that landed.",null];
+    renderQuestion(div,'conv','Have any led to a first conversation?',CONV_OPT,convResp,state,(i)=>{
+      if(i===2) showExit(div,'conv');
+      checkDone();
+    });
+    if(test7){
+      renderQuestion(div,'status','And where were you applying from?',STATUS_OPT,STATUS_R,state,(i)=>{
+        if(i===3) showExit(div,'status2');
+        checkDone();
+      });
+    }
+    s.appendChild(div);
+    function showExit(container,which){
+      const exit=document.createElement('div'); exit.className='exit-card';
+      exit.innerHTML = which==='conv'
+        ? `<b>Then the Autopsy is the wrong tool for you.</b><p style="margin-bottom:.6rem">You're clearing the screen — your gap is between the first conversation and the offer. Different problem, different fix.</p><button class="cta-inline">Show me anyway</button> <button class="cta-inline ghost">That's fair — close</button>`
+        : `<b>This Autopsy probably isn't built for you yet.</b><p style="margin-bottom:.6rem">The filters here are tuned for people with a few years in the workforce. Early-career silence has different causes.</p><button class="cta-inline">Show me anyway</button> <button class="cta-inline ghost">That's fair — close</button>`;
+      container.appendChild(exit);
+    }
+    function checkDone(){
+      const need = test7 ? ['vol','chan','conv','status'] : ['vol','chan','conv'];
+      if(need.every(k=>state.answers[k]!==undefined)) adv.enable();
+    }
+    checkDone();
+  };
+
+  const postings = (s,state,adv)=>{
+    s.innerHTML = kickerBlock('Step 3','Paste a job description you were genuinely qualified for.','A normal one — not the dream one.')
+    + `<textarea placeholder="Paste the job posting here..."></textarea>
+       <button class="cta-inline ghost" style="margin-top:.5rem" id="addAnother">+ Add another (optional)</button>
+       <div id="moreSlot"></div>
+       <button class="cta-inline" data-req="ta" style="margin-top:.7rem">Read the posting</button>`;
+    wireTextareaGate(s,adv);
+    let n=0;
+    s.querySelector('#addAnother').addEventListener('click', ()=>{
+      if(n>=2) return; n++;
+      const t=document.createElement('textarea');
+      t.style.marginTop='.5rem'; t.placeholder='Another posting (optional)...';
+      s.querySelector('#moreSlot').appendChild(t);
+    });
+  };
+
+  const verdict = (s,state)=>{
+    if(!state.vv) state.vv='standard';
+    const render=()=>{
+      s.innerHTML = kickerBlock('Your verdict','Application Silence Score','')
+      + `<div class="variant-toggle">
+          <button class="vt-btn ${state.vv==='standard'?'on':''}" data-vv="standard">Standard</button>
+          <button class="vt-btn ${state.vv==='structural'?'on':''}" data-vv="structural">Structural band</button>
+          <button class="vt-btn ${state.vv==='mismatch'?'on':''}" data-vv="mismatch">Target mismatch</button>
+        </div>`
+      + verdictCard(state.vv, 8)
+      + `<button class="cta-inline" data-adv style="margin-top:.9rem">Get the full written Autopsy</button>`;
+      s.querySelectorAll('[data-vv]').forEach(b=>b.addEventListener('click', ()=>{ state.vv=b.dataset.vv; render(); }));
+    };
+    render();
+  };
+
+  const email = (s,state,adv)=>{
+    s.innerHTML = kickerBlock('Almost done','Where should we send the full Autopsy?','Covers all eight gap categories and the evidence behind each.')
+    + `<input class="email-input" type="email" placeholder="you@email.com">
+       <button class="cta-inline" data-req="email">Send it</button>`;
+    wireEmailGate(s,adv);
+  };
+
+  const paywall = (s)=>{
+    let html = kickerBlock('The Truth Layer','You\u2019ve seen what\u2019s stopping you. This shows the rest.','Every gap category scored. Your Recruiter-Ready Brief. Re-run as you change things.');
+    html += `<div class="paywall-price">$49.99<span style="font-size:.9rem;color:var(--slate)">/month</span></div>`;
+    if(delta){
+      html += `<p class="sh-sub">The free version wasn't a demo. It was the verdict. This adds depth, not permission.</p>`;
+      html += `<button class="cta-inline" data-adv>Start the Truth Layer</button>
+        <div class="microcopy">Card now, first charge day 14. Every week of silence spends another 15–20 applications on a cause you now know how to fix.</div>`;
+    } else {
+      html += `<p class="sh-sub">Card now, first charge day 14 — after you've used it. Cancel in one click.</p>
+        <button class="cta-inline" data-adv>Start the Truth Layer</button>`;
+    }
+    s.innerHTML = html;
+  };
+
+  return [landing, input, finding, escalation, postings, verdict, email, paywall];
+}
+
+window.AD_VARIANTS = {
+  A: { h:"You didn't get rejected. You got ranked.", b:"The systems doing the screening rank and label candidates rather than accepting or rejecting them." },
+  B: { h:"ChatGPT rewrote it. Still silence.", b:"A general agent reads the document you paste. It never sees what happened after you hit send." },
+  C: { h:"Same job. One version gets read.", b:"Same work, same truth, nothing invented — but one version carries scope, outcome and mechanism." },
+  D: { h:"Why qualified people get no reply.", b:"There are eight reasons. Six are fixable, two aren't — knowing which is which is worth more than fifty more applications." }
+};
+
+/* ================= assemble the four versions ================= */
+const VERSIONS = {
+  v1: { label:'v1', name:'Ladder', blurb:'One tap at a time, payload last', screens: v1Screens(),
+    changed:'The original architecture: a low-friction tap opens the funnel, and the resume paste — the most effortful input — comes last, after five smaller commitments. No finding appears until Step 5.' },
+  v2: { label:'v2', name:'Payload-first', blurb:'Paste first, real finding in ~90s', screens: buildSpine({delta:false,door:false,comparisonBlock:false,adSelector:false,test7:false}),
+    changed:'Inverted from v1: the paste box moves onto the landing screen and a real finding appears before any question is asked. Reasoning: a cheaper competitor (CVision) already returns a scored verdict before an account exists — time-to-first-finding beats friction-per-step as the thing to optimise.' },
+  v3: { label:'v3', name:'+ Delta & micro-door', blurb:'Shows the fix, adds a 5-second entry', screens: buildSpine({delta:true,door:true,comparisonBlock:false,adSelector:false,test7:false}),
+    changed:'Adds two things to v2: the finding now shows a before/after rewrite of the reader\u2019s own material (the delta), using bracketed placeholders so nothing is invented — and Step 1 gets a second, 5-second door (one line) alongside the full paste, to reduce the risk that a full resume paste is too much to ask a stranger for.' },
+  v4: { label:'v4', name:'+ Comparison & tests', blurb:'General-agent framing, ad variants, live tests', screens: buildSpine({delta:true,door:true,comparisonBlock:true,adSelector:true,test7:true}),
+    changed:'Adds the vs-general-agent comparison table to the landing screen (three independent competitors now treat this as their primary comparison), a 4-variant ad set to test which premise converts, and two live A/B tests wired into the escalation screen: a 4th question on employment status (with its own second exit), and an image-card style toggle for the tap questions.' }
+};
+
+let CURRENT = 'v2';
+let STEP = 0;
+let STATE = {};
+
+function freshState(){ return { answers:{}, ad:'A', door:'line', vv:'standard' }; }
+
+function renderTabs(){
+  const el=document.getElementById('tabs'); el.innerHTML='';
+  Object.entries(VERSIONS).forEach(([key,v])=>{
+    const b=document.createElement('button');
+    b.className='tab'+(key===CURRENT?' active':'');
+    b.innerHTML = `<b>${v.label} — ${v.name}</b><span>${v.blurb}</span>`;
+    b.addEventListener('click', ()=>{ CURRENT=key; STEP=0; STATE=freshState(); render(); });
+    el.appendChild(b);
+  });
+  document.getElementById('whatschanged').innerHTML = `<b>What changed in ${VERSIONS[CURRENT].label}:</b> ${VERSIONS[CURRENT].changed}`;
+}
+
+const STEP_NOTES = {
+  v1: [
+    ['Landing — mechanism, then a CTA','No input yet. The visitor has to click through before doing anything.'],
+    ['Volume tap','First real interaction. One tap, immediate response — but still no finding about them, only about their situation.'],
+    ['Channel tap',''],
+    ['Level tap',''],
+    ['Exit check','The one honest disqualification in this version — fires before the paste steps, so it saves effort for people the tool can\u2019t help.'],
+    ['Job posting paste','First paste of the funnel, five steps in.'],
+    ['Resume paste','The most effortful ask arrives last, once five smaller commitments already happened — the classic escalating-commitment ladder.'],
+    ['Verdict','First time the visitor sees anything about themselves.'],
+    ['Email gate',''],
+    ['Truth Layer','No delta shown, no cost-of-delay reasoning — this version predates both.']
+  ],
+  v2: [
+    ['Landing — the paste box itself','The input moves to the very first screen. Nothing is asked before it.'],
+    ['Input (confirm)',''],
+    ['Finding — the payload','A real finding appears before any question. This is the whole point of the rewrite: time-to-first-value beats friction-per-step.'],
+    ['Escalation — 3 taps + exit','Now that something has been given, the questions read as being in service of a better answer, not a gate.'],
+    ['Postings',''],
+    ['Verdict','Try the three toggle states on the right — standard, structural (nothing to fix), and target mismatch (Gap 7).'],
+    ['Email gate',''],
+    ['Truth Layer','Plain terms — no delta example exists yet to build the paid pitch on top of.']
+  ],
+  v3: [
+    ['Landing + micro-door','Toggle "One line" vs "The whole thing" — this is the added low-friction entry point.'],
+    ['Input','Same toggle carries through — whichever door was picked stays picked.'],
+    ['Finding — now with the delta','The rewrite uses bracketed placeholders on purpose: the tool never invents a number, the user fills theirs in.'],
+    ['Escalation',''],
+    ['Postings',''],
+    ['Verdict',''],
+    ['Email gate',''],
+    ['Truth Layer','Now carries "the free version wasn\u2019t a demo" and a real cost-of-delay reason instead of a plain terms line.']
+  ],
+  v4: [
+    ['Landing + ad echo + comparison table','Switch the ad variant (A–D) to see which premise a visitor might have clicked through on. The comparison table is new: three competitors now lead with this exact framing against general agents.'],
+    ['Input',''],
+    ['Finding',''],
+    ['Escalation — now with Test 7','A 4th question (employment status) is layered in, with its own second exit for early-career visitors the model isn\u2019t built for. This is a live test, not a confirmed default.'],
+    ['Postings',''],
+    ['Verdict',''],
+    ['Email gate',''],
+    ['Truth Layer','']
+  ]
+};
+
+function render(){
+  renderTabs();
+  const v = VERSIONS[CURRENT];
+  const total = v.screens.length;
+  const dots=document.getElementById('dots'); dots.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div'); d.className='dot'+(i<=STEP?' done':'');
+    dots.appendChild(d);
+  }
+  const body = document.getElementById('screenBody');
+  body.innerHTML='';
+  const nextBtn=document.getElementById('btnNext');
+  const backBtn=document.getElementById('btnBack');
+  const requiresGate = !isAutoStep(v,STEP);
+  nextBtn.disabled = requiresGate;
+  const adv = { enable:(fromClick)=>{ nextBtn.disabled=false; if(fromClick) goNext(); } };
+  v.screens[STEP](body, STATE, adv);
+  body.querySelectorAll('[data-adv]').forEach(b=>b.addEventListener('click', goNext));
+  backBtn.disabled = STEP===0;
+
+  const notes = STEP_NOTES[CURRENT] && STEP_NOTES[CURRENT][STEP];
+  document.getElementById('stepLabel').innerHTML = `Screen <b>${STEP+1}</b> of <b>${total}</b> — ${v.label} ${v.name}`;
+  document.getElementById('notesTitle').textContent = notes ? notes[0] : 'This screen';
+  document.getElementById('notesBody').innerHTML = notes && notes[1] ? `<li>${notes[1]}</li>` : `<li>No architectural note for this screen — same as the previous version.</li>`;
+}
+function isAutoStep(v,i){
+  // screens that don't gate on an action (info/verdict/landing-with-cta only screens)
+  return false;
+}
+function goNext(){
+  const v=VERSIONS[CURRENT];
+  if(STEP < v.screens.length-1){ STEP++; render(); }
+}
+document.getElementById('btnNext').addEventListener('click', goNext);
+document.getElementById('btnBack').addEventListener('click', ()=>{ if(STEP>0){ STEP--; render(); } });
+
+STATE = freshState();
+
+// Arrived from the gate page? Pick up the chosen version and greet by name.
+// No email is read or stored here — the gate page only ever passes the
+// first name and the chosen version forward, on purpose (see its own notes).
+(function bootFromQuery(){
+  const params = new URLSearchParams(window.location.search);
+  const v = params.get('v');
+  const name = params.get('name');
+  if(v && VERSIONS[v]) CURRENT = v;
+  if(name){
+    const el = document.getElementById('welcomeLine');
+    el.textContent = `Hi ${decodeURIComponent(name)} — you picked ${VERSIONS[CURRENT].label} (${VERSIONS[CURRENT].name}). Switch tabs any time to compare.`;
+    el.style.display = 'block';
+  }
+})();
+
+render();
+</script>
+</body>
+</html>

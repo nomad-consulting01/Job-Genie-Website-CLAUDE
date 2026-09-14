@@ -59,7 +59,7 @@ export function Current() {
 
         <div className="mobile-content">
           <div className="brand-line">
-            <span className="brand-mark">JG</span>
+            <img className="brand-mark" src="/__mockup/images/logo.png" alt="" />
             <span>JOB GENIE</span>
             <span className="case-label">CASE 01</span>
           </div>
