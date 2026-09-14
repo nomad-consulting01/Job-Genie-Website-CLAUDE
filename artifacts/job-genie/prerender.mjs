@@ -33,6 +33,7 @@ const ROUTES = [
   '/privacy',
   '/data-deletion',
   '/free-autopsy',
+  '/free-autopsy2',
 ];
 
 async function main() {
@@ -284,6 +285,7 @@ async function main() {
     { loc: '/for/career-changers', changefreq: 'monthly', priority: '0.8' },
     { loc: '/job-genie-vs-auto-apply', changefreq: 'monthly', priority: '0.75' },
     { loc: '/free-autopsy', changefreq: 'monthly', priority: '0.9' },
+    { loc: '/free-autopsy2', changefreq: 'monthly', priority: '0.9' },
     { loc: '/resources', changefreq: 'monthly', priority: '0.8' },
     { loc: '/answers', changefreq: 'daily', priority: '0.9' },
     { loc: '/blog', changefreq: 'daily', priority: '0.85' },

@@ -19,6 +19,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DataDeletion from "./pages/DataDeletion";
 import AutopsyPage from "./pages/AutopsyPage";
+import FreeAutopsy2Page from "./pages/FreeAutopsy2Page";
 import ResourcesPage from "./pages/ResourcesPage";
 import "./styles/brand.css";
 
@@ -59,6 +60,7 @@ function Router() {
       <Route path="/resources" component={ResourcesPage} />
       {/* Standalone landing pages — must be before /:slug wildcard */}
       <Route path="/free-autopsy" component={AutopsyPage} />
+      <Route path="/free-autopsy2" component={FreeAutopsy2Page} />
       {/* Legal pages */}
       <Route path="/terms" component={TermsOfService} />
       <Route path="/privacy" component={PrivacyPolicy} />

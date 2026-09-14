@@ -11,6 +11,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import Home from './pages/Home';
 import LandingPage from './pages/LandingPage';
 import AutopsyPage from './pages/AutopsyPage';
+import FreeAutopsy2Page from './pages/FreeAutopsy2Page';
 import AEOPage from './pages/AEOPage';
 import ResourcesPage from './pages/ResourcesPage';
 import TermsOfService from './pages/TermsOfService';
@@ -99,6 +100,14 @@ const AEO_ROUTES: Record<string, RouteHead> = {
     canonical: `${SITE_URL}/free-autopsy`,
     robots: 'index, follow',
     aeoQuestion: 'How do I find out why my job applications never get a response?',
+  },
+  '/free-autopsy2': {
+    title: 'Free Application Autopsy — Find Out Why Your Applications Go Silent | Job Genie',
+    description:
+      'A private, specific read on where your applications are disappearing — the résumé screen, the recruiter pass, or a ghost posting that was never really hiring.',
+    canonical: `${SITE_URL}/free-autopsy2`,
+    robots: 'index, follow',
+    aeoQuestion: 'How can I find out where my job applications are breaking down?',
   },
   '/resources': {
     title: 'Job Search Resources & Guides | Job Genie',
@@ -507,6 +516,7 @@ export function render(url: string): string {
               {() => <AEOPage slug="job-genie-vs-auto-apply" />}
             </Route>
             <Route path="/free-autopsy" component={AutopsyPage} />
+            <Route path="/free-autopsy2" component={FreeAutopsy2Page} />
             <Route path="/resources" component={ResourcesPage} />
             <Route path="/terms" component={TermsOfService} />
             <Route path="/privacy" component={PrivacyPolicy} />

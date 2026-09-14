@@ -277,7 +277,7 @@ export default function AutopsyPage() {
       <SEO
         title="The 100-Application Autopsy — Job Genie"
         description="Free. Find out exactly where your job applications died — the résumé screen, the recruiter pass, or the void — and get your first fix in about 10 minutes."
-        canonical="https://www.job-genie.ai/free-autopsy"
+        canonicalUrl="https://www.job-genie.ai/free-autopsy"
       />
 
       <link rel="preconnect" href="https://fonts.googleapis.com" />
