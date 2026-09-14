@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import "./Current.css";
 
 const QUESTIONS = [
@@ -64,60 +64,17 @@ const QUESTIONS = [
   },
 ];
 
-function IntakeForm({ onComplete }: { onComplete: () => void }) {
-  const [firstName, setFirstName] = useState("");
-  const [email, setEmail] = useState("");
-
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (firstName.trim() && email.trim()) onComplete();
-  }
-
-  return (
-    <form className="mobile-form" onSubmit={submit}>
-      <div className="mobile-form-intro">
-        <span className="kicker">Open your case</span>
-        <h2>Find the break before you apply again.</h2>
-        <p>Two details. One private report. No résumé upload until you know what to redact.</p>
-      </div>
-      <label>
-        First name
-        <input
-          name="first_name"
-          autoComplete="given-name"
-          value={firstName}
-          onChange={(event) => setFirstName(event.target.value)}
-          placeholder="Alex"
-          required
-        />
-      </label>
-      <label>
-        Email
-        <input
-          name="email"
-          type="email"
-          autoComplete="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="you@email.com"
-          required
-        />
-      </label>
-      <button className="primary-button" type="submit">Send me the free Autopsy <span aria-hidden="true">→</span></button>
-      <small>Free · no card · unsubscribe anytime</small>
-    </form>
-  );
-}
-
 export function Current() {
   const [page, setPage] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [jobDescription, setJobDescription] = useState("");
   const [experience, setExperience] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [email, setEmail] = useState("");
   const question = QUESTIONS[page - 1];
   const isIntro = page === 0;
-  const isFinal = page === QUESTIONS.length;
+  const isEmailStep = page === 7;
+  const isTruthStep = page === 8;
   const isTextStep = page === 5 || page === 6;
   const currentText = page === 5 ? jobDescription : experience;
   const setCurrentText = page === 5 ? setJobDescription : setExperience;
@@ -153,7 +110,7 @@ export function Current() {
               </button>
             </>
           )}
-          {!isIntro && !isFinal && !isTextStep && (
+          {!isIntro && !isEmailStep && !isTruthStep && !isTextStep && (
             <div className="question-page">
               <p className="step-label">Step {page} of 6</p>
               <h1>{question.title}</h1>
@@ -207,34 +164,77 @@ export function Current() {
                   We don’t store this to sell it, we don’t scrape LinkedIn, and we don’t apply anywhere on your behalf.
                 </p>
               )}
-              <button className="primary-button text-step-action" type="button" disabled={!currentText.trim()}>
+              <button
+                className="primary-button text-step-action"
+                type="button"
+                disabled={!currentText.trim()}
+                onClick={() => page === 6 && setPage(7)}
+              >
                 {page === 5 ? "Read it" : "See my verdict"}
               </button>
             </div>
           )}
-          {isFinal && !submitted && <IntakeForm onComplete={() => setSubmitted(true)} />}
-          {submitted && (
-            <div className="success-card" role="status">
-              <span className="success-mark">✓</span>
-              <strong>Your case is open.</strong>
-              <p>Check your inbox for the upload instructions and your first fix.</p>
+          {isEmailStep && (
+            <form className="email-step" onSubmit={(event) => {
+              event.preventDefault();
+              if (firstName.trim() && email.trim()) {
+                setPage(8);
+              }
+            }}>
+              <p className="step-label">Almost done</p>
+              <h1>Where should we send the full Autopsy?</h1>
+              <p className="email-supporting">Covers all six gap categories and the evidence behind each.</p>
+              <label className="capture-label" htmlFor="autopsy-first-name">First name</label>
+              <input
+                id="autopsy-first-name"
+                className="funnel-email"
+                type="text"
+                value={firstName}
+                onChange={(event) => setFirstName(event.target.value)}
+                placeholder="Alex"
+                autoComplete="given-name"
+                required
+              />
+              <label className="capture-label" htmlFor="autopsy-email">Email</label>
+              <input
+                id="autopsy-email"
+                className="funnel-email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="you@email.com"
+                aria-label="Email address"
+                autoComplete="email"
+                required
+              />
+              <button className="primary-button text-step-action" type="submit" disabled={!firstName.trim() || !email.trim()}>Send it</button>
+            </form>
+          )}
+          {isTruthStep && (
+            <div className="truth-step">
+              <p className="step-label">The Truth Layer</p>
+              <h1>You&apos;ve seen what&apos;s stopping you. This shows the rest.</h1>
+              <p className="truth-supporting">Every gap category scored. Your Recruiter-Ready Brief. Re-run as you change things.</p>
+              <div className="truth-price">$49.99<span>/month</span></div>
+              <p className="truth-detail">Card now, first charge day 14 — after you&apos;ve used it. Cancel in one click.</p>
+              <button className="primary-button text-step-action" type="button">Start the Truth Layer</button>
             </div>
           )}
         </div>
 
         <div className="mobile-footer">
-          <button className="footer-back" type="button" onClick={() => { setPage(Math.max(0, page - 1)); setSelected(null); }} disabled={page === 0 || submitted}>Back</button>
-          <span className="footer-step">{isIntro ? " " : `${page} / 6`}</span>
-          {!isFinal && !submitted ? (
+          <button className="footer-back" type="button" onClick={() => { setPage(Math.max(0, page - 1)); setSelected(null); }} disabled={page === 0}>Back</button>
+          <span className="footer-step">{isIntro || isEmailStep || isTruthStep ? " " : `${page} / 6`}</span>
+          {!isEmailStep && !isTruthStep ? (
             <button
               className="footer-next"
               type="button"
-              onClick={() => { setPage(Math.min(6, page + 1)); setSelected(null); }}
+              onClick={() => { setPage(Math.min(8, page + 1)); setSelected(null); }}
               disabled={!isIntro && (isTextStep ? !currentText.trim() : selected === null)}
             >
               {isIntro ? "Next" : "Next"}
             </button>
-          ) : <span />}
+          ) : <button className="footer-next" type="button" disabled>Next</button>}
         </div>
       </section>
     </main>

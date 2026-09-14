@@ -117,6 +117,46 @@
 }
 .text-step-action { margin-top: 16px; padding: 11px 16px; }
 .text-step-action:disabled { background: #4313a9; color: #9e98bd; opacity: 1; }
+.email-step, .truth-step { padding-top: 19px; }
+.email-step h1, .truth-step h1 { max-width: 320px; }
+.email-supporting, .truth-supporting {
+  max-width: 315px;
+  margin: 13px 0 0;
+  color: #d0cce8;
+  font-size: 15px;
+  line-height: 1.42;
+}
+.capture-label {
+  display: block;
+  margin: 16px 0 7px;
+  color: #f5f3ff;
+  font: 600 13px/1.3 "DM Sans", sans-serif;
+}
+.capture-label + .funnel-email { margin-top: 0; }
+.funnel-email {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 42px;
+  border: 1px solid rgba(180, 174, 255, .17);
+  border-radius: 7px;
+  outline: none;
+  background: #17163f;
+  color: #f5f3ff;
+  padding: 13px;
+  font: 14px/1.45 "DM Sans", sans-serif;
+}
+.funnel-email:focus { border-color: #f5edbb; box-shadow: 0 0 0 1px #f5edbb; }
+.funnel-email::placeholder { color: #77739c; }
+.truth-price {
+  margin-top: 23px;
+  color: #f5f3ff;
+  font: 700 29px/1 "Sora", sans-serif;
+  letter-spacing: -.04em;
+}
+.truth-price span { color: #c9c5df; font: 400 13px "DM Sans", sans-serif; letter-spacing: 0; }
+.truth-detail { max-width: 300px; margin: 12px 0 0; color: #d0cce8; font-size: 15px; line-height: 1.42; }
+.truth-step .text-step-action { margin-top: 25px; }
 .answer-list { display: grid; gap: 8px; margin-top: 16px; }
 .answer-option {
   width: 100%;
