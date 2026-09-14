@@ -1,6 +1,64 @@
 import { useState, type FormEvent } from "react";
 import "./Current.css";
 
+const QUESTIONS = [
+  {
+    title: "How many applications have you sent without hearing back?",
+    options: ["10–25", "25–50", "50–100", "100+"],
+    insights: [
+      "Enough to see the start of a pattern. Not yet enough to be certain it's not variance — we'll tell you which.",
+      "That's past the point where bad luck explains it. Something systematic is happening.",
+      "At this volume, the odds of this being chance are effectively gone. There's a cause, and it's findable.",
+      "This isn't a numbers problem. Sending more of the same has already been tested — a hundred times — and the answer came back the same each time.",
+    ],
+  },
+  {
+    title: "How often are you tailoring your applications?",
+    options: ["Every time", "Most of the time", "Rarely", "Never"],
+    insights: [
+      "Good effort. The Autopsy will look for the gap between your tailoring and what the filter actually sees.",
+      "Consistency helps us separate a targeting problem from a positioning problem.",
+      "That gives us a strong first suspect. We'll show you where the mismatch is.",
+      "Your first fix may be smaller — and more specific — than rewriting your résumé.",
+    ],
+  },
+  {
+    title: "Where do you think applications are going quiet?",
+    options: ["Before a human sees them", "After recruiter review", "At the hiring manager", "I have no idea"],
+    insights: [
+      "We'll test that assumption against the evidence instead of asking you to guess.",
+      "A recruiter pass leaves a different pattern. We'll separate it from the résumé screen.",
+      "That silence has a signature too. The Autopsy will trace it backward.",
+      "Perfect. That's exactly what this diagnosis is for.",
+    ],
+  },
+  {
+    title: "What kind of roles are you applying for?",
+    options: ["Specialist roles", "Management roles", "Career changes", "A mix of roles"],
+    insights: [
+      "Specialist searches are often filtered by a very short list of signals. We'll find the missing one.",
+      "We'll compare your leadership evidence with what the role brief is rewarding.",
+      "Career-change searches need a different read than a generic résumé score.",
+      "A mixed search can create mixed signals. We'll identify which target is breaking first.",
+    ],
+  },
+  {
+    title: "What would a useful answer give you?",
+    options: ["The first fix", "A clearer target", "Proof it isn't me", "All three"],
+    insights: [
+      "We'll keep the finding practical: one change you can make next.",
+      "We'll show you where your search is strongest, and where it is leaking.",
+      "Application Silence is usually a system problem, not a verdict on your worth.",
+      "Then we'll make the diagnosis specific enough to act on.",
+    ],
+  },
+  {
+    title: "Where should we send your private Autopsy?",
+    options: ["Enter my details"],
+    insights: ["Your case is ready. We only need a name and inbox to send the findings."],
+  },
+];
+
 function IntakeForm({ onComplete }: { onComplete: () => void }) {
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
@@ -47,14 +105,20 @@ function IntakeForm({ onComplete }: { onComplete: () => void }) {
 }
 
 export function Current() {
-  const [showForm, setShowForm] = useState(false);
+  const [page, setPage] = useState(0);
+  const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const question = QUESTIONS[page - 1];
+  const isIntro = page === 0;
+  const isFinal = page === QUESTIONS.length;
 
   return (
     <main className="mobile-autopsy">
       <section className="mobile-screen" id="top">
-        <div className="progress" aria-label="Step 1 of 4">
-          <span className="active" /><span /><span /><span />
+        <div className="progress" aria-label={isIntro ? "Introduction" : `Step ${page} of 6`}>
+          {Array.from({ length: 6 }, (_, index) => (
+            <span key={index} className={index < page ? "active" : ""} />
+          ))}
         </div>
 
         <div className="mobile-content">
@@ -63,21 +127,42 @@ export function Current() {
             <span>JOB GENIE</span>
             <span className="case-label">CASE 01</span>
           </div>
-          <p className="audience">For mid-career professionals getting no response</p>
-          <h1>You didn&apos;t get rejected. <em>You got ranked.</em></h1>
-          <p className="explanation">
-            Recruiting platforms rank and label candidates rather than accepting or rejecting them.
-            Run the 100-Application Autopsy and find out where you&apos;re sorting.
-          </p>
-          <div className="signal-row" aria-hidden="true">
-            <span className="signal-dot" /><span>APPLICATION SILENCE DETECTED</span>
-          </div>
-          {!showForm && !submitted && (
-            <button className="primary-button hero-button" type="button" onClick={() => setShowForm(true)}>
-              Run my free Autopsy <span aria-hidden="true">→</span>
-            </button>
+          {isIntro && (
+            <>
+              <p className="audience">For mid-career professionals getting no response</p>
+              <h1>You didn&apos;t get rejected. <em>You got ranked.</em></h1>
+              <p className="explanation">
+                Recruiting platforms rank and label candidates rather than accepting or rejecting them.
+                Run the 100-Application Autopsy and find out where you&apos;re sorting.
+              </p>
+              <div className="signal-row" aria-hidden="true">
+                <span className="signal-dot" /><span>APPLICATION SILENCE DETECTED</span>
+              </div>
+              <button className="primary-button hero-button" type="button" onClick={() => setPage(1)}>
+                Run my free Autopsy <span aria-hidden="true">→</span>
+              </button>
+            </>
           )}
-          {showForm && !submitted && <IntakeForm onComplete={() => setSubmitted(true)} />}
+          {!isIntro && !isFinal && (
+            <div className="question-page">
+              <p className="step-label">Step {page} of 6</p>
+              <h1>{question.title}</h1>
+              <div className="answer-list">
+                {question.options.map((option, index) => (
+                  <button
+                    key={option}
+                    className={`answer-option ${selected === index ? "selected" : ""}`}
+                    type="button"
+                    onClick={() => setSelected(index)}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+              {selected !== null && <div className="insight">{question.insights[selected]}</div>}
+            </div>
+          )}
+          {isFinal && !submitted && <IntakeForm onComplete={() => setSubmitted(true)} />}
           {submitted && (
             <div className="success-card" role="status">
               <span className="success-mark">✓</span>
@@ -88,9 +173,13 @@ export function Current() {
         </div>
 
         <div className="mobile-footer">
-          <button className="footer-back" type="button" onClick={() => setShowForm(false)} disabled={!showForm}>Back</button>
-          <span className="footer-step">1 / 4</span>
-          <button className="footer-next" type="button" onClick={() => setShowForm(true)}>{showForm ? "Submit" : "Next"}</button>
+          <button className="footer-back" type="button" onClick={() => { setPage(Math.max(0, page - 1)); setSelected(null); }} disabled={page === 0 || submitted}>Back</button>
+          <span className="footer-step">{isIntro ? " " : `${page} / 6`}</span>
+          {!isFinal && !submitted ? (
+            <button className="footer-next" type="button" onClick={() => { setPage(Math.min(6, page + 1)); setSelected(null); }} disabled={!isIntro && selected === null}>
+              {isIntro ? "Next" : "Next"}
+            </button>
+          ) : <span />}
         </div>
       </section>
     </main>

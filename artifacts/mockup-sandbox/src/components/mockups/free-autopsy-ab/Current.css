@@ -77,6 +77,39 @@
 .mobile-content h1 em { color: #d4caff; font-style: normal; }
 .explanation { max-width: 33ch; margin: 17px 0 0; color: #c1bedb; font-size: 15px; line-height: 1.55; }
 
+.question-page { padding-top: 38px; }
+.step-label { margin: 0 0 10px; color: #a6a4c4; font-size: 13px; }
+.question-page h1 { max-width: 330px; font-size: 26px; letter-spacing: -.035em; }
+.answer-list { display: grid; gap: 8px; margin-top: 16px; }
+.answer-option {
+  width: 100%;
+  border: 1px solid rgba(180, 174, 255, .17);
+  border-radius: 8px;
+  background: #15153d;
+  color: var(--ink);
+  padding: 14px 14px;
+  text-align: left;
+  font: 500 14px "DM Sans", sans-serif;
+  cursor: pointer;
+  transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.answer-option:hover { border-color: rgba(125, 84, 255, .8); }
+.answer-option.selected {
+  border-color: #6d24ff;
+  background: #1b174c;
+  box-shadow: 0 0 0 1px #6d24ff inset;
+}
+.insight {
+  margin-top: 9px;
+  border-left: 2px solid #6d24ff;
+  border-radius: 0 5px 5px 0;
+  background: rgba(26, 20, 67, .8);
+  color: #d5d0ef;
+  padding: 13px 13px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .signal-row {
   display: flex;
   align-items: center;
@@ -134,6 +167,7 @@
 .footer-back { justify-self: start; background: transparent; color: #6e6a93; }
 .footer-next { justify-self: end; background: rgba(126, 115, 206, .23); color: #d9d4ff; }
 .footer-next:hover { background: rgba(126, 115, 206, .38); }
+.footer-next:disabled { opacity: .35; cursor: default; }
 .footer-step { color: #6e6a93; font: 10px "JetBrains Mono", monospace; letter-spacing: .1em; }
 
 @media (min-width: 700px) {
