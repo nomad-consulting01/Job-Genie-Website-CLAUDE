@@ -13,13 +13,18 @@ const QUESTIONS = [
     ],
   },
   {
-    title: "How often are you tailoring your applications?",
-    options: ["Every time", "Most of the time", "Rarely", "Never"],
+    title: "Where did most of them go?",
+    options: [
+      "Job boards (LinkedIn, Indeed, company sites)",
+      "In-house recruiters at the company",
+      "Specialist or agency recruiters",
+      "A mix of all three",
+    ],
     insights: [
-      "Good effort. The Autopsy will look for the gap between your tailoring and what the filter actually sees.",
-      "Consistency helps us separate a targeting problem from a positioning problem.",
-      "That gives us a strong first suspect. We'll show you where the mismatch is.",
-      "Your first fix may be smaller — and more specific — than rewriting your résumé.",
+      "Board applications usually enter a ranking system before any person sees them. That's the harshest filter and the one that explains the most silence.",
+      "In-house recruiters are measured on time-to-fill. Their screen is fast and unexplained by design — nobody is required to tell you why.",
+      "A named recruiter with an inbox is accountable in a way that an ATS isn't. If they went silent too, that's a different signal.",
+      "Good. Silence from a board and silence from a named recruiter mean different things.",
     ],
   },
   {
@@ -116,8 +121,8 @@ export function Current() {
     <main className="mobile-autopsy">
       <section className="mobile-screen" id="top">
         <div className="progress" aria-label={isIntro ? "Introduction" : `Step ${page} of 6`}>
-          {Array.from({ length: 6 }, (_, index) => (
-            <span key={index} className={index < page ? "active" : ""} />
+          {Array.from({ length: 8 }, (_, index) => (
+            <span key={index} className={index <= page ? "active" : ""} />
           ))}
         </div>
 

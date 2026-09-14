@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap");
 
 .mobile-autopsy {
-  --navy: #0a102a;
+  --navy: #0b0b2b;
   --navy-soft: #11193d;
   --purple: #4a47ff;
   --purple-bright: #5d5bff;
@@ -14,17 +14,17 @@
   font-family: "DM Sans", sans-serif;
   display: grid;
   place-items: center;
-  padding: 18px;
+  padding: 14px;
 }
 
 .mobile-screen {
-  width: min(100%, 390px);
-  min-height: min(844px, calc(100dvh - 36px));
+  width: min(100%, 382px);
+  min-height: min(690px, calc(100dvh - 28px));
   background:
     radial-gradient(circle at 15% 8%, rgba(74, 71, 255, .16), transparent 28%),
     var(--navy);
-  border: 1px solid rgba(255, 255, 255, .05);
-  border-radius: 28px;
+  border: 7px solid #000;
+  border-radius: 29px;
   box-shadow: 0 28px 80px rgba(0, 0, 0, .5), inset 0 0 0 1px rgba(255,255,255,.025);
   overflow: hidden;
   display: flex;
@@ -33,15 +33,15 @@
 
 .progress {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 7px;
-  padding: 24px 22px 0;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 5px;
+  padding: 15px 20px 0;
 }
 
 .progress span { height: 3px; border-radius: 8px; background: #29264d; }
 .progress .active { background: var(--purple-bright); box-shadow: 0 0 14px rgba(123,49,255,.65); }
 
-.mobile-content { padding: 26px 24px 32px; flex: 1; }
+.mobile-content { padding: 22px 24px 32px; flex: 1; }
 
 .brand-line {
   display: flex;
@@ -77,9 +77,9 @@
 .mobile-content h1 em { color: #d4caff; font-style: normal; }
 .explanation { max-width: 33ch; margin: 17px 0 0; color: #c1bedb; font-size: 15px; line-height: 1.55; }
 
-.question-page { padding-top: 38px; }
+.question-page { padding-top: 19px; }
 .step-label { margin: 0 0 10px; color: #a6a4c4; font-size: 13px; }
-.question-page h1 { max-width: 330px; font-size: 26px; letter-spacing: -.035em; }
+.question-page h1 { max-width: 330px; font-size: 23px; letter-spacing: -.035em; }
 .answer-list { display: grid; gap: 8px; margin-top: 16px; }
 .answer-option {
   width: 100%;
@@ -87,7 +87,7 @@
   border-radius: 8px;
   background: #15153d;
   color: var(--ink);
-  padding: 14px 14px;
+  padding: 12px 14px;
   text-align: left;
   font: 500 14px "DM Sans", sans-serif;
   cursor: pointer;
