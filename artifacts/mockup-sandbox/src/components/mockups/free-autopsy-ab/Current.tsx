@@ -28,13 +28,13 @@ const QUESTIONS = [
     ],
   },
   {
-    title: "Where do you think applications are going quiet?",
-    options: ["Before a human sees them", "After recruiter review", "At the hiring manager", "I have no idea"],
+    title: "Where are you in your career?",
+    options: ["Under 5 years", "5–12 years", "12–20 years", "20+ years"],
     insights: [
-      "We'll test that assumption against the evidence instead of asking you to guess.",
-      "A recruiter pass leaves a different pattern. We'll separate it from the résumé screen.",
-      "That silence has a signature too. The Autopsy will trace it backward.",
-      "Perfect. That's exactly what this diagnosis is for.",
+      "The filters that catch early-career candidates are mostly about evidence volume. Fixable, usually quickly.",
+      "The awkward band. Too experienced for junior screens, not yet legible as senior. A lot of silence lives here.",
+      "At this level the screen stops reading skills and starts reading scope, comp band, and trajectory.",
+      "The filters here are rarely about capability. They're about cost, risk, and whether your path reads as still-ascending.",
     ],
   },
   {
