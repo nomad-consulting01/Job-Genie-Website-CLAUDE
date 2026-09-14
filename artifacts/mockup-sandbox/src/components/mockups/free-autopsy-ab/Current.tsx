@@ -38,14 +38,14 @@ const QUESTIONS = [
     ],
   },
   {
-    title: "What kind of roles are you applying for?",
-    options: ["Specialist roles", "Management roles", "Career changes", "A mix of roles"],
+    title: "Have any led to a first conversation — a screening call, a recruiter reply, anything?",
+    options: ["None at all", "A few, then nothing", "Regularly — I get calls but no offers"],
     insights: [
-      "Specialist searches are often filtered by a very short list of signals. We'll find the missing one.",
-      "We'll compare your leadership evidence with what the role brief is rewarding.",
-      "Career-change searches need a different read than a generic résumé score.",
-      "A mixed search can create mixed signals. We'll identify which target is breaking first.",
+      "That's what this tool is built for. You're not failing interviews — you're not reaching them. Keep going.",
+      "Useful. You're getting past the first filter sometimes — we'll look at what's different about the ones that landed.",
+      "Then the Autopsy is the wrong tool for you, and we'd rather say so. You don't have a silence problem. You're clearing the screen — the filter we diagnose isn't what's stopping you. Your gap is between the first conversation and the offer: interview performance, positioning, or negotiation. We don't sell that and we're not going to pretend otherwise.",
     ],
+    decision: true,
   },
   {
     title: "What would a useful answer give you?",
@@ -164,7 +164,17 @@ export function Current() {
                   </button>
                 ))}
               </div>
-              {selected !== null && <div className="insight">{question.insights[selected]}</div>}
+              {selected !== null && question.decision && selected === 2 ? (
+                <div className="decision-panel">
+                  <strong>Then the Autopsy is the wrong tool for you, and we&apos;d rather say so.</strong>
+                  <p>You don&apos;t have a silence problem. You&apos;re clearing the screen — the filter we diagnose isn&apos;t what&apos;s stopping you. Your gap is between the first conversation and the offer: interview performance, positioning, or negotiation.</p>
+                  <p>We don&apos;t sell that and we&apos;re not going to pretend otherwise.</p>
+                  <div className="decision-actions">
+                    <button className="primary-button" type="button" onClick={() => setPage(5)}>Show me anyway</button>
+                    <button className="secondary-button" type="button" onClick={() => setSelected(null)}>That&apos;s fair — close</button>
+                  </div>
+                </div>
+              ) : selected !== null ? <div className="insight">{question.insights[selected]}</div> : null}
             </div>
           )}
           {isFinal && !submitted && <IntakeForm onComplete={() => setSubmitted(true)} />}
