@@ -7,6 +7,16 @@ export interface FacebookPostResult {
   error?: string;
 }
 
+/** Ensure every non-empty Facebook caption row has a blank line after it. */
+export function addFacebookRowSpacing(caption: string): string {
+  return caption
+    .trim()
+    .split(/\r?\n(?:[ \t]*\r?\n)*/)
+    .map((row) => row.trim())
+    .filter(Boolean)
+    .join("\n\n");
+}
+
 /**
  * Publish a Facebook link-share card through the /feed endpoint.
  *
@@ -36,7 +46,7 @@ async function postLinkToFacebookPage(
   link: string
 ): Promise<FacebookPostResult> {
   const params = new URLSearchParams({
-    message: caption,
+    message: addFacebookRowSpacing(caption),
     link,
     access_token: pageAccessToken,
   });
