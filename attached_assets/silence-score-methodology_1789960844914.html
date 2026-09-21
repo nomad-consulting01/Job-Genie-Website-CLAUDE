@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How the Application Silence Score works | Job Genie</title>
+<meta name="description" content="The methodology behind the Application Silence Score: why hiring screens rank rather than reject, the eight causes of application silence, and every source we rely on.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How the Application Silence Score works">
+<meta property="og:description" content="Hiring screens rank candidates. They do not reject them. The full methodology, with every source named.">
+<meta property="og:site_name" content="Job Genie">
+<!-- TODO before publishing: set the canonical URL on the single canonical host (apex vs www was split previously). -->
+<!-- <link rel="canonical" href="https://job-genie.ai/methodology"> -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+
+<!-- Reconcile with the existing validated FAQPage schema before publishing. Answers mirror the page text. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does the Application Silence Score measure?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It estimates why your job applications get no response at all. It rests on one documented fact: modern hiring screens rank candidates rather than reject them. Recruiters contact people from the top of a ranked list down, and anyone below the point where they stop receives nothing, because no rejection decision was ever made." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do applicant tracking systems reject candidates automatically?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Usually not. Screening platforms document that they score and rank candidates, and at least one vendor explicitly refuses to auto-reject on its score. 'Ranked and never reached' is more accurate than 'robots reject you'." }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the causes of application silence?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Job Genie's Autopsy can name eight: achievement legibility, professional footprint, trajectory and internal displacement, title lineage and seniority, role economics and geography, channel mismatch, target mismatch, and the active-candidate penalty. Several cannot be fixed by editing a résumé." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does it matter whether I applied through a job board, an in-house recruiter or an agency?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Each channel is paid differently and evaluates candidates differently. Job boards earn from employers on engagement, in-house recruiters handle many roles at once, and specialist recruiters earn on placement. Silence from each is a different failure with a different fix." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the Application Silence Score guarantee interviews?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. It tells you why your applications are going silent and what to change. Whether you get an interview depends on employers and a labour market Job Genie does not control." }
+    }
+  ]
+}
+</script>
+
+<style>
+:root {
+  --navy: #0A102A;
+  --indigo: #4A47FF;
+  --paper: #FFFFFF;
+  --ink: #0A102A;
+  --muted: #4B5170;
+  --rule: #DCDEEA;
+  --wash: #EEF0F7;
+  --link: #3431E0;
+  --tag-yes: #0A102A;
+  --display: "Sora", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --body: "DM Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0A102A;
+    --ink: #E9EBF5;
+    --muted: #A3A8C3;
+    --rule: #262D4D;
+    --wash: #121936;
+    --link: #9C9AFF;
+    --tag-yes: #E9EBF5;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0A102A;
+  --ink: #E9EBF5;
+  --muted: #A3A8C3;
+  --rule: #262D4D;
+  --wash: #121936;
+  --link: #9C9AFF;
+  --tag-yes: #E9EBF5;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: inherit; }
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 24px); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.62;
+  font-feature-settings: "kern", "liga";
+  -webkit-font-smoothing: antialiased;
+}
+img, svg { max-width: 100%; }
+a { color: var(--link); text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--indigo); outline-offset: 3px; border-radius: 2px; }
+.skip { position: absolute; left: -9999px; top: 0; }
+.skip:focus { left: 16px; top: 16px; background: var(--paper); color: var(--ink); padding: 8px 12px; z-index: 10; }
+
+/* ---------- Top bar ---------- */
+.bar {
+  background: var(--navy);
+  color: #fff;
+  border-bottom: 1px solid #1D2448;
+}
+.bar-inner {
+  max-width: 1140px; margin: 0 auto;
+  padding: 16px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.brand { font-family: var(--display); font-weight: 700; font-size: 1.125rem; color: #fff; text-decoration: none; letter-spacing: -0.01em; }
+.bar-cta {
+  font-family: var(--body); font-weight: 600; font-size: 0.9375rem;
+  color: #fff; background: var(--indigo); text-decoration: none;
+  padding: 9px 16px; border-radius: 6px;
+}
+.bar-cta:hover { background: #3B38E6; }
+
+/* ---------- Hero ---------- */
+.hero { background: var(--navy); color: #fff; }
+.hero-inner {
+  max-width: 1140px; margin: 0 auto;
+  padding: 72px 24px 80px;
+  display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 64px; align-items: center;
+}
+.hero h1 {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(2.25rem, 4.6vw, 3.5rem); line-height: 1.06; letter-spacing: -0.025em;
+  margin: 0 0 24px; max-width: 14ch;
+}
+.hero .lead { font-size: 1.1875rem; line-height: 1.55; color: #C9CDE3; margin: 0 0 16px; max-width: 34em; }
+.hero .lead strong { color: #fff; font-weight: 500; }
+.hero .updated { font-size: 0.9375rem; color: #8E94B6; margin: 28px 0 0; }
+
+/* The ranked list: the page's one memorable element */
+.rank {
+  background: #0F1636; border: 1px solid #232B55; border-radius: 12px;
+  padding: 20px 20px 16px;
+  font-variant-numeric: tabular-nums;
+}
+.rank-head { display: flex; justify-content: space-between; font-size: 0.8125rem; color: #8E94B6; padding: 0 4px 10px; border-bottom: 1px solid #232B55; }
+.rank ol { list-style: none; margin: 0; padding: 0; }
+.rank li {
+  display: grid; grid-template-columns: 2.5rem 1fr 3rem; align-items: center; gap: 12px;
+  padding: 7px 4px; font-size: 0.9375rem; color: #fff;
+}
+.rank .pos { color: #8E94B6; text-align: right; }
+.rank .meter { height: 8px; border-radius: 4px; background: #232B55; position: relative; overflow: hidden; }
+.rank .meter span { position: absolute; inset: 0 auto 0 0; background: #7C7AFF; border-radius: 4px; }
+.rank .pct { text-align: right; }
+.rank li.threshold, .rank li.gapdots { display: block; }
+.rank .threshold {
+  display: block; margin: 8px 0; padding: 8px 4px;
+  border-top: 2px dashed var(--indigo); border-bottom: 0;
+  font-size: 0.8125rem; color: #B7B6FF;
+}
+.rank .below { color: #6B7194; }
+.rank .below .meter span { background: #3A4170; }
+.rank .gapdots { text-align: center; color: #4B5280; padding: 2px 0 4px; letter-spacing: 0.3em; }
+.rank .you { background: #18204A; border-radius: 6px; color: #fff; }
+.rank .you .pos { color: #fff; font-weight: 600; }
+.rank .you .meter span { background: #7C7AFF; }
+.rank .you-note { font-size: 0.875rem; color: #C9CDE3; padding: 6px 4px 0 calc(2.5rem + 16px); }
+.rank-cap { font-size: 0.8125rem; color: #8E94B6; margin: 14px 4px 0; }
+
+/* ---------- Body layout ---------- */
+.page {
+  max-width: 1140px; margin: 0 auto;
+  padding: 64px 24px 96px;
+  display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 64px;
+}
+.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 32px); align-self: start; }
+.toc p { font-family: var(--display); font-weight: 600; font-size: 0.9375rem; margin: 0 0 12px; }
+.toc ol { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--rule); }
+.toc a {
+  display: block; padding: 6px 0 6px 16px; margin-left: -1px;
+  font-size: 0.9375rem; line-height: 1.4; color: var(--muted); text-decoration: none;
+  border-left: 2px solid transparent;
+}
+.toc a:hover { color: var(--ink); border-left-color: var(--indigo); }
+
+main { max-width: 42rem; min-width: 0; }
+section + section { margin-top: 72px; padding-top: 56px; border-top: 1px solid var(--rule); }
+h2 {
+  font-family: var(--display); font-weight: 600;
+  font-size: clamp(1.625rem, 2.6vw, 2rem); line-height: 1.18; letter-spacing: -0.02em;
+  margin: 0 0 20px;
+}
+h3 { font-family: var(--display); font-weight: 600; font-size: 1.1875rem; line-height: 1.3; letter-spacing: -0.01em; margin: 36px 0 10px; }
+p { margin: 0 0 18px; }
+.lede { font-size: 1.1875rem; line-height: 1.55; }
+ul.plain { margin: 0 0 18px; padding-left: 1.2em; }
+ul.plain li { margin: 0 0 10px; padding-left: 0.2em; }
+ul.plain li::marker { color: var(--indigo); }
+strong { font-weight: 600; }
+blockquote {
+  margin: 24px 0; padding: 4px 0 4px 20px;
+  border-left: 3px solid var(--indigo);
+  font-family: var(--display); font-weight: 500; font-size: 1.25rem; line-height: 1.4; letter-spacing: -0.01em;
+}
+
+/* Filter / Fit pair */
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); border-radius: 10px; margin: 8px 0 22px; overflow: hidden; }
+.pair > div { padding: 20px 22px; }
+.pair > div + div { border-left: 1px solid var(--rule); }
+.pair h3 { margin: 0 0 6px; }
+.pair p { margin: 0; color: var(--muted); font-size: 1rem; }
+
+/* Tables */
+.scroll { overflow-x: auto; margin: 8px 0 24px; border: 1px solid var(--rule); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.96875rem; line-height: 1.5; }
+th, td { text-align: left; vertical-align: top; padding: 12px 16px; border-bottom: 1px solid var(--rule); }
+tr:last-child td { border-bottom: 0; }
+thead th { background: var(--wash); font-weight: 600; font-size: 0.9375rem; white-space: nowrap; }
+tbody th { font-weight: 600; }
+.t-channel { min-width: 640px; }
+.t-inputs td:first-child, .t-stages th { width: 32%; }
+
+/* Causes: a definition grid, not a card deck */
+.causes { margin: 8px 0 28px; border-top: 1px solid var(--rule); }
+.causes-head { display: grid; grid-template-columns: 11rem minmax(0, 1fr) 6.5rem; gap: 24px; padding: 0 0 10px; font-size: 0.875rem; color: var(--muted); }
+.causes-head span:last-child { text-align: right; }
+.cause {
+  display: grid; grid-template-columns: 11rem minmax(0, 1fr) 6.5rem; gap: 8px 24px;
+  padding: 20px 0; border-bottom: 1px solid var(--rule);
+}
+.cause h3 { margin: 0; font-size: 1.0625rem; }
+.cause .means { margin: 0 0 6px; }
+.cause .screen { margin: 0; color: var(--muted); font-size: 0.96875rem; }
+.cause .screen span { color: var(--ink); font-weight: 500; }
+.fix { justify-self: end; text-align: right; font-size: 0.875rem; line-height: 1.35; }
+.fix b { display: inline-block; font-weight: 600; padding: 2px 9px; border-radius: 999px; border: 1px solid currentColor; margin-bottom: 4px; }
+.fix .yes { color: var(--tag-yes); }
+.fix .part { color: var(--muted); }
+.fix .no { color: var(--muted); border-style: dashed; }
+.fix small { display: block; color: var(--muted); font-size: 0.8125rem; }
+
+.note { background: var(--wash); border-radius: 10px; padding: 20px 22px; margin: 8px 0 22px; }
+.note h3 { margin: 0 0 8px; }
+.note p:last-child { margin-bottom: 0; }
+
+/* Unresolved content: visible on purpose so it cannot ship unnoticed */
+.pending {
+  border: 2px dashed var(--indigo); border-radius: 10px;
+  padding: 20px 22px; margin: 8px 0 22px;
+}
+.pending h3 { margin: 0 0 8px; color: var(--link); }
+.pending p:last-child { margin-bottom: 0; }
+
+/* Limits list */
+.limits { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.limits li { padding: 16px 0; border-bottom: 1px solid var(--rule); }
+.limits strong { display: block; font-family: var(--display); font-weight: 600; font-size: 1.0625rem; margin-bottom: 4px; letter-spacing: -0.005em; }
+
+/* Sources */
+.src-intro { color: var(--muted); }
+.sources h3 { font-size: 1.0625rem; }
+.sources ul { list-style: none; margin: 0 0 8px; padding: 0; }
+.sources li { padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: 0.96875rem; }
+.sources li:last-child { border-bottom: 0; }
+.sources li span { display: block; color: var(--muted); font-size: 0.9375rem; }
+
+/* End CTA */
+.end {
+  margin-top: 72px; padding: 36px; border-radius: 12px;
+  background: var(--navy); color: #fff;
+}
+.end h2 { color: #fff; margin-bottom: 10px; }
+.end p { color: #C9CDE3; max-width: 34em; }
+.btn {
+  display: inline-block; margin-top: 6px;
+  font-weight: 600; color: #fff; background: var(--indigo); text-decoration: none;
+  padding: 12px 20px; border-radius: 8px;
+}
+.btn:hover { background: #3B38E6; }
+.end small { display: block; margin-top: 14px; color: #8E94B6; font-size: 0.875rem; }
+
+footer { border-top: 1px solid var(--rule); }
+footer div { max-width: 1140px; margin: 0 auto; padding: 24px; color: var(--muted); font-size: 0.875rem; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 960px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 44px; padding: 52px 24px 60px; }
+  .page { grid-template-columns: 1fr; gap: 0; padding-top: 44px; }
+  .toc { position: static; margin-bottom: 44px; }
+  .toc ol { columns: 2; column-gap: 24px; }
+  .toc li { break-inside: avoid; }
+}
+@media (max-width: 640px) {
+  body { font-size: 1rem; }
+  .bar-inner { padding: 14px 18px; }
+  .hero-inner, .page { padding-left: 18px; padding-right: 18px; }
+  .toc ol { columns: 1; }
+  .pair { grid-template-columns: 1fr; }
+  .pair > div + div { border-left: 0; border-top: 1px solid var(--rule); }
+  .cause { grid-template-columns: 1fr; gap: 6px; }
+  .causes-head { display: none; }
+  .fix b::before { content: "Fixable: "; font-weight: 500; }
+  .fix { justify-self: start; text-align: left; }
+  .end { padding: 26px 22px; }
+  th, td { padding: 10px 12px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="bar">
+  <div class="bar-inner">
+    <a class="brand" href="/">Job Genie</a>
+    <a class="bar-cta" href="/free-autopsy">Run your free Autopsy</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <h1>How the Application Silence Score works</h1>
+      <p class="lead">Hiring screens rank candidates. They do not reject them. <strong>If you sit below the point where recruiters stop reading, you hear nothing, because no one ever decided anything.</strong></p>
+      <p class="lead">This page explains how we diagnose that silence, what we can and can't tell you, and every source we rely on.</p>
+      <p class="updated">Methodology last updated 20 September 2026</p>
+    </div>
+
+    <figure class="rank" aria-labelledby="rank-cap" style="margin:0">
+      <div class="rank-head" aria-hidden="true"><span>Shortlist for one role</span><span>Fit</span></div>
+      <ol aria-hidden="true">
+        <li><span class="pos">1</span><span class="meter"><span style="width:96%"></span></span><span class="pct">96%</span></li>
+        <li><span class="pos">2</span><span class="meter"><span style="width:93%"></span></span><span class="pct">93%</span></li>
+        <li><span class="pos">3</span><span class="meter"><span style="width:91%"></span></span><span class="pct">91%</span></li>
+        <li><span class="pos">4</span><span class="meter"><span style="width:89%"></span></span><span class="pct">89%</span></li>
+        <li class="threshold">Recruiter stops reading here</li>
+        <li class="below"><span class="pos">5</span><span class="meter"><span style="width:88%"></span></span><span class="pct">88%</span></li>
+        <li class="below"><span class="pos">6</span><span class="meter"><span style="width:87%"></span></span><span class="pct">87%</span></li>
+        <li class="gapdots">···</li>
+        <li class="you"><span class="pos">211</span><span class="meter"><span style="width:81%"></span></span><span class="pct">81%</span></li>
+      </ol>
+      <p class="you-note" aria-hidden="true">You. A strong fit, never rejected, never reached.</p>
+      <figcaption class="rank-cap" id="rank-cap">Illustration of a ranked shortlist, not real data. A candidate can score well and still sit far below the point where a recruiter stops reading.</figcaption>
+    </figure>
+  </div>
+</div>
+
+<div class="page">
+  <nav class="toc" aria-label="On this page">
+    <p>On this page</p>
+    <ol>
+      <li><a href="#measures">What the score measures</a></li>
+      <li><a href="#autopsy">How the Autopsy works</a></li>
+      <li><a href="#causes">The eight causes of silence</a></li>
+      <li><a href="#matrix">The Recruiter-Fit Matrix</a></li>
+      <li><a href="#stages">Where applications die</a></li>
+      <li><a href="#channel">Why the channel matters</a></li>
+      <li><a href="#limits">What the score does not claim</a></li>
+      <li><a href="#sources">Sources</a></li>
+    </ol>
+  </nav>
+
+  <main id="content">
+
+    <!-- ============ What the score measures ============ -->
+    <section id="measures" aria-labelledby="h-measures">
+      <h2 id="h-measures">What the score measures</h2>
+      <p class="lede">The Application Silence Score estimates why your applications get no response at all. It rests on one documented fact: modern hiring screens rank candidates. They do not reject them.</p>
+      <p>A ranking screen scores every candidate against the role and returns an ordered list. Recruiters contact people from the top down. Anyone below the point where they stop receives nothing — not a rejection, because no rejection decision was ever made. That is the mechanical definition of application silence.</p>
+      <p>This isn't an inference. The companies that build these screens describe them this way in their own product documentation:</p>
+      <ul class="plain">
+        <li>Sourcing platforms return ranked lists with fit percentages and match labels, not accept-or-reject decisions.</li>
+        <li>Inbound applications are now scored against the job the moment they arrive, so they reach the recruiter already ranked.</li>
+        <li>Ranking before a human has spread beyond enterprise software to small recruiting teams, including applications that arrive as email attachments.</li>
+      </ul>
+      <p>One vendor, describing the strong candidate ranked far down its own list, puts it plainly:</p>
+      <blockquote>They are simply never reached.</blockquote>
+      <p>Two corrections to how this is usually told. First, “robots reject you” is wrong. At least one vendor scores every application and explicitly refuses to auto-reject on that score; a person still makes the decision. “Ranked and never reached” is the accurate version. Second, the triage predates the software. Recruiters have always read the first batch closely, skimmed the next, and judged the rest on a job title. The software formalises that. It didn't invent it.</p>
+
+      <h3>What you get back</h3>
+      <p>A score band, and a split between two causes:</p>
+      <div class="pair">
+        <div>
+          <h3>The Filter</h3>
+          <p>Recruiters can't find or place you. Your target title and the language on your résumé don't match what they search for.</p>
+        </div>
+        <div>
+          <h3>The Fit</h3>
+          <p>You're found, but your proof doesn't hold up in a fast read. Strong in places, a list of duties in others.</p>
+        </div>
+      </div>
+      <p>The split matters because the fixes are different. A Filter problem is solved at the top of your résumé. A Fit problem is solved in the evidence underneath it.</p>
+    </section>
+
+    <!-- ============ How the Autopsy works ============ -->
+    <section id="autopsy" aria-labelledby="h-autopsy">
+      <h2 id="h-autopsy">How the Autopsy works</h2>
+      <p class="lede">The 100-Application Autopsy compares your résumé against the way specialist recruiters describe the roles they're filling, and reports where the mismatch sits.</p>
+
+      <h3>What goes in</h3>
+      <div class="scroll">
+        <table class="t-inputs">
+          <thead><tr><th scope="col">Input</th><th scope="col">Why it's needed</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Your résumé</strong></td><td>The thing being screened. Everything else is compared against it.</td></tr>
+            <tr><td><strong>Where your applications went</strong></td><td>Job board, in-house recruiter, or specialist agency. Silence means different things in each.</td></tr>
+            <tr><td><strong>One to three job descriptions you've applied to</strong></td><td>Some causes only show up as a pattern across roles. A single posting can't reveal them.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>What it's compared against.</strong> Live role briefs from roughly 140 specialist recruitment agencies, plus the published documentation of the screening platforms recruiters use. We model the screen from what its builders say it reads. We don't guess at it from résumé folklore.</p>
+
+      <h3>What comes out</h3>
+      <ul class="plain">
+        <li>Your Application Silence Score and the Filter/Fit split</li>
+        <li>Your Recruiter-Fit Matrix score, now and after the recommended changes</li>
+        <li>Where your applications are most likely dying: the screen, the recruiter pass, or postings that were never hiring</li>
+        <li>The cause of silence the evidence points to most strongly, and the first thing to fix</li>
+      </ul>
+
+      <div class="note">
+        <h3>What it doesn't use</h3>
+        <p>We don't scrape LinkedIn. We don't build a database of candidates, and we don't hold one. The diagnosis comes from public posting language, vendor documentation, and what you give us.</p>
+        <p>Your personal details are optional. You can remove your name, phone, email and address before uploading. The Autopsy reads your experience, not your identity, so the findings are identical either way.</p>
+      </div>
+    </section>
+
+    <!-- ============ The eight causes ============ -->
+    <section id="causes" aria-labelledby="h-causes">
+      <h2 id="h-causes">The eight causes of silence</h2>
+      <p class="lede">The Autopsy can name eight causes of application silence. Each is derived from what screening platforms document that they read, not from generic résumé advice. Several can't be fixed by editing your résumé at all, and the verdict will tell you when that's the case.</p>
+
+      <div class="causes-head" aria-hidden="true"><span>Cause</span><span>What it means, and what the screen does</span><span>Fixable on the page?</span></div>
+      <div class="causes">
+        <div class="cause">
+          <h3>Achievement legibility</h3>
+          <div>
+            <p class="means">Your impact and specialisation are missing or unreadable in a fast pass.</p>
+            <p class="screen"><span>The screen:</span> sourcing platforms filter on high-signal evidence of impact and achievement, not keyword counts.</p>
+          </div>
+          <p class="fix"><b class="yes">Yes</b><small>on the page</small></p>
+        </div>
+        <div class="cause">
+          <h3>Professional footprint</h3>
+          <div>
+            <p class="means">Evidence that lives off your résumé — code, publications, certifications, talks — is missing or can't be found.</p>
+            <p class="screen"><span>The screen:</span> platforms index technical forums, code repositories and academic publications alongside the résumé.</p>
+          </div>
+          <p class="fix"><b class="part">Partly</b><small>fixed off the page</small></p>
+        </div>
+        <div class="cause">
+          <h3>Trajectory and internal displacement</h3>
+          <div>
+            <p class="means">Your career path scores poorly on likelihood to move, or an internal employee ranks above you on the same system.</p>
+            <p class="screen"><span>The screen:</span> talent platforms model career progression and rank external applicants against current employees on one graph.</p>
+          </div>
+          <p class="fix"><b class="no">Rarely</b></p>
+        </div>
+        <div class="cause">
+          <h3>Title lineage and seniority</h3>
+          <div>
+            <p class="means">Your title history doesn't map to the progression the role expects.</p>
+            <p class="screen"><span>The screen:</span> ranking reads title sequence and seniority, not just the most recent title.</p>
+          </div>
+          <p class="fix"><b class="part">Often</b></p>
+        </div>
+        <div class="cause">
+          <h3>Role economics and geography</h3>
+          <div>
+            <p class="means">The role was never realistically available at your pay level or location.</p>
+            <p class="screen"><span>The screen:</span> staffing providers publish cost comparisons for placing roles in lower-cost markets.</p>
+          </div>
+          <p class="fix"><b class="no">No</b></p>
+        </div>
+        <div class="cause">
+          <h3>Channel mismatch</h3>
+          <div>
+            <p class="means">You're applying through a channel that can't read your evidence well.</p>
+            <p class="screen"><span>The screen:</span> job boards, in-house teams and agencies evaluate on different economics. <a href="#channel">See why the channel matters.</a></p>
+          </div>
+          <p class="fix"><b class="yes">Yes</b><small>by changing channel</small></p>
+        </div>
+        <div class="cause">
+          <h3>Target mismatch</h3>
+          <div>
+            <p class="means">Your evidence is clear, but consistently aimed at roles whose scope or seniority it doesn't reach.</p>
+            <p class="screen"><span>The screen:</span> ranking scores fit to the specific role, so strong evidence aimed wrong still ranks low.</p>
+          </div>
+          <p class="fix"><b class="yes">Yes</b><small>by retargeting</small></p>
+        </div>
+        <div class="cause">
+          <h3>Active-candidate penalty</h3>
+          <div>
+            <p class="means">Applying at all signals availability, in a market where recruiter attention is shifting to people who aren't applying.</p>
+            <p class="screen"><span>The screen:</span> recruiting vendors tell hiring teams outright to prioritise passive candidates over applicants.</p>
+          </div>
+          <p class="fix"><b class="no">No</b><small>become findable instead</small></p>
+        </div>
+      </div>
+
+      <h3>How confident each finding is</h3>
+      <p>For every cause, the mechanism is documented. How often each one is the reason for silence across the market is not — no reliable source measures that. So the Autopsy tells you which cause your evidence points to, and how strongly. It will never tell you that a cause affects some percentage of all job seekers.</p>
+
+      <h3>Two causes carry extra rules</h3>
+      <p><strong>Target mismatch</strong> can only be diagnosed as a pattern across several job descriptions. On a single posting it is only ever flagged as low-confidence and secondary, because one posting may be a deliberate stretch. The finding comes first; only then does the Autopsy ask whether a career change is intentional. Your intent shapes the advice. It never changes the finding.</p>
+      <p><strong>Role economics</strong> is reported analytically. Where a role was never economically open to you, the useful thing is to know it, so you stop spending applications on it.</p>
+    </section>
+
+    <!-- ============ Recruiter-Fit Matrix ============ -->
+    <section id="matrix" aria-labelledby="h-matrix">
+      <h2 id="h-matrix">The Recruiter-Fit Matrix</h2>
+      <p class="lede">The Recruiter-Fit Matrix scores your résumé out of 40, across eight dimensions recruiters screen on, and gives you two numbers: where you stand now, and where the recommended changes would take you.</p>
+
+      <h3>Why a matrix and not a match rate</h3>
+      <p>A keyword match rate tells you how many words overlap with a posting. It says nothing about whether a recruiter reading for eight seconds would see a candidate worth calling. The Matrix scores the things the screen documents reading — evidence of impact, specialisation, seniority fit — rather than word overlap.</p>
+
+      <h3>The two scores</h3>
+      <ul class="plain">
+        <li><strong>Now:</strong> your résumé as submitted.</li>
+        <li><strong>After:</strong> a projection of the same résumé with the recommended changes applied, scored the same way.</li>
+      </ul>
+      <p>The after score is a projection, not a measured outcome. It tells you how much of your gap sits on the page. It can't tell you what an employer will do.</p>
+
+      <!-- TODO BLOCKING: replace this block with the eight dimensions (name, what it measures, weight in the 40-point total) and the score bands with thresholds. Do not publish with this block present. -->
+      <div class="pending" role="note">
+        <h3>Pending: dimensions and score bands</h3>
+        <p>The eight dimensions, what each measures, its weight in the 40-point total, and the band thresholds belong here. The top band, Strong, means recruiter-ready with the remaining gaps named; the lower bands are to be defined.</p>
+        <p>This block must be replaced before the page is published.</p>
+      </div>
+    </section>
+
+    <!-- ============ Where applications die ============ -->
+    <section id="stages" aria-labelledby="h-stages">
+      <h2 id="h-stages">Where applications die</h2>
+      <p class="lede">The Autopsy estimates how your silence splits across three stages, because each one fails for a different reason and has a different fix.</p>
+
+      <div class="scroll">
+        <table class="t-stages">
+          <thead><tr><th scope="col">Stage</th><th scope="col">What happens</th><th scope="col">Fix</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">The screen</th><td>Your application is ranked below the point where recruiters stop reading. No person decides anything.</td><td>The top of your résumé: target title, the language recruiters search for, one hard proof point.</td></tr>
+            <tr><th scope="row">The recruiter pass</th><td>A person reads it and doesn't shortlist you, usually because the proof isn't scannable in a fast read.</td><td>The evidence under the top section, rewritten from duties into results.</td></tr>
+            <tr><th scope="row">Postings that were never hiring</th><td>The role wasn't a genuine opening.</td><td>None on your side. The fix is not spending applications there.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>The third stage is real and documented.</strong> The Congressional Research Service reported in April 2025 that staffing agencies may post openings to show employers they can attract strong candidates, a sales device aimed at winning the client. Agencies in specialist fields also post to monitor candidate availability and salary expectations. Neither is aimed at exploiting candidates, but neither leads to a hire.</p>
+      <p><strong>What the stage split is and isn't.</strong> The percentages in your Autopsy are an estimate for your applications. They are not a market-wide rate. No survey breaks never-hiring postings out by channel, and a market-wide figure wouldn't describe your applications anyway.</p>
+    </section>
+
+    <!-- ============ Channel ============ -->
+    <section id="channel" aria-labelledby="h-channel">
+      <h2 id="h-channel">Why it matters where you applied</h2>
+      <p class="lede">Silence from a job board, an in-house recruiter and a specialist agency are three different failures, because each channel is paid differently and evaluates you differently. The Autopsy asks where your applications went for this reason.</p>
+
+      <div class="scroll">
+        <table class="t-channel">
+          <thead>
+            <tr><th scope="col"><span class="skip">Channel</span></th><th scope="col">Paid by</th><th scope="col">Relationship with you</th><th scope="col">Incentive to give feedback</th><th scope="col">Who looks first</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Specialist recruiter</th><td>The client, on placement</td><td>Multi-year, across searches</td><td>Mixed: real relationship value, limited by time</td><td>A person</td></tr>
+            <tr><th scope="row">In-house recruiter</th><td>One employer, on salary</td><td>One role at a time</td><td>Weak</td><td>A person, eventually</td></tr>
+            <tr><th scope="row">Job board</th><td>Employers, on engagement</td><td>None</td><td>Close to none at volume</td><td>Often software; sometimes no one</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Job boards</strong> earn their revenue from employers — pay-per-click, sponsored placement, access to résumé databases — not from matching you to a job. Recruit Holdings' HR Technology segment, which includes Indeed and Glassdoor, reported $7.38 billion in revenue for fiscal 2024. The model rewards volume on both sides. Feedback requires someone to have looked, and for a large share of board applications the first evaluation is a ranking system.</p>
+      <p><strong>In-house recruiters</strong> handle many roles at once alongside planning and coordination work. Feedback practice across employers is poor and well measured. Talent Board's 2018 North American benchmark found just 19.5% of employers ask interviewed-but-unselected candidates for feedback, and a 25.5-point gap between how employers rated their rejection experience and how candidates rated it. A CareerBuilder survey of nearly 4,000 US workers found three-quarters heard nothing after being rejected.</p>
+      <p><strong>Specialist recruiters</strong> earn mostly on placement, often with a 60 to 90 day guarantee period that keeps them engaged after a hire. They depend on a candidate pool they return to across searches, which rewards closing the loop. But they run several paid searches at once, which rations their time. Neither pressure has been measured against the other.</p>
+
+      <div class="note">
+        <h3>The honest limit</h3>
+        <p>No research breaks feedback practice down by recruiter channel. The employer-wide figures above are the best available proxy for in-house behaviour, not a direct measurement of it. And no channel is exempt from ranking software: agency marketplaces now grade submissions too. The specialist channel is cleaner, not untouched.</p>
+      </div>
+    </section>
+
+    <!-- ============ Limits ============ -->
+    <section id="limits" aria-labelledby="h-limits">
+      <h2 id="h-limits">What the score does not claim</h2>
+      <p class="lede">The Silence Score is confident about how screens work and probabilistic about your specific case. Here is exactly where the line sits.</p>
+      <ul class="limits">
+        <li><strong>It doesn't know any employer's settings.</strong>We know what screening platforms document that they read. We don't know how a particular company has configured one. Every finding comes with a confidence level for that reason.</li>
+        <li><strong>It doesn't quote rates it can't source.</strong>You won't find the claim here that most jobs are never posted, or that nearly all applications never reach a person. We looked for the sources behind those numbers. They don't hold up, so we don't use them.</li>
+        <li><strong>It doesn't treat vendor marketing as fact.</strong>Screening companies publish performance claims: faster hiring, more replies. Those are unaudited. We cite vendors for what their products do, never for how well they do it.</li>
+        <li><strong>It doesn't promise an outcome.</strong>The Autopsy tells you why your applications are going silent and what to change. Whether you get an interview depends on employers and a labour market we don't control.</li>
+        <li><strong>It doesn't have outcome data yet.</strong>When we publish results, each figure will state who it covers, the period, where the data came from, and its weaknesses.</li>
+        <li><strong>It will tell you when the problem isn't your résumé.</strong>Several causes of silence can't be fixed by rewriting anything. A diagnosis that only ever recommends a rewrite isn't a diagnosis.</li>
+        <li><strong>It will return an unwelcome answer.</strong>If the evidence says you're aiming at roles you don't yet reach, the verdict says so, first, and before asking whether that's deliberate.</li>
+      </ul>
+    </section>
+
+    <!-- ============ Sources ============ -->
+    <section id="sources" class="sources" aria-labelledby="h-sources">
+      <h2 id="h-sources">Sources</h2>
+      <p class="src-intro">Every company listed here is cited as a source of documentation about how screening works. None is a partner of Job Genie, and none has reviewed or endorsed this page.</p>
+
+      <h3>How the screen works: vendor documentation</h3>
+      <ul>
+        <li><a href="https://juicebox.ai/demo-booking" rel="nofollow noopener">Juicebox (PeopleGPT)</a><span>Ranked output with fit percentages and match labels; filtering on impact and achievement</span></li>
+        <li><a href="https://ironbase.tech/" rel="nofollow noopener">IronBase</a><span>Every inbound submission scored on arrival; explicit refusal to auto-reject before a human reads</span></li>
+        <li><a href="https://kohai.co/hr/every-resume-screened-by-sunrise" rel="nofollow noopener">Kohai</a><span>Ranked shortlists for small teams; the “never reached” description; the pre-software triage pattern</span></li>
+        <li><a href="https://www.metaview.ai/fillmore" rel="nofollow noopener">Metaview, fillmore</a><span>Outbound sourcing positioned as owning the top of the funnel, with the applicant screen beginning after it</span></li>
+        <li><a href="https://careerarc.com/blog/the-rise-of-job-hugging-and-what-it-means-for-talent-teams" rel="nofollow noopener">CareerArc, The rise of job hugging</a><span>Guidance to talent teams to prioritise passive candidates over active applicants</span></li>
+        <li><a href="https://www.secondtalent.com/" rel="nofollow noopener">Second Talent</a><span>Published cost comparisons for placing roles in lower-cost markets</span></li>
+      </ul>
+
+      <h3>How the screen works: third-party descriptions</h3>
+      <ul>
+        <li><a href="https://hraitoolskit.com/articles/seekout-review/" rel="nofollow noopener">HR AI Toolskit, SeekOut review</a><span>Indexing of forums and academic publications</span></li>
+        <li><a href="https://www.goperfect.com/blog/10-best-seekout-alternatives-for-smarter-ai-recruiting-in-2026" rel="nofollow noopener">Perfect, SeekOut alternatives</a><span>hireEZ source coverage, including GitHub and Stack Overflow</span></li>
+        <li><a href="https://www.findem.ai/blog/seekout-vs-hireez-vs-eightfold-vs-beamery-vs-findem" rel="nofollow noopener">Findem, platform comparison</a><span>Career-trajectory modelling and internal-versus-external ranking</span></li>
+        <li><a href="https://aiproductivity.ai/blog/eightfold-ai-vs-seekout/" rel="nofollow noopener">AI Productivity, Eightfold vs SeekOut</a><span>Career-trajectory modelling and internal-versus-external ranking</span></li>
+      </ul>
+
+      <h3>Postings that were never hiring</h3>
+      <ul>
+        <li><a href="https://www.congress.gov/crs-product/IF12977" rel="noopener">Congressional Research Service, “Ghost” Job Postings (April 2025)</a></li>
+        <li><a href="https://www.cio.com/article/3610861/beware-the-rise-of-ghost-jobs-fake-job-openings-with-no-intent-to-hire.html" rel="noopener">CIO, Beware the rise of ‘ghost jobs’</a></li>
+      </ul>
+
+      <h3>Channels and feedback practice</h3>
+      <ul>
+        <li><a href="https://hrexecutive.com/heres-the-latest-north-american-candidate-experience-report/" rel="noopener">HR Executive, North American Candidate Experience Report</a><span>Reporting Talent Board's 2018 benchmark</span></li>
+        <li><a href="https://gulfnews.com/how-to/employment/rejected-job-applicants-deserve-to-get-feedback-1.1324084" rel="noopener">Gulf News, reporting a CareerBuilder survey</a></li>
+        <li><a href="https://cavuno.com/blog/job-board-business-models" rel="noopener">Cavuno, Job board business models</a><span>Including Recruit Holdings' HR Technology segment revenue</span></li>
+        <li><a href="https://resources.workable.com/stories-and-insights/agency-in-house-recruitment" rel="noopener">Workable, Agency vs in-house recruitment</a></li>
+        <li><a href="https://blog.wehirepeople.com/blog/blog-2/8-key-differences-between-corporate-recruiters-agency-recruiters-11" rel="noopener">Integrated Talent Strategies, Corporate vs agency recruiters</a></li>
+        <li><a href="https://www.4cornerresources.com/blog/agency-vs-corporate-recruiting-which-one-is-best-to-work-with/" rel="noopener">4 Corner Resources, Agency vs corporate recruiting</a></li>
+        <li><a href="https://www.indeed.com/hire/c/info/agency-vs-in-house-recruiter" rel="noopener">Indeed Hire, In-house vs agency recruitment</a></li>
+        <li><a href="https://bhsg.com/resources/in-house-vs-agency-recruitment-the-pros-and-cons-of-careers-in-recruiting" rel="noopener">BHSG, In-house vs agency recruitment</a></li>
+      </ul>
+    </section>
+
+    <aside class="end" aria-labelledby="h-end">
+      <h2 id="h-end">See your own verdict</h2>
+      <p>The Autopsy applies everything on this page to your résumé and tells you which cause your evidence points to, how strongly, and what to fix first.</p>
+      <a class="btn" href="/free-autopsy">Run your free Autopsy</a>
+      <small>Free. No card. Personal details optional.</small>
+    </aside>
+
+  </main>
+</div>
+
+<footer>
+  <div>© 2026 Job Genie. Methodology last updated 20 September 2026.</div>
+</footer>
+</body>
+</html>

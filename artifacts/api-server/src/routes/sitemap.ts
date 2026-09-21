@@ -69,6 +69,7 @@ const STATIC_PAGES = [
   { loc: "/job-genie-vs-auto-apply", changefreq: "monthly", priority: "0.75" },
   { loc: "/free-autopsy", changefreq: "monthly", priority: "0.9" },
   { loc: "/answers", changefreq: "daily", priority: "0.9" },
+  { loc: "/methodology", changefreq: "monthly", priority: "0.8" },
   { loc: "/blog", changefreq: "daily", priority: "0.85" },
   { loc: "/qa", changefreq: "daily", priority: "0.85" },
 ];

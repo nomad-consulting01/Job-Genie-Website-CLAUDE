@@ -17,6 +17,7 @@ import ResourcesPage from './pages/ResourcesPage';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import DataDeletion from './pages/DataDeletion';
+import MethodologyPage from './pages/MethodologyPage';
 import variantsData from './data/variants.json';
 import ReactMarkdown from 'react-markdown';
 import { DirectResponseTabs, type PublicDirectResponse } from '@/components/DirectResponseTabs';
@@ -115,6 +116,12 @@ const AEO_ROUTES: Record<string, RouteHead> = {
     canonical: `${SITE_URL}/resources`,
     robots: 'index, follow',
     aeoQuestion: 'Where can I find all the Job Genie job search guides?',
+  },
+  '/methodology': {
+    title: 'How the Application Silence Score works | Job Genie',
+    description: 'The methodology behind the Application Silence Score: why hiring screens rank rather than reject, the eight causes of application silence, and every source we rely on.',
+    canonical: `${SITE_URL}/methodology`,
+    robots: 'index, follow',
   },
   '/terms': {
     title: 'Terms of Service | Job Genie',
@@ -242,6 +249,38 @@ export function buildHeadHtml(head: RouteHead): string {
       })
     : null;
 
+  const methodologyFaqSchema = slug === 'methodology' ? JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'What does the Application Silence Score measure?',
+        acceptedAnswer: { '@type': 'Answer', text: 'It estimates why your job applications get no response at all. It rests on one documented fact: modern hiring screens rank candidates rather than reject them. Recruiters contact people from the top of a ranked list down, and anyone below the point where they stop receives nothing, because no rejection decision was ever made.' },
+      },
+      {
+        '@type': 'Question',
+        name: 'Do applicant tracking systems reject candidates automatically?',
+        acceptedAnswer: { '@type': 'Answer', text: "Usually not. Screening platforms document that they score and rank candidates, and at least one vendor explicitly refuses to auto-reject on its score. 'Ranked and never reached' is more accurate than 'robots reject you'." },
+      },
+      {
+        '@type': 'Question',
+        name: 'What are the causes of application silence?',
+        acceptedAnswer: { '@type': 'Answer', text: "Job Genie's Autopsy can name eight: achievement legibility, professional footprint, trajectory and internal displacement, title lineage and seniority, role economics and geography, channel mismatch, target mismatch, and the active-candidate penalty. Several cannot be fixed by editing a résumé." },
+      },
+      {
+        '@type': 'Question',
+        name: 'Why does it matter whether I applied through a job board, an in-house recruiter or an agency?',
+        acceptedAnswer: { '@type': 'Answer', text: 'Each channel is paid differently and evaluates candidates differently. Job boards earn from employers on engagement, in-house recruiters handle many roles at once, and specialist recruiters earn on placement. Silence from each is a different failure with a different fix.' },
+      },
+      {
+        '@type': 'Question',
+        name: 'Does the Application Silence Score guarantee interviews?',
+        acceptedAnswer: { '@type': 'Answer', text: 'No. It tells you why your applications are going silent and what to change. Whether you get an interview depends on employers and a labour market Job Genie does not control.' },
+      },
+    ],
+  }) : null;
+
   const homeFaqSchema = isHome ? JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -302,6 +341,7 @@ export function buildHeadHtml(head: RouteHead): string {
     `<script type="application/ld+json">${serviceSchema}</script>`,
     `<script type="application/ld+json">${breadcrumbSchema}</script>`,
     questionSchema ? `<script type="application/ld+json">${questionSchema}</script>` : null,
+    methodologyFaqSchema ? `<script type="application/ld+json">${methodologyFaqSchema}</script>` : null,
     homeFaqSchema ? `<script type="application/ld+json">${homeFaqSchema}</script>` : null,
     homeHowToSchema ? `<script type="application/ld+json">${homeHowToSchema}</script>` : null,
   ];
@@ -518,6 +558,7 @@ export function render(url: string): string {
             <Route path="/free-autopsy" component={AutopsyPage} />
             <Route path="/free-autopsy2" component={FreeAutopsy2Page} />
             <Route path="/resources" component={ResourcesPage} />
+            <Route path="/methodology" component={MethodologyPage} />
             <Route path="/terms" component={TermsOfService} />
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/data-deletion" component={DataDeletion} />

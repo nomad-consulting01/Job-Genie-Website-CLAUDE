@@ -21,6 +21,7 @@ import DataDeletion from "./pages/DataDeletion";
 import AutopsyPage from "./pages/AutopsyPage";
 import FreeAutopsy2Page from "./pages/FreeAutopsy2Page";
 import ResourcesPage from "./pages/ResourcesPage";
+import MethodologyPage from "./pages/MethodologyPage";
 import "./styles/brand.css";
 
 const queryClient = new QueryClient();
@@ -58,6 +59,7 @@ function Router() {
       <Route path="/answers/:slug" component={AnswerPage} />
       {/* Resources hub — must be before /:slug wildcard */}
       <Route path="/resources" component={ResourcesPage} />
+      <Route path="/methodology" component={MethodologyPage} />
       {/* Standalone landing pages — must be before /:slug wildcard */}
       <Route path="/free-autopsy" component={AutopsyPage} />
       <Route path="/free-autopsy2" component={FreeAutopsy2Page} />

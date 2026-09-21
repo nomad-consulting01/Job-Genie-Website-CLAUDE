@@ -22,6 +22,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROUTES = [
   '/',
   '/resources',
+  '/methodology',
   '/why-no-responses-after-100-applications',
   '/ghost-jobs',
   '/glossary',
@@ -287,6 +288,7 @@ async function main() {
     { loc: '/free-autopsy', changefreq: 'monthly', priority: '0.9' },
     { loc: '/free-autopsy2', changefreq: 'monthly', priority: '0.9' },
     { loc: '/resources', changefreq: 'monthly', priority: '0.8' },
+    { loc: '/methodology', changefreq: 'monthly', priority: '0.8' },
     { loc: '/answers', changefreq: 'daily', priority: '0.9' },
     { loc: '/blog', changefreq: 'daily', priority: '0.85' },
     { loc: '/qa', changefreq: 'daily', priority: '0.85' },
