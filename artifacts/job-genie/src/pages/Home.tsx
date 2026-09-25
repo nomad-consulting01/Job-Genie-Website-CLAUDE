@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { trackEvent, useEngagementTracking } from "../lib/analytics";
 import { getExperiment } from "../lib/abtest";
@@ -37,37 +37,8 @@ function useScrollNav() {
 }
 
 function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        if (!entries[0].isIntersecting) return;
-        const t0 = performance.now();
-        const d = 1800;
-        const tick = (now: number) => {
-          const p = Math.min((now - t0) / d, 1);
-          const e2 = 1 - Math.pow(1 - p, 3);
-          setCount(Math.round(e2 * target));
-          if (p < 1) requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-        obs.unobserve(el);
-      },
-      { threshold: 0.5 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [target]);
-
   return (
-    <span className="sn" ref={ref}>
-      {count}
-      {suffix}
-    </span>
+    <span className="sn">{target}{suffix}</span>
   );
 }
 

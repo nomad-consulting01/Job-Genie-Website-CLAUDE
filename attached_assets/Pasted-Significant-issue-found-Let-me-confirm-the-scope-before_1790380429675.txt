@@ -1,0 +1,22 @@
+Significant issue found. Let me confirm the scope before reporting it.Confirmed a real problem, and it's bigger than one page.
+
+**`/methodology/` does not exist. It serves the homepage.**
+
+I fetched it and got the full homepage — hero, pricing, FAQ, everything — with no methodology content whatsoever. Then I checked `/glossary/` and got byte-identical homepage output. So this isn't a one-page mistake; your site has a **catch-all route serving `index.html` for paths that were never built**. Any URL in that Resources cluster is likely doing the same thing.
+
+Three compounding consequences:
+
+**1. Soft 404.** The URL returns `200 OK` with homepage content instead of a `404`. Google classifies this as a soft 404 — it wastes crawl budget and drags on site-quality signals, and it's worse than an honest 404 because nothing signals the page is missing.
+
+**2. The canonical kills it outright.** Every one of these phantom pages declares `canonical: https://www.job-genie.ai/`. So even though `meta-robots` says `index, follow`, you're explicitly telling search and answer engines "this URL is a duplicate of the homepage — don't index it." **No methodology page can ever rank, because as far as Google is concerned it isn't a page.** For an AEO-first strategy, that's the whole point of the page gone.
+
+**3. Your own footer links to it from every page.** "Methodology" and "Job Search Glossary" sit in the Resources block sitewide, so every page funnels crawlers and users into a dead end that looks like a redirect loop back to the homepage.
+
+**The fix** is either to actually build the page at that route, or — if it's not ready — remove the footer links and return a real 404 until it is. Don't leave a linked catch-all in place; a missing page is fine, a page that silently impersonates the homepage is not. Once built, give it its own `canonical`, `title`, and `meta-description`.
+
+Two other things I noticed while I was in there, both AEO-relevant:
+
+- **Your stat counters render as zeros in the static HTML.** The trust bar serves `0K+` live listings, `0+` agencies, `0% of job board listings are filled "ghost jobs"`, and `0%+ of all hires come via referrals (SHRM)`. Those are JS count-up animations that never fire for a crawler. So AI engines and search bots are reading — and can quote — *"0% of all hires come via referrals, per SHRM."* That's factually wrong data attributed to a named source, which is exactly what your sourcing discipline exists to prevent. Render the real numbers in the HTML and let JS animate *from* them, not *to* them.
+- **The replit.app CTAs are still live sitewide** — every "Get Free Autopsy" button on the homepage still points at `modular-pipeline.replit.app`, plus the bit.ly Pro link. Your funnel ship-blockers call for zero reachable replit.app references.
+
+Want me to check the rest of the Resources cluster (`/ghost-jobs`, `/why-no-responses-after-100-applications`, `/job-genie-vs-auto-apply`, the three `/for/` pages) to see how many are phantom routes versus real pages? That would tell you whether this is two broken links or your entire AEO content layer.

@@ -22,9 +22,6 @@ build = [ "pnpm", "--filter", "@workspace/job-genie", "run", "build" ]
 publicDir = "artifacts/job-genie/dist/public"
 serve = "static"
 
-[[services.production.rewrites]]
-from = "/*"
-to = "/index.html"
 
 [services.env]
 PORT = "19806"

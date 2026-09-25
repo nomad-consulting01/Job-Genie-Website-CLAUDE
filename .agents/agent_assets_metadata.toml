@@ -191,108 +191,126 @@ id = "7Y_KX-czfi4xE13rh-zCL"
 uri = "file://corpus-topic-analysis.md"
 type = "text"
 title = "Reddit Corpus — Topic Analysis"
+logical_id = "cf23fcc8-99f4-4adb-ab19-38e5754ce755"
 
 [[outputs]]
 id = "FAHEELc2PNzpNQkOoGEs6"
 uri = "file://attached_assets/brand/newsletter-hero.png"
 type = "image"
 title = "Newsletter Hero Banner (16:9)"
+logical_id = "0da92db9-cc0d-4c0a-a5e0-8d6463c9cc56"
 
 [[outputs]]
 id = "TGPTpeJvQfVFtpSwFJ6jy"
 uri = "file://attached_assets/brand/blog-og-image.png"
 type = "image"
 title = "Blog OG / Featured Image (16:9)"
+logical_id = "022daa14-b600-48a1-963f-e948476469d2"
 
 [[outputs]]
 id = "Uq2guWketwrt4Yl0SN9a7"
 uri = "file://attached_assets/brand/social-media-square.png"
 type = "image"
 title = "Social Media Square (1:1)"
+logical_id = "6813a75b-2ddd-4e6a-986a-0871d7675531"
 
 [[outputs]]
 id = "ouzXq-VfRux7DX8zVTamT"
 uri = "file://attached_assets/brand/newsletter-hero-minimal.png"
 type = "image"
 title = "Newsletter — Minimalist/Modern"
+logical_id = "12a9c6b4-cec4-4d9f-b2bd-2b4dc1dd5106"
 
 [[outputs]]
 id = "ezYYIXaUXiv48IOkenwIt"
 uri = "file://attached_assets/brand/newsletter-hero-warm.png"
 type = "image"
 title = "Newsletter — Warm Editorial"
+logical_id = "db919b9c-f6e9-40c6-a555-23f9e8be9b4d"
 
 [[outputs]]
 id = "TRxBtJZzNLr-hp74jlCG8"
 uri = "file://attached_assets/brand/blog-og-minimal.png"
 type = "image"
 title = "Blog OG — Minimalist/Modern"
+logical_id = "5e7f5104-e5eb-4368-948e-8e4193de367e"
 
 [[outputs]]
 id = "3FnBoa0NazeYhdaiSl3VN"
 uri = "file://attached_assets/brand/blog-og-warm.png"
 type = "image"
 title = "Blog OG — Warm Editorial"
+logical_id = "7091e13b-3c9f-4861-8ee7-de2319985097"
 
 [[outputs]]
 id = "otbRujj7FBHOG5EPA_4Kr"
 uri = "file://attached_assets/brand/social-media-minimal.png"
 type = "image"
 title = "Social Media — Minimalist/Modern"
+logical_id = "8cf85509-ee1c-400d-9841-b43779e2d1b1"
 
 [[outputs]]
 id = "yDLSiq_EsCG2qmn7Sqe9n"
 uri = "file://attached_assets/brand/social-media-warm.png"
 type = "image"
 title = "Social Media — Warm Editorial"
+logical_id = "104bc381-481f-48c6-887c-6d6163060d99"
 
 [[outputs]]
 id = "XX-lKwoaR8uWO_6GWMzKV"
 uri = "file://attached_assets/brand/newsletter-dark-teal.png"
 type = "image"
 title = "Newsletter — Dark/Teal Brand"
+logical_id = "cf1d5f7a-c91e-4025-8be8-60f3b5a81287"
 
 [[outputs]]
 id = "OrbFUVUNPglQzz7ZxvrBQ"
 uri = "file://attached_assets/brand/newsletter-warm-editorial.png"
 type = "image"
 title = "Newsletter — Warm Editorial"
+logical_id = "3ae2843b-b0a3-4171-a0e4-36feae445ed2"
 
 [[outputs]]
 id = "iX7iOwl2Wan1fAsEz8y3B"
 uri = "file://attached_assets/brand/blog-og-dark-teal.png"
 type = "image"
 title = "Blog OG — Dark/Teal Brand"
+logical_id = "730aaff2-013f-49a2-bac7-0d6504834649"
 
 [[outputs]]
 id = "Wv6d3Jno49tZg9rvQVkJT"
 uri = "file://attached_assets/brand/blog-og-warm-editorial.png"
 type = "image"
 title = "Blog OG — Warm Editorial"
+logical_id = "9817663d-7d14-4417-ae03-4c43e0c559a8"
 
 [[outputs]]
 id = "V6Cf5sN4Q3VtWpA1stIVT"
 uri = "file://attached_assets/brand/social-dark-teal.png"
 type = "image"
 title = "Social Media — Dark/Teal Brand"
+logical_id = "9464c056-3d39-4a43-aa7b-b6a75619013e"
 
 [[outputs]]
 id = "qc_rg2Z3HvZGPe0PST0OZ"
 uri = "file://attached_assets/brand/social-warm-editorial.png"
 type = "image"
 title = "Social Media — Warm Editorial"
+logical_id = "0ca01430-4649-4941-bb56-7293b329a14a"
 
 [[outputs]]
 id = "zEJK_A05lxCTvbCfctLL8"
 uri = "file://docs/content-engine-loops.docx"
 type = "word_document"
 title = "Content Engine — Loop 1 to Loop 4 (Word)"
+logical_id = "d03353cd-98ac-49b6-b207-32a1959fd3f7"
 
 [[outputs]]
 id = "tZi16kIsl96pcKZOrX5c_"
 uri = "file://Direct-Response-Growth-Engine.docx"
 type = "word_document"
 title = "Direct Response Growth Engine"
+logical_id = "f73ca5f2-aafd-46a1-a344-57801509ffaf"
 
 [[outputs]]
 id = "uRiEcLw_2yJi9C3hwm_PT"
@@ -300,6 +318,7 @@ uri = "file://attached_assets/job-genie-aeo-audit-august-2026.docx"
 type = "word_document"
 title = "Job Genie — AEO/GEO Crawler Readiness Audit (August 2026)"
 description = "Five-phase remediation report: discoverability diagnosis, canonical/redirect fixes, 27-post cannibalization redirect map, on-page AEO signal improvements, and authority recommendations."
+logical_id = "d6ce4d3c-cd9a-46da-b9a3-a16123ddcfd2"
 
 [[outputs]]
 id = "tC9QR4ObrCLe1Oq0i6Y03"
@@ -307,3 +326,4 @@ uri = "file://attached_assets/job-genie-cs-explainer.docx"
 type = "word_document"
 title = "Job Genie — How It Works (CS Student Edition)"
 description = "Plain-English explainer of the full system for a first-year CS student, covering all five nightly loops, the background services, the A/B experiment system, and a glossary of CS concepts used throughout."
+logical_id = "dbca5d92-9de6-46b8-a908-d7138b18980a"
