@@ -322,7 +322,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           <li><a href="#truth-layer">Truth Layer</a></li>
           <li><a href="#feat">Features</a></li>
           <li><a href="#price">Pricing</a></li>
-          <li><a href="/resources">Resources</a></li>
+          <li><a href="/resources/">Resources</a></li>
           <li><a href="/blog">Blog</a></li>
           <li><a href="/qa">FAQ</a></li>
           <li>
@@ -362,11 +362,11 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           </button>
           {resourcesOpen && (
             <div className="mob-group-links">
-              <a href="/resources" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>All Guides (Start Here)</a>
-              <a href="/glossary" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Job Search Glossary</a>
-              <a href="/ghost-jobs" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Ghost Jobs Explained</a>
-              <a href="/why-no-responses-after-100-applications" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Why No Responses?</a>
-              <a href="/job-genie-vs-auto-apply" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Job Genie vs Auto-Apply</a>
+              <a href="/resources/" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>All Guides (Start Here)</a>
+              <a href="/glossary/" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Job Search Glossary</a>
+              <a href="/ghost-jobs/" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Ghost Jobs Explained</a>
+              <a href="/why-no-responses-after-100-applications/" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Why No Responses?</a>
+              <a href="/job-genie-vs-auto-apply/" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Job Genie vs Auto-Apply</a>
             </div>
           )}
 
@@ -382,9 +382,9 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           </button>
           {prosOpen && (
             <div className="mob-group-links">
-              <a href="/for/mid-career-professionals" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Mid-Career Professionals</a>
-              <a href="/for/senior-engineers" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Senior Engineers</a>
-              <a href="/for/career-changers" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Career Changers</a>
+              <a href="/for/mid-career-professionals/" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Mid-Career Professionals</a>
+              <a href="/for/senior-engineers/" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Senior Engineers</a>
+              <a href="/for/career-changers/" className="mob-link mob-sub" onClick={() => setMobileOpen(false)}>Career Changers</a>
             </div>
           )}
 
@@ -962,24 +962,24 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
               <a href="#price">Pricing</a>
               <a href={`${SITE_URL}/`} target="_blank" rel="noopener noreferrer">Launch App</a>
               <a href="/qa">Job Search FAQ</a>
-              <a href="/terms">Terms of Service</a>
-              <a href="/privacy">Privacy Policy</a>
-              <a href="/data-deletion">Request Data Deletion</a>
+              <a href="/terms/">Terms of Service</a>
+              <a href="/privacy/">Privacy Policy</a>
+              <a href="/data-deletion/">Request Data Deletion</a>
             </nav>
             <nav className="footlk" aria-label="Resources navigation">
               <span style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--w40, rgba(255,255,255,0.4))", display: "block", marginBottom: "4px" }}>Resources</span>
-              <a href="/resources">All Guides (Start Here)</a>
-              <a href="/methodology">Methodology</a>
-              <a href="/glossary">Job Search Glossary</a>
-              <a href="/ghost-jobs">Ghost Jobs Explained</a>
-              <a href="/why-no-responses-after-100-applications">Why No Responses?</a>
-              <a href="/job-genie-vs-auto-apply">Job Genie vs Auto-Apply</a>
+              <a href="/resources/">All Guides (Start Here)</a>
+              <a href="/methodology/">Methodology</a>
+              <a href="/glossary/">Job Search Glossary</a>
+              <a href="/ghost-jobs/">Ghost Jobs Explained</a>
+              <a href="/why-no-responses-after-100-applications/">Why No Responses?</a>
+              <a href="/job-genie-vs-auto-apply/">Job Genie vs Auto-Apply</a>
             </nav>
             <nav className="footlk" aria-label="For professionals navigation">
               <span style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--w40, rgba(255,255,255,0.4))", display: "block", marginBottom: "4px" }}>For Professionals</span>
-              <a href="/for/mid-career-professionals">Mid-Career Professionals</a>
-              <a href="/for/senior-engineers">Senior Engineers</a>
-              <a href="/for/career-changers">Career Changers</a>
+              <a href="/for/mid-career-professionals/">Mid-Career Professionals</a>
+              <a href="/for/senior-engineers/">Senior Engineers</a>
+              <a href="/for/career-changers/">Career Changers</a>
             </nav>
             <p className="footc">© 2026 Job-Genie.ai · Recruiter Visibility Intelligence · Not a job board · <time dateTime="2026-06-01">Updated June 2026</time></p>
           </div>
