@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { trackEvent, useEngagementTracking } from "../lib/analytics";
 import { getExperiment } from "../lib/abtest";
@@ -37,9 +37,36 @@ function useScrollNav() {
 }
 
 function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
-  return (
-    <span className="sn">{target}{suffix}</span>
-  );
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || !("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let frame = 0;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      const start = performance.now();
+      const duration = 1400;
+      const tick = (now: number) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - (1 - progress) ** 3;
+        element.textContent = `${Math.round(target * eased)}${suffix}`;
+        if (progress < 1) frame = requestAnimationFrame(tick);
+      };
+      frame = requestAnimationFrame(tick);
+    }, { threshold: 0.5 });
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [target, suffix]);
+
+  // Keep the final number in server-rendered HTML and the first hydrated render.
+  return <span className="sn" ref={ref}>{target}{suffix}</span>;
 }
 
 function LoopAnimation() {

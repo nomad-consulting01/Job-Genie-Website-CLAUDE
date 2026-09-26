@@ -1,0 +1,92 @@
+CONTEXT
+This is the job-genie.ai marketing site. The homepage (/) was recently fixed and is
+CORRECT — do not modify it except where Task 4 explicitly requires it.
+
+Nine routes linked from the sitewide footer and nav do not work. Each one returns
+HTTP 200 and serves the HOMEPAGE HTML instead of its own content, with
+<link rel="canonical" href="https://www.job-genie.ai/"> — so search and answer
+engines treat all nine as duplicates of the homepage and refuse to index them.
+
+The affected routes:
+  /resources
+  /methodology
+  /glossary
+  /ghost-jobs
+  /why-no-responses-after-100-applications
+  /job-genie-vs-auto-apply
+  /for/mid-career-professionals
+  /for/senior-engineers
+  /for/career-changers
+
+Additionally, these routes are serving a STALE build. The homepage at / serves the
+current version, but the nine routes above serve an older cached copy that still
+contains modular-pipeline.replit.app links, a bit.ly/3PqDSBv link, and stat counters
+rendering as "0K+", "0+", "0%", "0%+". Those were all removed from the current build.
+
+TASK 1 — DIAGNOSE FIRST. Do not change code yet.
+Determine which of these is true, and report your findings before proceeding:
+  (a) The routes are not defined at all and a catch-all/SPA fallback serves index.html
+  (b) The routes are defined but a CDN/edge cache is serving a stale response
+  (c) The routes exist but each one emits the homepage's canonical/title/meta tags
+Inspect the router config, the build output directory, any rewrite/redirect rules
+(vercel.json, netlify.toml, _redirects, next.config, vite config, server routes),
+and the cache headers returned for these paths. Report which files control this
+routing and what they currently do.
+
+TASK 2 — ROUTING FIX
+For every route above that does NOT have real, unique content in the codebase:
+  - Make it return HTTP 404 with a proper 404 page. It must NOT return 200 with
+    homepage content.
+  - Remove its link from the footer and nav so the site does not link to 404s.
+  - Keep a record of which routes you removed links for.
+For every route that DOES have real content in the codebase but isn't rendering:
+  - Fix the routing so the real component/page renders at that path.
+Never leave a route that returns 200 while serving homepage content.
+
+TASK 3 — PER-PAGE METADATA
+For every route that renders real content, it must emit its own:
+  - <link rel="canonical"> pointing at its OWN URL, not the homepage
+  - unique <title>
+  - unique <meta name="description">
+  - unique og:title, og:description, og:url
+No page other than the homepage may declare the homepage as its canonical.
+
+TASK 4 — PURGE STALE ARTIFACTS SITEWIDE
+Search the entire codebase and remove every remaining reference to:
+  - modular-pipeline.replit.app  (replace with https://www.job-genie.ai/free-autopsy,
+    or https://app.job-genie.ai/?option=9 where it was the Truth Layer CTA)
+  - bit.ly/3PqDSBv  (replace with https://www.job-genie.ai/free-autopsy)
+Report every file and line where these were found.
+
+TASK 5 — SERVER-RENDER THE STAT COUNTERS
+Any animated count-up statistic must have its final value present in the initial
+HTML, with JavaScript animating from 0 up to that value — not injecting the value
+into an element that is empty or "0" in the served HTML. Crawlers and AI engines
+must read 300K+, 150+, 31%, 30%+ — never 0.
+
+TASK 6 — CACHE
+If Task 1 found a caching cause, purge the CDN/edge cache for all affected paths and
+set cache headers so HTML responses revalidate rather than serving indefinitely.
+
+CONSTRAINTS
+- Do not modify the homepage (/) other than what Task 4 and Task 5 require.
+- Do not invent or write marketing copy for any page. If a page has no real content,
+  404 it and remove its link. Do not generate filler content to make a route "work."
+- Do not reintroduce replit.app or bit.ly links anywhere.
+- Do not change pricing, stats, or any sourced claim.
+
+ACCEPTANCE TEST — run this and paste the output when done:
+for p in "" resources methodology glossary ghost-jobs \
+         why-no-responses-after-100-applications job-genie-vs-auto-apply \
+         for/mid-career-professionals for/senior-engineers for/career-changers; do
+  echo "=== /$p ==="
+  curl -s -o /dev/null -w "status:%{http_code}\n" "https://www.job-genie.ai/$p"
+  curl -s "https://www.job-genie.ai/$p" | grep -oE '<title>[^<]*|rel="canonical" href="[^"]*' | head -2
+done
+grep -rn "modular-pipeline.replit.app\|bit.ly/3PqDSBv" . || echo "NO STALE LINKS FOUND"
+
+PASS CRITERIA
+- Every listed path returns either 404, or 200 with its own unique title AND its own
+  canonical URL.
+- No path returns 200 with the homepage title or the homepage canonical.
+- The stale-link grep returns nothing.
