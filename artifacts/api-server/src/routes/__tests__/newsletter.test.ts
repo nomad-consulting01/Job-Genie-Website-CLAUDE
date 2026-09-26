@@ -55,6 +55,7 @@ async function submit(page_slug: string) {
 describe("Free Autopsy newsletter signup", () => {
   it("enrolls a new CTA signup and confirms its journey, retaining attribution", async () => {
     const beehiiv = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [] }), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ data: { id: "sub_new" } }), { status: 201 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({
         data: [{ subscription_id: "sub_new", status: "in_progress" }],
@@ -66,8 +67,8 @@ describe("Free Autopsy newsletter signup", () => {
 
     const result = await submit("/free-autopsy/");
     expect(result.status).toBe(200);
-    expect(beehiiv).toHaveBeenCalledTimes(2);
-    const [createUrl, createOptions] = beehiiv.mock.calls[0];
+    expect(beehiiv).toHaveBeenCalledTimes(3);
+    const [createUrl, createOptions] = beehiiv.mock.calls[1];
     expect(String(createUrl)).toContain("/subscriptions");
     const payload = JSON.parse(createOptions.body);
     expect(payload.automation_ids).toEqual(["aut_0e902f78-459f-4e37-8850-906ba78d1c23"]);
@@ -76,7 +77,7 @@ describe("Free Autopsy newsletter signup", () => {
     expect(payload.utm_campaign).toBe("fall");
     expect(payload.custom_fields).toContainEqual({ name: "First Name", value: "Alex" });
     expect(payload.custom_fields).toContainEqual({ name: "visitor_id", value: "visitor-1" });
-    expect(String(beehiiv.mock.calls[1][0])).toContain("/automations/aut_0e902f78-459f-4e37-8850-906ba78d1c23/journeys");
+    expect(String(beehiiv.mock.calls[2][0])).toContain("/automations/aut_0e902f78-459f-4e37-8850-906ba78d1c23/journeys");
   });
 
   it("does not enroll unrelated newsletter forms", async () => {
@@ -91,13 +92,60 @@ describe("Free Autopsy newsletter signup", () => {
 
   it("does not claim success when Beehiiv creates a subscriber without a journey", async () => {
     const beehiiv = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [] }), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ data: { id: "sub_new" } }), { status: 201 }))
       .mockImplementation(() => Promise.resolve(new Response(JSON.stringify({ data: [] }), { status: 200 })));
     vi.stubGlobal("fetch", (input: string | URL | Request, init?: RequestInit) =>
       String(input) === url ? globalFetch(input, init) : beehiiv(input, init));
     const result = await submit("/free-autopsy");
     expect(result.status).toBe(502);
-    expect(beehiiv).toHaveBeenCalledTimes(5);
+    expect(beehiiv).toHaveBeenCalledTimes(6);
+    expect(beehiiv.mock.calls.some(([path, options]) =>
+      String(path).endsWith("/journeys") && options?.method === "POST")).toBe(false);
+  });
+
+  it("repairs an active existing subscriber who never entered the automation", async () => {
+    const beehiiv = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [
+        { id: "sub_existing", email: "new-signup@example.com", status: "active" },
+      ] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: { id: "sub_existing" } }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [], total_pages: 1 }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [], total_pages: 1 }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [], total_pages: 1 }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [], total_pages: 1 }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: { id: "journey_new" } }), { status: 201 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        data: [{ subscription_id: "sub_existing", status: "in_progress" }], total_pages: 1,
+      }), { status: 200 }));
+    vi.stubGlobal("fetch", (input: string | URL | Request, init?: RequestInit) =>
+      String(input) === url ? globalFetch(input, init) : beehiiv(input, init));
+
+    const result = await submit("/free-autopsy");
+    expect(result.status).toBe(200);
+    const enrollCalls = beehiiv.mock.calls.filter(([path, options]) =>
+      String(path).endsWith("/journeys") && options?.method === "POST");
+    expect(enrollCalls).toHaveLength(1);
+    expect(JSON.parse(enrollCalls[0][1].body)).toEqual({ subscription_id: "sub_existing" });
+  });
+
+  it("does not re-enroll an existing subscriber who already has a journey", async () => {
+    const beehiiv = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [
+        { id: "sub_existing", email: "new-signup@example.com", status: "active" },
+      ] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: { id: "sub_existing" } }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        data: [{ subscription_id: "sub_existing", status: "in_progress" }], total_pages: 1,
+      }), { status: 200 }));
+    vi.stubGlobal("fetch", (input: string | URL | Request, init?: RequestInit) =>
+      String(input) === url ? globalFetch(input, init) : beehiiv(input, init));
+
+    const result = await submit("/free-autopsy");
+    expect(result.status).toBe(200);
+    expect(beehiiv).toHaveBeenCalledTimes(3);
+    expect(beehiiv.mock.calls.some(([path, options]) =>
+      String(path).endsWith("/journeys") && options?.method === "POST")).toBe(false);
   });
 });
 

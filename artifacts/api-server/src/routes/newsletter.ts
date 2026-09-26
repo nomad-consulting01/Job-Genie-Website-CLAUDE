@@ -50,6 +50,19 @@ router.post("/newsletter", async (req, res) => {
         logger.error("Free Autopsy Beehiiv publication does not match the configured automation");
         return res.status(502).json({ ok: false, error: "Newsletter provider configuration error" });
       }
+      let existingSubscriptionId: string | undefined;
+      if (isAutopsySignup) {
+        const lookup = await fetch(
+          `${BEEHIIV_BASE}/publications/${publicationId}/subscriptions?email=${encodeURIComponent(email)}&limit=10`,
+          { headers: { Authorization: `Bearer ${BEEHIIV_API_KEY}` }, signal: AbortSignal.timeout(10_000) },
+        );
+        if (!lookup.ok) throw new Error(`Beehiiv subscriber lookup failed (HTTP ${lookup.status})`);
+        const result = await lookup.json() as { data?: { id?: string; email?: string; status?: string }[] };
+        if (!Array.isArray(result.data)) throw new Error("Beehiiv subscriber lookup returned an invalid response");
+        existingSubscriptionId = result.data.find((subscriber) =>
+          subscriber.email?.toLowerCase() === email.toLowerCase() && subscriber.status === "active"
+        )?.id;
+      }
       const beehiivRes = await fetch(
         `${BEEHIIV_BASE}/publications/${publicationId}/subscriptions`,
         {
@@ -97,7 +110,28 @@ router.post("/newsletter", async (req, res) => {
       if (isAutopsySignup) {
         const created = await beehiivRes.json() as { data?: { id?: string } };
         const subscriptionId = created.data?.id;
-        if (!subscriptionId || !await autopsyJourneyExists(publicationId, subscriptionId, BEEHIIV_API_KEY)) {
+        if (!subscriptionId) {
+          throw new Error("Beehiiv subscription response omitted the subscriber ID");
+        }
+        let hasJourney = await autopsyJourneyExists(publicationId, subscriptionId, BEEHIIV_API_KEY);
+        if (!hasJourney && existingSubscriptionId === subscriptionId) {
+          // API create does not re-enroll an existing subscriber. Only repair a
+          // known active subscriber with no journey; never blindly re-enter one.
+          const enroll = await fetch(
+            `${BEEHIIV_BASE}/publications/${publicationId}/automations/${AUTOPSY_AUTOMATION_ID}/journeys`,
+            {
+              method: "POST",
+              headers: { Authorization: `Bearer ${BEEHIIV_API_KEY}`, "Content-Type": "application/json" },
+              body: JSON.stringify({ subscription_id: subscriptionId }),
+              signal: AbortSignal.timeout(10_000),
+            },
+          );
+          // Another request may have enrolled the same subscriber in parallel.
+          // Re-read in either case; only a visible journey counts as success.
+          if (!enroll.ok) logger.warn({ status: enroll.status }, "Beehiiv existing-subscriber enrollment failed");
+          hasJourney = await autopsyJourneyExists(publicationId, subscriptionId, BEEHIIV_API_KEY);
+        }
+        if (!hasJourney) {
           logger.error("Free Autopsy subscription created without a verified automation journey");
           return res.status(502).json({ ok: false, error: "Welcome sequence not confirmed — please contact support" });
         }
