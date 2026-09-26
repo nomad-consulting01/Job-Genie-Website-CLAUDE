@@ -540,7 +540,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 <div className="gpair"><div className="gc n">Stakeholder comms</div><div className="gc x">Executive reporting ✗</div></div>
               </div>
               <div className="gdiv"></div>
-              <div className="gres"><span className="grl">Current Fit Score</span><span className="grv">74% → Fix 3 gaps → 88%+</span></div>
+              <div className="gres"><span className="grl">Recruiter-Fit Score</span><span className="grv">16/40 → close the named gaps → 35/40</span></div>
             </div>
           </div>
         </div>
