@@ -72,7 +72,7 @@ const FAQ_SCHEMA = {
       name: 'Are ghost jobs real, or am I imagining it?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: "Ghost jobs are real and common. Research finds 81% of recruiters say their employer has posted a ghost job (MyPerfectResume), 62% of hiring managers admit doing it (Resume Builder), and 43% of employers say they post roles mainly to look like they're growing (Clarify Capital). One 2025 analysis estimated about 27% of U.S. LinkedIn listings were likely ghost jobs (ResumeUp.AI). Job Genie screens specialist-recruiter listings so you spend energy on roles actually being filled.",
+        text: "Ghost jobs are postings with no immediate intent to hire, including listings kept open for future pipelines. There is no reliable percentage here for how many current listings meet that definition. Job Genie checks recruiter-held listings for active signals so candidates can focus on roles that appear to be moving.",
       },
     },
     {

@@ -13,3 +13,4 @@
 - [Facebook blog cards](facebook-blog-cards.md) — publish blog shares through /feed as link cards; /photos creates a different native-photo layout.
 - [Autopsy CTA destination](autopsy-cta-destination.md) — marketing CTAs intentionally route to branded email signup, not the separate working diagnostic app.
 - [Static directory route redirects](static-directory-route-redirects.md) — production static pages redirect extensionless URLs to trailing-slash directory indexes; audit with redirects followed.
+- [Citable hiring statistics](citable-hiring-statistics.md) — never present application-volume or ATS-interview results as a ghost-job prevalence estimate; name each study's population and limits.
