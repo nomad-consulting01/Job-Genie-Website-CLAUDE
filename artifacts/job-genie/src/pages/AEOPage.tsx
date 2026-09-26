@@ -81,7 +81,7 @@ function PageNav() {
         <li><Link href="/qa">FAQ</Link></li>
         <li>
           <a
-            href="https://modular-pipeline.replit.app/?upload=true"
+            href="/free-autopsy"
             className="btn bg bsm"
             style={{ color: "var(--wh)" }}
             onClick={() => trackEvent("free_autopsy_click", { location: "nav" })}

@@ -58,7 +58,7 @@ Open `artifacts/job-genie/src/data/landing-pages.ts` and append a new object to 
   cta: {
     headline: "...",
     buttonText: "...",
-    buttonUrl: "https://modular-pipeline.replit.app/?upload=true",
+    buttonUrl: "/free-autopsy",
   },
   schemas: ["Article", "HowTo", "FAQPage"],  // Schemas to emit
 }

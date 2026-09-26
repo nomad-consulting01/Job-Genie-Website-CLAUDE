@@ -164,7 +164,7 @@ export default function QAPage() {
               ghost-job exposure, and Recruiter-Fit Gap in under 2 minutes.
             </p>
             <a
-              href="https://modular-pipeline.replit.app/?upload=true"
+              href="/free-autopsy"
               className="inline-block bg-gradient-to-r from-purple-500 to-teal-400 text-white font-bold px-8 py-3 rounded-xl hover:opacity-90 transition-opacity"
             >
               Get My Free Autopsy →

@@ -74,7 +74,7 @@
       "cta": {
         "headline": "Find out exactly why your applications go silent — in 2 minutes",
         "buttonText": "Get My Free Application Autopsy",
-        "buttonUrl": "https://modular-pipeline.replit.app/?upload=true"
+        "buttonUrl": "/free-autopsy"
       },
       "schemas": ["Article", "HowTo", "FAQPage"]
     },
@@ -144,7 +144,7 @@
       "cta": {
         "headline": "Stop applying to ghost jobs. See real, validated recruiter listings — free.",
         "buttonText": "Get My Free Application Autopsy",
-        "buttonUrl": "https://modular-pipeline.replit.app/?upload=true"
+        "buttonUrl": "/free-autopsy"
       },
       "schemas": ["Article", "HowTo", "FAQPage"]
     },
@@ -238,7 +238,7 @@
       "cta": {
         "headline": "Diagnose your own Application Silence Score — free, in 2 minutes",
         "buttonText": "Get My Free Application Autopsy",
-        "buttonUrl": "https://modular-pipeline.replit.app/?upload=true"
+        "buttonUrl": "/free-autopsy"
       },
       "schemas": ["Article", "FAQPage"]
     },
@@ -294,7 +294,7 @@
       "cta": {
         "headline": "Find out why your experience isn't translating to interviews — free in 2 minutes",
         "buttonText": "Get My Free Application Autopsy",
-        "buttonUrl": "https://modular-pipeline.replit.app/?upload=true"
+        "buttonUrl": "/free-autopsy"
       },
       "schemas": ["Article", "FAQPage"]
     },
@@ -351,7 +351,7 @@
       "cta": {
         "headline": "Find out why your engineering experience isn't converting to interviews — free",
         "buttonText": "Get My Free Application Autopsy",
-        "buttonUrl": "https://modular-pipeline.replit.app/?upload=true"
+        "buttonUrl": "/free-autopsy"
       },
       "schemas": ["Article", "FAQPage"]
     },
@@ -407,7 +407,7 @@
       "cta": {
         "headline": "Get your career-change Application Silence Score — free in 2 minutes",
         "buttonText": "Get My Free Application Autopsy",
-        "buttonUrl": "https://modular-pipeline.replit.app/?upload=true"
+        "buttonUrl": "/free-autopsy"
       },
       "schemas": ["Article", "FAQPage"]
     },
@@ -474,7 +474,7 @@
       "cta": {
         "headline": "Stop sending applications into the void. Find out what actually works — free.",
         "buttonText": "Get My Free Application Autopsy",
-        "buttonUrl": "https://modular-pipeline.replit.app/?upload=true"
+        "buttonUrl": "/free-autopsy"
       },
       "schemas": ["Article", "FAQPage"]
     }

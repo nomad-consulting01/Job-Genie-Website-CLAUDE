@@ -1,0 +1,30 @@
+Let me check each one. I'll pull just the head of each page — the canonical and title are enough to tell a real page from a phantom.Fetch is restricted to previously-seen URLs. Let me search instead — which is itself diagnostic, since it shows what's actually indexed.Blog posts are indexed. Let me check whether the Resources cluster pages are indexed at all.Here's what I could establish, and I'll be clear about what's verified versus inferred, since I hit a fetch restriction on the untested URLs.
+
+**Directly verified — both phantom:**
+- `/methodology/` → serves the homepage, `canonical: https://www.job-genie.ai/`
+- `/glossary/` → serves the homepage, byte-identical, same homepage canonical
+
+**Verified real and indexed — the `/blog/` subtree:** searches surfaced live blog posts with their own titles and meta-descriptions, e.g. `/blog/jobs-that-hire-anyone-entry-level`, `/blog/jobs-for-people-with-no-skills`, `/blog/interview-invite-job-forgot-applied`. Those are genuine pages doing real AEO work.
+
+**Strongly suspected phantom — the rest of the Resources cluster:** `/resources`, `/ghost-jobs`, `/why-no-responses-after-100-applications`, `/job-genie-vs-auto-apply`, and the three `/for/` pages returned **zero search presence** across two searches. Not one appeared. Given that your blog posts index fine from the same domain, absence at that scale is consistent with exactly what I confirmed on the two I could open: they're canonicalized to the homepage, so engines drop them.
+
+**The pattern: your `/blog/` subtree is real; your flat top-level routes are not.** That suggests the blog is generated properly while the hand-built "Resources" pages in the footer were linked before they were built — and the SPA catch-all quietly serves the homepage for all of them.
+
+**Verify it yourself in 30 seconds.** Run this and look at the title of each response:
+
+```
+for p in resources methodology glossary ghost-jobs \
+         why-no-responses-after-100-applications job-genie-vs-auto-apply \
+         for/mid-career-professionals for/senior-engineers for/career-changers; do
+  echo -n "$p → "
+  curl -s "https://www.job-genie.ai/$p" | grep -o '<title>[^<]*' | head -1
+done
+```
+
+Any that return **"Job Genie — Free Application Autopsy | Reach the Hidden Job Market"** (the homepage title) are phantom. Real pages will have their own titles. Add `-o /dev/null -w "%{http_code}"` to confirm they're all returning 200 rather than 404.
+
+**Why this matters more than it looks:** you have an entire footer navigation block — present on *every page of the site* — advertising an AEO content layer that mostly doesn't exist. Crawlers follow those links sitewide, land on homepage duplicates, and register soft 404s. The pages can never rank because each one tells Google "I'm just the homepage." For a business whose growth strategy is answer-engine visibility, that's a silently broken content layer, not a cosmetic bug.
+
+**Triage order:** first, remove the footer links for any route that isn't built (a missing link costs nothing; a linked catch-all costs crawl budget and trust). Second, make unbuilt routes return a genuine 404. Third, build them for real with their own canonical, title, and description — `/methodology` especially, since a documented methodology page is exactly the kind of E-E-A-T asset that makes answer engines willing to cite you.
+
+If you paste me the curl output, I'll tell you precisely which are real and which need building.

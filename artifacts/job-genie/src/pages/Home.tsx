@@ -188,7 +188,7 @@ function StickyBar() {
             300,000+ live recruiter roles. <strong>Most candidates never find them.</strong> Your free Autopsy shows you why — and where you fit.
           </p>
           <a
-            href="https://modular-pipeline.replit.app/?upload=true"
+            href="/free-autopsy"
             className="btn bp bsm"
             onClick={() => trackEvent("free_autopsy_click", { location: "sticky_bar" })}
           >
@@ -299,7 +299,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           <li><a href="/blog">Blog</a></li>
           <li><a href="/qa">FAQ</a></li>
           <li>
-            <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bg bsm" style={{ color: "var(--wh)" }} onClick={() => trackEvent("free_autopsy_click", { location: "nav" })}>
+            <a href="/free-autopsy" className="btn bg bsm" style={{ color: "var(--wh)" }} onClick={() => trackEvent("free_autopsy_click", { location: "nav" })}>
               {ctaPrimary}
             </a>
           </li>
@@ -362,7 +362,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           )}
 
           <a
-            href="https://modular-pipeline.replit.app/?upload=true"
+            href="/free-autopsy"
             className="btn bg"
             style={{ color: "var(--wh)", marginTop: "8px", textAlign: "center" }}
             onClick={() => { setMobileOpen(false); trackEvent("free_autopsy_click", { location: "mob_nav" }); }}
@@ -387,7 +387,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
               <div className="pq">{quote}</div>
               <p className="hsub">{subheadline}</p>
               <div className="hact">
-                <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bp" onClick={() => trackEvent("hero_cta_click", { location: "hero_primary" })}>
+                <a href="/free-autopsy" className="btn bp" onClick={() => trackEvent("hero_cta_click", { location: "hero_primary" })}>
                   {ctaPrimary}
                 </a>
                 <a href="#how" className="btn bg" onClick={() => trackEvent("secondary_cta_click", { location: "hero" })}>
@@ -407,7 +407,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                   <div className="bk"><span className="bd a"></span><div><p className="bt">Ghost job exposure — 31% of recent applications</p><p className="bs">Listings no longer actively being filled</p></div></div>
                   <div className="bk"><span className="bd a"></span><div><p className="bt">Resume not positioned for recruiter pitchability</p><p className="bs">Role alignment score: 44% — below shortlist threshold</p></div></div>
                 </div>
-                <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bp" style={{ width: "100%", justifyContent: "center", marginTop: "16px", fontSize: "14px" }} onClick={() => trackEvent("free_autopsy_click", { location: "hero_card" })}>
+                <a href="/free-autopsy" className="btn bp" style={{ width: "100%", justifyContent: "center", marginTop: "16px", fontSize: "14px" }} onClick={() => trackEvent("free_autopsy_click", { location: "hero_card" })}>
                   Run My Free Autopsy
                 </a>
               </div>
@@ -584,8 +584,8 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             </div>
           </div>
           <div className="r d2" style={{ textAlign: "center", marginTop: "52px" }}>
-            <a href="https://modular-pipeline.replit.app/?option=9" className="btn bp" style={{ fontSize: "16px", padding: "17px 34px" }} onClick={() => trackEvent("truth_layer_cta_click")}>Apply the Truth Layer to My Resume</a>
-            <p style={{ marginTop: "12px", fontSize: "12px", color: "var(--w40)" }}>Available on Pro plan — free Autopsy included for all users</p>
+            <a href="/free-autopsy" className="btn bp" style={{ fontSize: "16px", padding: "17px 34px" }} onClick={() => trackEvent("truth_layer_cta_click")}>Start with the Free Autopsy</a>
+            <p style={{ marginTop: "12px", fontSize: "12px", color: "var(--w40)" }}>The Truth Layer is a Pro feature; start by signing up for the free Autopsy.</p>
           </div>
         </div>
       </section>
@@ -606,7 +606,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             <div className="buli"><span className="buln">06</span><p className="bult">The 3 gaps between your resume and the recruiter's brief — and the exact language that closes each one</p></div>
           </div>
           <div className="r d3" style={{ textAlign: "center", marginTop: "52px" }}>
-            <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bp" style={{ fontSize: "17px", padding: "17px 34px" }} onClick={() => trackEvent("free_autopsy_click", { location: "bullets" })}>
+            <a href="/free-autopsy" className="btn bp" style={{ fontSize: "17px", padding: "17px 34px" }} onClick={() => trackEvent("free_autopsy_click", { location: "bullets" })}>
               Get My Free Autopsy — See All Six
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
             </a>
@@ -831,7 +831,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           </div>
           <FAQAccordion faqOrder={faqOrder} />
           <div className="r d3" style={{ textAlign: "center", marginTop: "48px" }}>
-            <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bp" style={{ fontSize: "16px", padding: "16px 32px" }} onClick={() => trackEvent("free_autopsy_click", { location: "faq" })}>
+            <a href="/free-autopsy" className="btn bp" style={{ fontSize: "16px", padding: "16px 32px" }} onClick={() => trackEvent("free_autopsy_click", { location: "faq" })}>
               Get My Free Application Autopsy
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
             </a>
@@ -862,7 +862,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Truth Layer resume rewrite</span></li>
                 <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Recruiter-Ready Brief</span></li>
               </ul>
-              <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bg" style={{ width: "100%", justifyContent: "center" }} onClick={() => { trackEvent("free_autopsy_click", { location: "pricing_free" }); trackEvent("pricing_cta_click", { location: "pricing_free" }); }}>Claim My Free Autopsy</a>
+              <a href="/free-autopsy" className="btn bg" style={{ width: "100%", justifyContent: "center" }} onClick={() => { trackEvent("free_autopsy_click", { location: "pricing_free" }); trackEvent("pricing_cta_click", { location: "pricing_free" }); }}>Claim My Free Autopsy</a>
             </div>
             <div className="pc ft r d1">
               <div className="pbg">Most Popular</div>
@@ -880,7 +880,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg><strong style={{ color: "var(--wh)" }}>Recruiter-Ready Brief</strong> — with every rewrite</li>
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>Unlimited Excel, CSV &amp; Word downloads</li>
               </ul>
-              <a href="https://bit.ly/3PqDSBv" className="btn bp" style={{ width: "100%", justifyContent: "center" }} onClick={() => trackEvent("pricing_cta_click", { location: "pricing_pro" })}>Get Full Autopsy — Go Pro</a>
+              <a href="/free-autopsy" className="btn bp" style={{ width: "100%", justifyContent: "center" }} onClick={() => trackEvent("pricing_cta_click", { location: "pricing_pro" })}>Start with Free Autopsy</a>
             </div>
           </div>
         </div>
@@ -897,7 +897,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             )}
             <p className="blg r d2" style={{ maxWidth: "540px", margin: "0 auto 40px" }}>Silence is not random. It is a signal — one you can read, fix, and reverse. The candidates landing calls right now did one thing differently: they stopped guessing.</p>
             <div className="r d3" style={{ display: "flex", justifyContent: "center", gap: "14px", flexWrap: "wrap", flexDirection: "column", alignItems: "center" }}>
-              <a href="https://modular-pipeline.replit.app/?upload=true" className="btn bp" style={{ fontSize: "18px", padding: "18px 36px" }} onClick={() => trackEvent("free_autopsy_click", { location: "final_cta", experiment_id: ctaBtnExp.experimentId, variant_id: ctaBtnExp.variantId })}>
+              <a href="/free-autopsy" className="btn bp" style={{ fontSize: "18px", padding: "18px 36px" }} onClick={() => trackEvent("free_autopsy_click", { location: "final_cta", experiment_id: ctaBtnExp.experimentId, variant_id: ctaBtnExp.variantId })}>
                 {ctaPrimary}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
               </a>

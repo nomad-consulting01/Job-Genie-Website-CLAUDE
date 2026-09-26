@@ -114,7 +114,7 @@ Navigate to `/admin` in the browser. Enter your `ADMIN_TOKEN` when prompted. Tok
 - AEO direct-answer question per page via `aeo_question` field in `variants.json`
 - Canonical URLs per slug (all point to `https://job-genie.ai/` by default — change `canonical_url` in `variants.json` to override)
 - Landing page slugs are `noindex, nofollow` by default (controlled by `indexing` field)
-- Free Autopsy CTAs all link to `https://modular-pipeline.replit.app/?upload=true`
+- Free Autopsy CTAs link to `/free-autopsy` (the branded email signup page).
 
 ## Deployment
 

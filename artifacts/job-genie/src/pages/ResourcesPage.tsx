@@ -81,7 +81,7 @@ function PageNav() {
         <li><Link href="/qa">FAQ</Link></li>
         <li>
           <a
-            href="https://modular-pipeline.replit.app/?upload=true"
+            href="/free-autopsy"
             className="btn bg bsm"
             style={{ color: "var(--wh)" }}
             onClick={() => trackEvent("free_autopsy_click", { location: "nav" })}
@@ -291,7 +291,7 @@ export default function ResourcesPage() {
               Ready to see why your applications are going silent?
             </p>
             <a
-              href="https://modular-pipeline.replit.app/?upload=true"
+              href="/free-autopsy"
               className="btn bp"
               style={{ fontSize: "17px", padding: "17px 36px" }}
               onClick={() => trackEvent("free_autopsy_click", { location: "resources_cta" })}

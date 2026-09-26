@@ -11,3 +11,4 @@
 - [GCP GAESA cookie forces Cache-Control private](gcp-gaesa-static-images.md) — Replit autoscale injects GAESA session-affinity cookie on all API responses; fix: download images during prerender and serve from dist/public/blog-images/ (static, no cookie).
 - [Dual blog head renderers](dual-blog-head-renderers.md) — blog SEO/JSON-LD is generated in BOTH entry-server.tsx (prerender) and blog-html.ts (dynamic); changes must land in both + rebuild.
 - [Facebook blog cards](facebook-blog-cards.md) — publish blog shares through /feed as link cards; /photos creates a different native-photo layout.
+- [Autopsy CTA destination](autopsy-cta-destination.md) — marketing CTAs intentionally route to branded email signup, not the separate working diagnostic app.

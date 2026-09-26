@@ -112,7 +112,7 @@ function buildQAHtml(payload: {
     <div class="cta">
       <h2>Find out exactly what's blocking your interviews</h2>
       <p>Job Genie's free Application Autopsy diagnoses your Application Silence Score, ghost-job exposure, and Recruiter-Fit Gap in under 2 minutes.</p>
-      <a href="https://modular-pipeline.replit.app/?upload=true">Get My Free Autopsy →</a>
+      <a href="/free-autopsy">Get My Free Autopsy →</a>
     </div>
   </div>
 </body>
