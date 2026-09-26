@@ -270,6 +270,11 @@ button{cursor:pointer;font-family:inherit;border:none;background:none}
 .mx td.bad{color:#F87171;font-weight:600}
 .mx td.good{color:var(--green);font-weight:700}
 .mx td.arr{color:var(--inl);padding:0 4px}
+.mx tbody th{font-weight:500;color:var(--w60)}
+.mx tfoot th,.mx tfoot td{border-top:1px solid var(--w20);font-weight:700}
+.mx-band{margin-top:12px;color:var(--w80);font-size:11px;line-height:1.6}
+.mx-note{margin-top:10px;color:var(--w60);font-size:11px;line-height:1.6}
+.mx-note a{color:var(--inl);text-decoration:underline}
 
 /* PROOF */
 .prf{padding:var(--gap) 0;background:var(--nn)}

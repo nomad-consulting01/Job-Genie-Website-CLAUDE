@@ -656,15 +656,23 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
               <p className="bcb">Upload your resume and get a precise fit score against your target role. Strengths, gaps, missing recruiter keywords, and specific recommendations — based only on your real experience.</p>
               <div className="bprev">
                 <table className="mx" aria-label="Before and after Recruiter-Fit scores">
-                  <thead><tr><th>Signal</th><th>Before</th><th></th><th>After Truth Layer</th></tr></thead>
+                  <thead><tr><th scope="col">Dimension</th><th scope="col">Before</th><th scope="col" aria-label="Change"></th><th scope="col">After Truth Layer</th></tr></thead>
                   <tbody>
-                    <tr><td>Role Alignment</td><td className="bad">2/5</td><td className="arr">→</td><td className="good">5/5</td></tr>
-                    <tr><td>Keyword Density</td><td className="bad">2/5</td><td className="arr">→</td><td className="good">5/5</td></tr>
-                    <tr><td>Evidence of Results</td><td className="bad">1/5</td><td className="arr">→</td><td className="good">4/5</td></tr>
-                    <tr><td>Seniority Signal</td><td className="bad">3/5</td><td className="arr">→</td><td className="good">5/5</td></tr>
-                    <tr><td>Presentability</td><td className="bad">2/5</td><td className="arr">→</td><td className="good">5/5</td></tr>
+                    <tr><th scope="row">Role alignment</th><td className="bad">2/5</td><td className="arr">→</td><td className="good">5/5</td></tr>
+                    <tr><th scope="row">Keyword density</th><td className="bad">2/5</td><td className="arr">→</td><td className="good">5/5</td></tr>
+                    <tr><th scope="row">Evidence of results</th><td className="bad">1/5</td><td className="arr">→</td><td className="good">3/5</td></tr>
+                    <tr><th scope="row">Positioning clarity</th><td className="bad">2/5</td><td className="arr">→</td><td className="good">4/5</td></tr>
+                    <tr><th scope="row">Seniority signal</th><td className="bad">3/5</td><td className="arr">→</td><td className="good">5/5</td></tr>
+                    <tr><th scope="row">Sector credibility</th><td className="bad">2/5</td><td className="arr">→</td><td className="good">4/5</td></tr>
+                    <tr><th scope="row">Recency weighting</th><td className="bad">2/5</td><td className="arr">→</td><td className="good">4/5</td></tr>
+                    <tr><th scope="row">Presentability</th><td className="bad">2/5</td><td className="arr">→</td><td className="good">5/5</td></tr>
                   </tbody>
+                  <tfoot>
+                    <tr><th scope="row">Total</th><td className="bad">16/40</td><td className="arr">→</td><td className="good">35/40</td></tr>
+                  </tfoot>
                 </table>
+                <p className="mx-band"><strong>Before:</strong> Not yet ready—proof points required from the candidate<br /><strong>After:</strong> Strong but with named gaps</p>
+                <p className="mx-note">Scored 1–5 across eight dimensions, 40 maximum. The After score is a projection of the same résumé with the recommended changes applied — it is not automatically 40, because missing evidence limits what a rewrite can reach. Full scoring method: <a href="/methodology">/methodology</a></p>
               </div>
             </div>
             <div className="bc b5 r d1">
