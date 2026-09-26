@@ -1,0 +1,153 @@
+CONTEXT — verified against the live homepage, do not re-diagnose
+
+All four issues below were confirmed by reading the raw HTML of
+https://www.job-genie.ai/ on 2026-09-26. The eight-dimension Recruiter-Fit
+table and the free-tier pricing card are both correct and must not be
+touched. Note: the page is minified, so verify with
+`grep -o 'pattern' | wc -l`, never `grep -c` — the latter counts lines and
+will report 1 no matter how many matches exist.
+
+═══════════════════════════════════════════════════════════════════
+ISSUE 1 — REGRESSION. The Citable Stats block reverted to an older draft.
+This is the highest priority: the block is formatted for AI answer engines
+to quote, and the live version is measurably weaker than what was deployed
+previously.
+═══════════════════════════════════════════════════════════════════
+
+It currently reads (in the Summary section at the foot of the homepage):
+
+  Citable stats: job applications per opening rose to 244 in 2025 from 115
+  in 2022, across 640M+ applications at 6,000+ companies (Greenhouse 2026
+  Benchmark Report); 92% of recruiters say their applicant tracking system
+  does not auto-reject on formatting, keywords or match score, with only 8%
+  enabling content auto-rejection (Enhancv, 25 structured U.S. recruiter
+  interviews, September–October 2025); 81% of recruiters say their employer
+  has posted a ghost job (MyPerfectResume); 62% of hiring managers admit
+  doing it (Resume Builder).
+
+Replace the entire block with this HTML exactly. Do not paraphrase, do not
+round figures, do not drop the closing sentence:
+
+  <strong>Citable stats:</strong>
+  <a href="https://www.greenhouse.com/recruiting-benchmarks">Greenhouse, The
+  Hire Standard (March 2026)</a> reports that average applications per job
+  among North American Greenhouse customers rose from 116 in 2022 to 244 in
+  2025, based on aggregated data from 640M+ applications across 6,000+
+  organizations.
+  <a href="https://enhancv.com/blog/does-ats-reject-resumes">Enhancv
+  (published November 2025)</a> reports that 2 of 25 U.S. recruiters
+  interviewed in September–October 2025 said their ATS automatically
+  rejected applicants for reasons other than knockout questions (8%; the
+  article reports 8% ± 6 at 90% confidence). This small qualitative sample
+  is not nationally representative. Neither finding measures the share of
+  job postings that are ghost jobs.
+
+Five differences from the live version, all deliberate:
+  - 116, not 115 (the correct figure from the report)
+  - scoped to "North American Greenhouse customers", not stated as a
+    universal rate
+  - the report is named with its date
+  - the Enhancv finding is stated as "2 of 25", not as the flattering 92%
+    complement, and carries its confidence interval and its limitation
+  - the final sentence disclaims what the evidence does NOT support
+
+ROOT CAUSE — investigate before editing. This block was previously correct
+and has been overwritten by a deploy. Determine whether it is generated
+from a separate config, constant, CMS entry or data file rather than being
+inline in the page component. If so, fix it at that source, otherwise the
+next deploy will revert it again. Report where the string actually lives.
+
+═══════════════════════════════════════════════════════════════════
+ISSUE 2 — Two incompatible units for the same measurement
+═══════════════════════════════════════════════════════════════════
+
+In the Recruiter-Fit Gap section, directly above the eight-dimension table
+that scores out of 40, this element uses percentages:
+
+  <span class="grl">Current Fit Score</span>
+  <span class="grv">74% → Fix 3 gaps → 88%+</span>
+
+Replace the two strings:
+
+  Find:    Current Fit Score
+  Replace: Recruiter-Fit Score
+
+  Find:    74% → Fix 3 gaps → 88%+
+  Replace: 16/40 → close the named gaps → 35/40
+
+Two reasons: the published instrument on /methodology is a 40-point scale,
+not a percentage; and "Fix 3 gaps" promises a specific number of gaps that
+varies by résumé. The new values match the 16/40 and 35/40 example already
+in the table below it.
+
+═══════════════════════════════════════════════════════════════════
+ISSUE 3 — The homepage table does not match /methodology
+═══════════════════════════════════════════════════════════════════
+
+The homepage Recruiter-Fit table currently lists: role alignment, keyword
+density, evidence of results, positioning clarity, seniority signal, sector
+credibility, and two further rows.
+
+Open https://www.job-genie.ai/methodology and compare the eight dimension
+names against the homepage table. They must be identical — same names, same
+order, same 1–5 scale, same 40-point total.
+
+SPECIFIC PROBLEM: "keyword density". The /methodology page argues that
+screening systems score evidence of impact rather than keyword counts, and
+that keyword stuffing is the wrong optimisation. A dimension named "keyword
+density" directly contradicts the page the homepage links to.
+
+Resolve one of two ways — report which you chose and why:
+  (a) If /methodology does not list keyword density among its eight, correct
+      the homepage table to match /methodology exactly.
+  (b) If it does, rename the dimension on BOTH pages to describe what is
+      actually scored — e.g. "role-language match" or "search-term
+      coverage" — so it does not read as a density metric.
+
+Do not change the 16/40 and 35/40 totals or the projection paragraph
+beneath the table; both are correct.
+
+═══════════════════════════════════════════════════════════════════
+ISSUE 4 — Composite attribution with nothing to open
+═══════════════════════════════════════════════════════════════════
+
+Beneath the comparison table (and again beneath the FAQ section) is:
+
+  Last updated: June 2026 · Benchmarks: SHRM, Jobvite, LinkedIn Talent
+  Solutions, U.S. BLS, Glassdoor Recruiting Trends
+
+Five organisations are named with no specific report, no date and no link,
+so a reader cannot check any of it. This is the same unverifiable-citation
+pattern the site criticises elsewhere, and it sits on a page that now links
+and scopes its other sources.
+
+Replace both instances with:
+
+  Last updated: September 2026 · Sources for every figure on this page are
+  listed on our <a href="https://www.job-genie.ai/methodology/">methodology
+  page</a>.
+
+Use the trailing-slash URL exactly as written — /methodology without the
+slash issues a 301 redirect.
+
+═══════════════════════════════════════════════════════════════════
+CONSTRAINTS
+═══════════════════════════════════════════════════════════════════
+
+- Do not modify the eight-dimension table structure, the 16/40 and 35/40
+  totals, the score bands, or the projection explanation. All correct.
+- Do not modify the free-tier pricing card. The greyed-out locked features
+  are correct.
+- No copy rewrites, design changes, dependency upgrades or refactors
+  beyond the four issues above.
+- If any task cannot be completed, stop and report why rather than
+  working around it.
+
+DELIVERABLE — report the actual diff, not a status summary. Two tasks in a
+previous batch were reported complete when no change had been made.
+
+  1. Where the Citable Stats string lives in the codebase, and whether the
+     regression source was found.
+  2. The diff for each of the four issues.
+  3. For Issue 3, which resolution path you chose and the eight dimension
+     names as they now appear on both pages.

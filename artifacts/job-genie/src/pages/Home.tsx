@@ -659,7 +659,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                   <thead><tr><th scope="col">Dimension</th><th scope="col">Before</th><th scope="col" aria-label="Change"></th><th scope="col">After Truth Layer</th></tr></thead>
                   <tbody>
                     <tr><th scope="row">Role alignment</th><td className="bad">2/5</td><td className="arr">→</td><td className="good">5/5</td></tr>
-                    <tr><th scope="row">Keyword density</th><td className="bad">2/5</td><td className="arr">→</td><td className="good">5/5</td></tr>
+                    <tr><th scope="row">Search-term coverage</th><td className="bad">2/5</td><td className="arr">→</td><td className="good">5/5</td></tr>
                     <tr><th scope="row">Evidence of results</th><td className="bad">1/5</td><td className="arr">→</td><td className="good">3/5</td></tr>
                     <tr><th scope="row">Positioning clarity</th><td className="bad">2/5</td><td className="arr">→</td><td className="good">4/5</td></tr>
                     <tr><th scope="row">Seniority signal</th><td className="bad">3/5</td><td className="arr">→</td><td className="good">5/5</td></tr>
@@ -852,7 +852,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
               </tbody>
             </table>
           </div>
-          <p style={{ fontSize: "11px", color: "var(--w40)", marginTop: "16px", fontStyle: "italic", textAlign: "center" }}>Last updated: June 2026 · Benchmarks: SHRM, Jobvite, LinkedIn Talent Solutions, U.S. BLS, Glassdoor Recruiting Trends</p>
+          <p style={{ fontSize: "11px", color: "var(--w40)", marginTop: "16px", fontStyle: "italic", textAlign: "center" }}>Last updated: September 2026 · Sources for every figure on this page are listed on our <a href="https://www.job-genie.ai/methodology/">methodology page</a>.</p>
         </div>
       </section>
 
@@ -862,7 +862,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             <div className="stag" style={{ justifyContent: "center" }}>Frequently Asked Questions</div>
             <h2 className="disp faqtit r" id="faqh">Questions job seekers ask<br /><span className="gr">about why applications go silent.</span></h2>
             <p className="blg r d1" style={{ maxWidth: "520px", margin: "0 auto" }}>The answers most candidates only find out after months of silence. Now in one place.</p>
-            <p style={{ fontSize: "11px", color: "var(--w40)", marginTop: "12px", fontStyle: "italic" }}>Last updated: June 2026 · Benchmarks: SHRM, Jobvite, LinkedIn Talent Solutions, U.S. BLS</p>
+            <p style={{ fontSize: "11px", color: "var(--w40)", marginTop: "12px", fontStyle: "italic" }}>Last updated: September 2026 · Sources for every figure on this page are listed on our <a href="https://www.job-genie.ai/methodology/">methodology page</a>.</p>
           </div>
           <FAQAccordion faqOrder={faqOrder} />
           <div className="r d3" style={{ textAlign: "center", marginTop: "48px" }}>
@@ -953,7 +953,9 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             Job Genie is an AI job-search assistant that diagnoses Application Silence — the experience of sending dozens or hundreds of job applications and receiving no response. It quantifies an Application Silence Score (HIGH, MEDIUM, or LOW), identifies ghost-job exposure and the Recruiter-Fit Gap, and matches candidates to 300,000+ specialist recruiter-held listings validated in real time. The Truth Layer resume rewrite rebuilds a candidate's CV using an 8-rule, 4-audit system optimised for the specialist recruiter shortlist threshold — not generic ATS keyword optimisation. The Recruiter-Ready Brief prepares the pitch a specialist recruiter needs to advocate for the candidate in a client call. Job Genie targets mid-career and specialist professionals experiencing Application Silence on public job boards.
           </p>
           <p style={{ color: "var(--w60, rgba(255,255,255,0.6))", lineHeight: 1.7, maxWidth: "760px", fontSize: "15px" }}>
-            <strong>Citable stats:</strong> job applications per opening rose to 244 in 2025 from 115 in 2022, across 640M+ applications at 6,000+ companies (Greenhouse 2026 Benchmark Report); 92% of recruiters say their applicant tracking system does not auto-reject on formatting, keywords or match score, with only 8% enabling content auto-rejection (Enhancv, 25 structured U.S. recruiter interviews, September–October 2025); 81% of recruiters say their employer has posted a ghost job (MyPerfectResume); 62% of hiring managers admit doing it (Resume Builder).
+            <strong>Citable stats:</strong>{" "}
+            <a href="https://www.greenhouse.com/recruiting-benchmarks">Greenhouse, The Hire Standard (March 2026)</a> reports that average applications per job among North American Greenhouse customers rose from 116 in 2022 to 244 in 2025, based on aggregated data from 640M+ applications across 6,000+ organizations.{" "}
+            <a href="https://enhancv.com/blog/does-ats-reject-resumes">Enhancv (published November 2025)</a> reports that 2 of 25 U.S. recruiters interviewed in September–October 2025 said their ATS automatically rejected applicants for reasons other than knockout questions (8%; the article reports 8% ± 6 at 90% confidence). This small qualitative sample is not nationally representative. Neither finding measures the share of job postings that are ghost jobs.
           </p>
         </div>
       </section>
