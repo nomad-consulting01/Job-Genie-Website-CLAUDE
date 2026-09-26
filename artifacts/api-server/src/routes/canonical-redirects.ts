@@ -86,6 +86,10 @@ async function getDbRedirects(): Promise<Record<string, string>> {
   return dbRedirectCache;
 }
 
+export async function getRedirectedBlogSlugs(): Promise<Set<string>> {
+  return new Set([...Object.keys(BLOG_REDIRECTS), ...Object.keys(await getDbRedirects())]);
+}
+
 // ---------------------------------------------------------------------------
 // Middleware: intercept /blog/:slug and 301 to keeper if in either map
 // ---------------------------------------------------------------------------

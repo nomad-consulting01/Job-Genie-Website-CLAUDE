@@ -2,6 +2,7 @@ import { Router } from "express";
 import { listPublishedAnswerPages, listPublishedBlogPosts, listPublishedQAs } from "../corpus/db.js";
 import { logger } from "../lib/logger.js";
 import { SITE_URL } from "@workspace/site-config";
+import { getRedirectedBlogSlugs } from "./canonical-redirects.js";
 
 const router = Router();
 
@@ -88,7 +89,10 @@ router.get("/sitemap.xml", async (_req, res) => {
       return;
     }
 
-    const { answerRows, blogRows, qaRows } = await fetchRows();
+    const [{ answerRows, blogRows, qaRows }, redirectedBlogSlugs] = await Promise.all([
+      fetchRows(),
+      getRedirectedBlogSlugs(),
+    ]);
 
     const today = new Date().toISOString().split("T")[0];
 
@@ -100,7 +104,7 @@ router.get("/sitemap.xml", async (_req, res) => {
         const lastmod = (asset.scheduledFor ?? asset.publishedAt ?? new Date()).toISOString().split("T")[0];
         return `  <url>\n    <loc>${SITE_URL}/answers/${asset.externalId}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.9</priority>\n    <lastmod>${lastmod}</lastmod>\n  </url>`;
       }),
-      ...blogRows.map(({ asset }) => {
+      ...blogRows.filter(({ asset }) => !redirectedBlogSlugs.has(String(asset.externalId ?? ""))).map(({ asset }) => {
         const lastmod = (asset.scheduledFor ?? asset.publishedAt ?? new Date()).toISOString().split("T")[0];
         return `  <url>\n    <loc>${SITE_URL}/blog/${asset.externalId}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n    <lastmod>${lastmod}</lastmod>\n  </url>`;
       }),

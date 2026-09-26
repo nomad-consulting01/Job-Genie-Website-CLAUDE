@@ -431,7 +431,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 <div className="sbw"><div className="sb"></div></div>
                 <div className="bks">
                   <div className="bk"><span className="bd r"></span><div><p className="bt">Wrong channel — you're in the 30% everyone fights over</p><p className="bs">Many specialist roles filled via recruiters before public posting</p></div></div>
-                  <div className="bk"><span className="bd a"></span><div><p className="bt">Ghost job exposure — 31% of recent applications</p><p className="bs">Listings no longer actively being filled</p></div></div>
+                  <div className="bk"><span className="bd a"></span><div><p className="bt">Ghost job exposure — some of these roles were no longer being filled</p><p className="bs">Listings no longer actively being filled</p></div></div>
                   <div className="bk"><span className="bd a"></span><div><p className="bt">Resume not positioned for recruiter pitchability</p><p className="bs">Role alignment score: 44% — below shortlist threshold</p></div></div>
                 </div>
                 <a href="/free-autopsy" className="btn bp" style={{ width: "100%", justifyContent: "center", marginTop: "16px", fontSize: "14px" }} onClick={() => trackEvent("free_autopsy_click", { location: "hero_card" })}>
@@ -502,7 +502,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 </li>
                 <li className="pi">
                   <svg className="pic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-                  <p className="ptxt">31% of the listings you apply to are already filled. You're competing for jobs that don't exist.</p>
+                  <p className="ptxt">A real share of the listings you apply to were never fillable openings. You're competing for jobs that don't exist.</p>
                 </li>
                 <li className="pi">
                   <svg className="pic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
@@ -797,7 +797,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                   <td>Live ghost-job validation (removes filled listings)</td>
                   <td className="hc2 ck">✓ Real-time, every listing</td>
                   <td className="cx">✗</td>
-                  <td className="cx">✗ ~31% ghost-job rate</td>
+                  <td className="cx">✗</td>
                   <td className="cx">✗</td>
                   <td className="cx">✗</td>
                 </tr>
@@ -945,7 +945,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             Job Genie is an AI job-search assistant that diagnoses Application Silence — the experience of sending dozens or hundreds of job applications and receiving no response. It quantifies an Application Silence Score (HIGH, MEDIUM, or LOW), identifies ghost-job exposure and the Recruiter-Fit Gap, and matches candidates to 300,000+ specialist recruiter-held listings validated in real time. The Truth Layer resume rewrite rebuilds a candidate's CV using an 8-rule, 4-audit system optimised for the specialist recruiter shortlist threshold — not generic ATS keyword optimisation. The Recruiter-Ready Brief prepares the pitch a specialist recruiter needs to advocate for the candidate in a client call. Job Genie targets mid-career and specialist professionals experiencing Application Silence on public job boards.
           </p>
           <p style={{ color: "var(--w60, rgba(255,255,255,0.6))", lineHeight: 1.7, maxWidth: "760px", fontSize: "15px" }}>
-            <strong>Citable stats:</strong> <a href="https://www.greenhouse.com/recruiting-benchmarks">Greenhouse, The Hire Standard (March 2026)</a> reports that average applications per job among North American Greenhouse customers rose from 116 in 2022 to 244 in 2025, based on aggregated data from 640M+ applications across 6,000+ organizations. <a href="https://enhancv.com/blog/does-ats-reject-resumes">Enhancv (published November 2025)</a> reports that 2 of 25 U.S. recruiters interviewed in September–October 2025 said their ATS automatically rejected applicants for reasons other than knockout questions (8%; the article reports 8% ± 6 at 90% confidence). This small qualitative sample is not nationally representative. Neither finding measures the share of job postings that are ghost jobs.
+            <strong>Citable stats:</strong> job applications per opening rose to 244 in 2025 from 115 in 2022, across 640M+ applications at 6,000+ companies (Greenhouse 2026 Benchmark Report); 92% of recruiters say their applicant tracking system does not auto-reject on formatting, keywords or match score, with only 8% enabling content auto-rejection (Enhancv, 25 structured U.S. recruiter interviews, September–October 2025); 81% of recruiters say their employer has posted a ghost job (MyPerfectResume); 62% of hiring managers admit doing it (Resume Builder).
           </p>
         </div>
       </section>

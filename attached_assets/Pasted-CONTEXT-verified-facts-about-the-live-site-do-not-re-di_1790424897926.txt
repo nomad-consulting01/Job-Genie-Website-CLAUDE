@@ -1,0 +1,139 @@
+CONTEXT — verified facts about the live site, do not re-diagnose
+
+Host: Google App Engine (response headers show `server: Google Frontend`
+and a GAESA cookie). No CDN in front; cache-control is `private`.
+
+Confirmed behaviour as of 2026-09-26:
+- https://www.job-genie.ai/terms  → WORKS. Returns HTTP 200, redirects to
+  /terms/, serves its own page with canonical https://www.job-genie.ai/terms
+  and its own <title>Terms of Service | Job Genie</title>.
+- https://www.job-genie.ai/methodology → BROKEN. Returns HTTP 200 but serves
+  the HOMEPAGE. Canonical is https://www.job-genie.ai/ and the title is the
+  homepage title.
+- https://www.job-genie.ai/glossary → BROKEN, identical behaviour.
+
+Diagnosis: routing and the build both work. /terms exists as a real page.
+/methodology and /glossary do not exist in the build output, so they fall
+through to a catch-all handler that serves index.html with HTTP 200.
+
+A republish cannot fix this — you cannot deploy a page that was never built.
+
+TASK 1 — Inventory every footer and nav route
+
+For each path below, determine whether a real page file exists in the build
+output (not whether the route resolves — the catch-all makes everything
+resolve):
+
+  /methodology   /glossary   /ghost-jobs   /resources   /blog   /qa
+  /why-no-responses-after-100-applications
+  /job-genie-vs-auto-apply
+  /terms   /privacy   /data-deletion
+  /for/mid-career-professionals
+  /for/senior-engineers
+  /for/career-changers
+
+Report as a table: path | file exists in build? | canonical it currently
+serves. Do not guess — check the build output directory and the route
+configuration.
+
+TASK 2 — Stop the catch-all serving index.html with HTTP 200
+
+This is the root cause and the most important fix.
+
+In app.yaml, the handlers list is evaluated top to bottom. There is almost
+certainly a trailing catch-all like:
+
+  - url: /.*
+    static_files: dist/index.html
+    upload: dist/index.html
+
+Change the behaviour so that an unknown path returns HTTP 404 with a proper
+404 page, NOT HTTP 200 with the homepage.
+
+Requirements:
+- / must still serve the homepage.
+- Every path that has a real page file must still serve that page.
+- Any path with no matching file must return HTTP 404.
+- Add a simple 404 page with the site header, a short "page not found"
+  message, and a link back to /.
+
+If the site genuinely needs SPA-style client routing for some section,
+scope the catch-all to that subtree only (e.g. /app/*), never to /.*.
+
+TASK 3 — Remove footer and nav links to pages that do not exist
+
+Using the Task 1 inventory, delete every <a> in the footer and navigation
+that points at a path with no real page. Do not replace them with "#" or
+with disabled styling — remove the list item entirely.
+
+Do not delete the underlying content sections or their anchors on the
+homepage. Only the links to non-existent standalone pages.
+
+TASK 4 — Fix sitemap.xml and robots.txt
+
+- Remove any URL from sitemap.xml that does not resolve to a real page.
+- Confirm every URL in sitemap.xml returns HTTP 200 and serves its own
+  canonical matching its own URL.
+- Confirm robots.txt does not disallow any real page and references the
+  sitemap.
+
+TASK 5 — Replace the "Citable stats" block on the homepage
+
+At the bottom of the homepage there is a Summary section ending with a line
+beginning "Citable stats:". It currently reads:
+
+  Citable stats: employee referrals = 30%+ of all hires (SHRM); ~27% of U.S.
+  LinkedIn listings likely ghost jobs (ResumeUp.AI, Sept 2025); 62% of hiring
+  managers admit posting ghost jobs (Resume Builder).
+
+Replace that sentence with exactly this:
+
+  Citable stats: job applications per opening rose to 244 in 2025 from 115 in
+  2022, across 640M+ applications at 6,000+ companies (Greenhouse 2026
+  Benchmark Report); 92% of recruiters say their applicant tracking system
+  does not auto-reject on formatting, keywords or match score, with only 8%
+  enabling content auto-rejection (Enhancv, 25 structured U.S. recruiter
+  interviews, September–October 2025); 81% of recruiters say their employer
+  has posted a ghost job (MyPerfectResume); 62% of hiring managers admit
+  doing it (Resume Builder).
+
+Rationale: the ResumeUp.AI figure is a resume vendor's own analysis, not
+primary research, and this block is explicitly formatted for AI answer
+engines to quote. The replacements are platform data and a study with
+published method, sample size and confidence intervals.
+
+TASK 6 — Remove three unsourced instances of "31%"
+
+Search the homepage for "31%". It appears three times and has no source
+anywhere on the site:
+
+1. Sample Silence Score panel: "Ghost job exposure — 31% of recent
+   applications" → change to "Ghost job exposure — some of these roles
+   were no longer being filled"
+2. Broken Application Loop bullet: "31% of the listings you apply to are
+   already filled." → change to "A real share of the listings you apply to
+   were never fillable openings."
+3. Comparison table, Indeed column: "✗ ~31% ghost-job rate" → change to
+   just "✗"
+
+Do not substitute a different number in any of these. There is no sourced
+figure to substitute.
+
+CONSTRAINTS
+
+- Change nothing else. No copy rewrites, no design changes, no dependency
+  upgrades, no refactors.
+- Do not create placeholder or stub pages for the missing routes. An empty
+  /methodology page is worse than no link.
+- Preserve /terms, /privacy and /data-deletion exactly as they are.
+- If any task cannot be completed, stop and report why rather than working
+  around it.
+
+DELIVERABLE
+
+Report back with:
+1. The Task 1 inventory table.
+2. The exact app.yaml handler change made.
+3. The list of footer/nav links removed.
+4. The sitemap URLs removed.
+5. Confirmation that Tasks 5 and 6 were applied, quoting the new text.
