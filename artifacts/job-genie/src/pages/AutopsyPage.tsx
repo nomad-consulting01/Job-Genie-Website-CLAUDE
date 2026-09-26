@@ -124,10 +124,6 @@ const CSS = `
 .ap .record ul{list-style:none;display:grid;gap:14px}
 .ap .record li{display:flex;gap:12px;align-items:flex-start;font-size:16px}
 .ap .record li .chk{flex:none;width:20px;height:20px;border-radius:50%;background:var(--indigo-soft);color:var(--indigo);display:grid;place-items:center;font-size:12px;margin-top:2px}
-.ap .proof{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.ap .quote{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:26px;border-left:2px solid var(--indigo)}
-.ap .quote p{font-size:15px;color:var(--ap-text)}
-.ap .quote .who{margin-top:16px;font-family:"JetBrains Mono";font-size:12px;color:var(--muted)}
 .ap .faq{display:grid;gap:2px;border:1px solid var(--line);border-radius:16px;overflow:hidden}
 .ap .qa{background:var(--surface)}
 .ap .qa summary{padding:22px 24px;cursor:pointer;font-family:"Sora";font-weight:600;font-size:17px;list-style:none;display:flex;justify-content:space-between;align-items:center}
@@ -148,7 +144,7 @@ const CSS = `
 .ap .toast.error{background:#ff5f5f;color:#fff}
 @media(max-width:860px){
   .ap .hero-grid{grid-template-columns:1fr;gap:40px}
-  .ap .findings,.ap .proof{grid-template-columns:1fr}
+  .ap .findings{grid-template-columns:1fr}
   .ap .steps{grid-template-columns:1fr}
   .ap .record{grid-template-columns:1fr;padding:28px}
   .ap .privacy{grid-template-columns:1fr;gap:16px;padding:24px}
@@ -411,29 +407,6 @@ export default function AutopsyPage() {
               <li><span className="chk">✓</span> Your Recruiter-Fit Gap, named and explained</li>
               <li><span className="chk">✓</span> The first concrete fix to make next</li>
             </ul>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div className="wrap">
-          <div className="section-head">
-            <span className="eyebrow">The record so far</span>
-            <h2>Built for mid-career and specialist professionals stuck in the silence.</h2>
-          </div>
-          <div className="proof">
-            <div className="quote">
-              <p>"Sixty applications, not one reply. The Autopsy showed me I was dying at the recruiter screen — not the résumé bots I'd been obsessing over. I reframed my last two roles and had three callbacks that week."</p>
-              <div className="who">Priya N. · Data Engineer · Fintech</div>
-            </div>
-            <div className="quote">
-              <p>"I assumed it'd be another résumé grader. Instead it named the exact specialty roles I was mis-positioning for. My first real interview in three months came five days later."</p>
-              <div className="who">Marcus D. · Supply Chain Manager · Manufacturing</div>
-            </div>
-            <div className="quote">
-              <p>"I'd started to believe I was the problem. My Silence Score showed most of it was targeting, not me. Being able to redact my name and still get a straight read is the only reason I trusted it."</p>
-              <div className="who">Elena V. · UX Researcher · Healthcare</div>
-            </div>
           </div>
         </div>
       </section>

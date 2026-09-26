@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --config vite.config.ts --host 0.0.0.0",
-    "build": "vite build --config vite.config.ts && node prerender.mjs",
+    "build": "node -e \"require('node:fs').rmSync('dist/public', { recursive: true, force: true })\" && vite build --config vite.config.ts && node prerender.mjs",
     "build:client": "vite build --config vite.config.ts",
     "prerender": "node prerender.mjs",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
