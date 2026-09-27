@@ -1,0 +1,223 @@
+CONTEXT — verified against the live homepage, do not re-diagnose
+
+All seven issues were confirmed on 2026-09-26 by reading both the raw HTML
+and a tag-stripped text dump of https://www.job-genie.ai/.
+
+TWO VERIFICATION TRAPS THAT HAVE ALREADY COST THREE CYCLES:
+
+  (a) The page is minified into effectively one line, so `grep -c` always
+      returns 0 or 1 and is useless. Use `grep -o 'pattern' | wc -l`.
+
+  (b) Animated counters split the number and its symbol into SEPARATE DOM
+      ELEMENTS. A search for "31%" finds nothing even though "31" and "%"
+      render adjacent on screen. A tag-stripped dump shows "31 %" with a
+      space. This is exactly why Issue 1 below survived three previous
+      removal attempts and passed every verification check.
+
+DO NOT TOUCH — verified correct:
+  - The Citable Stats block in the Summary section (Greenhouse / Enhancv,
+    with links, confidence interval and disclaimer)
+  - The eight-dimension Recruiter-Fit table, its 16/40 and 35/40 totals,
+    score bands and projection paragraph
+  - The two "Last updated: September 2026 · Sources for every figure..."
+    attribution lines
+  - The comparison table, including line 781 of Home.tsx ("Everything else
+    polishes your CV for the public-board channel everyone fights over")
+  - The rewritten "Are ghost jobs real?" FAQ answer
+  - The sample-panel line "Wrong channel — 244 applicants per opening, and
+    you're in the pile"
+
+═══════════════════════════════════════════════════════════════════
+ISSUE 1 — HIGHEST PRIORITY. An unsourced 31% still renders, and it
+contradicts the site's own FAQ.
+═══════════════════════════════════════════════════════════════════
+
+In the stats band under "What Makes Specialist Recruiter Listings Different
+From Job Boards?", the third counter renders on screen as:
+
+    31%
+    Of job board listings are filled "ghost jobs"
+
+DO NOT search for the string "31%" — it does not exist as a contiguous
+string. The counter component renders the digits and the "%" separately.
+Find it by searching the component for the value 31 in a prop, data
+attribute, or counter config, or by searching for its caption text:
+"Of job board listings are filled".
+
+The figure has no source anywhere on the site, and the FAQ further down the
+same page now states: "Ghost jobs are listings posted without an immediate
+intent to hire, including roles kept open for future pipelines. There is no
+reliable percentage here for how many currently advertised jobs fit that
+definition."
+
+FIX: delete this counter entirely — the number, the symbol and its caption.
+Do not substitute a different figure; none exists. The band then has three
+counters instead of four, so adjust the grid or flex layout for three.
+
+WHILE IN THE SAME COMPONENT — the fourth counter reads "30%+ / Of all hires
+come via referrals — not public job board applications (SHRM)". No report
+name, no date, nothing openable. Either attach a named, dated, linked SHRM
+report or delete this counter too. Report which you did.
+
+═══════════════════════════════════════════════════════════════════
+ISSUE 2 — Title tag promises a claim the page itself debunks
+═══════════════════════════════════════════════════════════════════
+
+Current title: Job Genie — Free Application Autopsy | Reach the Hidden Job
+Market
+
+The FAQ on this page calls the 70–80% hidden-job-market figure "essentially
+a myth" and explains how a 56% finding was inflated into it. The page argues
+with itself in its most-indexed string.
+
+The phrase appears in several places that currently share this text. Update
+all of them:
+  - <title>
+  - og:title and twitter:title
+  - the WebSite JSON-LD "name" field
+  - the Organization JSON-LD "description" field, which reads "...helping
+    job seekers reach the hidden job market via specialist recruiters"
+
+New title (all title fields):
+  Job Genie — Free Application Silence Score | Why Your Applications Get
+  No Reply
+
+New Organization description:
+  Recruiter-visibility platform that diagnoses why job applications go
+  unanswered and connects candidates with specialist recruiter listings.
+
+Leave the existing meta description alone — it does not contain the phrase.
+
+═══════════════════════════════════════════════════════════════════
+ISSUE 3 — Orphaned sentence contradicting the sentence before it
+═══════════════════════════════════════════════════════════════════
+
+In the Broken Application Loop bullet list:
+
+  "A real share of the listings you apply to were never fillable openings.
+   You're competing for jobs that don't exist."
+
+The second sentence is left over from a deleted statistic. It now
+contradicts the first — one says the roles were not fillable, the other says
+they do not exist.
+
+FIX: delete "You're competing for jobs that don't exist." The bullet ends
+after "...were never fillable openings."
+
+SAME BULLET LIST, first bullet: "Your resume is screened out in seconds —
+before a recruiter reads a single word". This contradicts the site's own ATS
+FAQ ("Mostly myth, partly true... the real risk is not instant deletion — it
+is quietly ranking below better-matched profiles").
+
+Replace with:
+  "Your resume is ranked below the point where recruiters stop reading —
+   no one ever decides to reject you"
+
+═══════════════════════════════════════════════════════════════════
+ISSUE 4 — Free tier lists paid features with no textual marker
+═══════════════════════════════════════════════════════════════════
+
+The Free Autopsy pricing card lists seven features. The last three are Pro
+features shown greyed out with ✗ icons:
+  - 300K+ live recruiter listings
+  - Truth Layer resume rewrite
+  - Recruiter-Ready Brief
+
+The distinction is CSS-only. In a tag-stripped read — which is effectively
+what crawlers and AI answer engines get — all seven read as included, which
+misrepresents the free tier.
+
+FIX: prefix each locked item's visible text with "Not included: " so the
+meaning survives without styling. Keep the ✗ icon and the greyed styling.
+  e.g. "Not included: Truth Layer resume rewrite"
+
+Do not change the four genuinely included items and do not change the Pro
+card feature list.
+
+═══════════════════════════════════════════════════════════════════
+ISSUE 5 — Pricing wrong in visible copy and in structured data
+═══════════════════════════════════════════════════════════════════
+
+Actual pricing: $49.99 per month, OR $99.99 for three months. The
+three-month option is the primary offer and currently appears nowhere.
+
+5a. Pro pricing card — change "$49 / per month · Cancel anytime · No
+    lock-in" to:
+      $99.99 for three months
+      One payment · Nothing charged for 14 days · Cancel anytime
+      Or $49.99 monthly, also with 14 days free
+
+5b. Service JSON-LD currently contains:
+      {"@type":"Offer","name":"Pro Plan","price":"49",
+       "priceCurrency":"USD","billingIncrement":"P1M"}
+    Replace that single Pro offer with two:
+      {"@type":"Offer","name":"Pro Monthly","price":"49.99",
+       "priceCurrency":"USD","billingIncrement":"P1M"},
+      {"@type":"Offer","name":"Pro Three Months","price":"99.99",
+       "priceCurrency":"USD","billingIncrement":"P3M"}
+    Keep the existing Free Autopsy offer.
+
+5c. SoftwareApplication JSON-LD declares only a $0 offer, so a crawler
+    concludes the product is free. Change its "offers" to an array holding
+    the free offer plus the same two paid offers.
+
+Structured-data pricing surfaces directly in search results, so these must
+match Stripe exactly. If the live Stripe prices differ from $49.99 and
+$99.99, STOP and report rather than guessing.
+
+═══════════════════════════════════════════════════════════════════
+ISSUE 6 — Outcome claim with no outcome data
+═══════════════════════════════════════════════════════════════════
+
+In the closing "brutal truth" section:
+
+  "Silence is not random. It is a signal — one you can read, fix, and
+   reverse. The candidates landing calls right now did one thing
+   differently: they stopped guessing."
+
+The final sentence claims a result achieved by Job Genie users. The
+methodology page states that Job Genie has no outcome data yet.
+
+FIX: delete "The candidates landing calls right now did one thing
+differently: they stopped guessing." The paragraph ends after "...read, fix,
+and reverse."
+
+═══════════════════════════════════════════════════════════════════
+ISSUE 7 — Two definitions of "ghost job" on one page
+═══════════════════════════════════════════════════════════════════
+
+Glossary, inside the Application Silence Score entry:
+  "ghost-job exposure (listings already filled at the time of application)"
+
+FAQ, further down the same page:
+  "Ghost jobs are listings posted without an immediate intent to hire,
+   including roles kept open for future pipelines."
+
+The FAQ definition is correct and matches /methodology.
+
+FIX: in the Glossary entry only, replace
+  "ghost-job exposure (listings already filled at the time of application)"
+with
+  "ghost-job exposure (listings posted without an immediate intent to hire)"
+
+Leave the FAQ answer untouched.
+
+═══════════════════════════════════════════════════════════════════
+CONSTRAINTS
+═══════════════════════════════════════════════════════════════════
+
+- No design changes, refactors, dependency upgrades, or copy rewrites
+  beyond the exact edits above.
+- Add no new statistic anywhere.
+- Before editing any string that appears more than once, run
+  `grep -rn "<phrase>"` across source and report every file and line. A
+  previous fix half-landed because only one of two occurrences was changed,
+  and another nearly replaced unrelated prose that happened to share a
+  phrase.
+- If an instruction conflicts with what you find in the code, STOP and
+  report rather than improvising.
+
+DELIVERABLE — report the actual diff for each issue, not a status summary.
+Two previous batches were reported complete when no change had been made,
+and one edit silently reverted an earlier fix. For Issue 1, state the file
+path and the exact element or prop that held the value 31.
