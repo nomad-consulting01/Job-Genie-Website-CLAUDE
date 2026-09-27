@@ -7,7 +7,7 @@ const ORG_SCHEMA = {
   '@id': `${SITE_URL}/#organization`,
   name: SITE_NAME,
   url: SITE_URL,
-  description: 'AI job-search assistant helping mid-career and specialist professionals reach the hidden job market via specialist recruitment agencies.',
+  description: 'Recruiter-visibility platform that diagnoses why job applications go unanswered and connects candidates with specialist recruiter listings.',
   sameAs: [],
 };
 
@@ -18,12 +18,11 @@ const SOFTWARE_APP_SCHEMA = {
   name: SITE_NAME,
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'USD',
-    description: 'Free Application Autopsy — no account or credit card required.',
-  },
+  offers: [
+    { '@type': 'Offer', price: '0', priceCurrency: 'USD', description: 'Free Application Autopsy — no account or credit card required.' },
+    { '@type': 'Offer', name: 'Pro Monthly', price: '49.99', priceCurrency: 'USD', billingIncrement: 'P1M' },
+    { '@type': 'Offer', name: 'Pro Three Months', price: '99.99', priceCurrency: 'USD', billingIncrement: 'P3M' },
+  ],
   provider: { '@id': `${SITE_URL}/#organization` },
 };
 
@@ -124,7 +123,7 @@ export interface SEOProps {
 }
 
 export function SEO({
-  title = `${SITE_NAME} — Free Application Autopsy | Reach the Hidden Job Market`,
+  title = 'Why Your Job Applications Go Silent | Free Application Autopsy | Job Genie',
   description = 'Why do job applications go silent? Job Genie diagnoses your Application Silence Score, measures your Recruiter-Fit Gap, and matches you to 300,000+ specialist recruiter listings — free, no account needed.',
   url,
   canonicalUrl,
@@ -159,7 +158,8 @@ export function SEO({
       description: 'Free recruiter-visibility diagnostic — Application Silence Score, ghost-job exposure, and resume alignment analysis.',
       offers: [
         { '@type': 'Offer', name: 'Free Autopsy', price: '0', priceCurrency: 'USD' },
-        { '@type': 'Offer', name: 'Pro Plan', price: '49', priceCurrency: 'USD', billingIncrement: 'P1M' },
+        { '@type': 'Offer', name: 'Pro Monthly', price: '49.99', priceCurrency: 'USD', billingIncrement: 'P1M' },
+        { '@type': 'Offer', name: 'Pro Three Months', price: '99.99', priceCurrency: 'USD', billingIncrement: 'P3M' },
       ],
       areaServed: 'Worldwide',
       serviceType: 'Job Search Optimization',

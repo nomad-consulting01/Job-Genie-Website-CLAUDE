@@ -498,11 +498,11 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
               <ul className="plist">
                 <li className="pi">
                   <svg className="pic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-                  <p className="ptxt">Your resume is screened out in seconds — before a recruiter reads a single word</p>
+                  <p className="ptxt">Your resume is ranked below the point where recruiters stop reading — no one ever decides to reject you</p>
                 </li>
                 <li className="pi">
                   <svg className="pic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-                  <p className="ptxt">A real share of the listings you apply to were never fillable openings. You're competing for jobs that don't exist.</p>
+                  <p className="ptxt">A real share of the listings you apply to were never fillable openings.</p>
                 </li>
                 <li className="pi">
                   <svg className="pic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
@@ -734,8 +734,6 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           <div className="sgrid">
             <div className="sc r"><AnimatedCounter target={300} suffix="K+" /><div className="sl">Live specialist recruiter listings — validated daily</div></div>
             <div className="sc r d1"><AnimatedCounter target={150} suffix="+" /><div className="sl">Specialist staffing agencies in the database</div></div>
-            <div className="sc r d2"><AnimatedCounter target={31} suffix="%" /><div className="sl">Of job board listings are filled "ghost jobs"</div></div>
-            <div className="sc r d3"><AnimatedCounter target={30} suffix="%+" /><div className="sl">Of all hires come via referrals — not public job board applications (SHRM)</div></div>
           </div>
           <div className="firms r">
             <div className="flbl">Specialist Staffing Firms in the Database</div>
@@ -759,7 +757,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           <dl style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: "32px", maxWidth: "1100px", margin: "0 auto" }}>
             <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px", padding: "32px", border: "1px solid rgba(255,255,255,0.08)" }} itemScope itemType="https://schema.org/DefinedTerm">
               <dt style={{ fontSize: "18px", fontWeight: 700, color: "var(--indigo, #818cf8)", marginBottom: "12px" }} itemProp="name">Application Silence Score</dt>
-              <dd style={{ color: "var(--w80, rgba(255,255,255,0.8))", lineHeight: 1.7, margin: 0 }} itemProp="description">A diagnostic rating — HIGH, MEDIUM, or LOW — that quantifies exactly why your job applications are generating silence instead of interviews. It measures three blockers: <strong>channel mismatch</strong> (applying through public job boards rather than the specialist-recruiter channel where mid-to-senior roles are disproportionately filled), <strong>ghost-job exposure</strong> (listings already filled at the time of application), and <strong>resume-to-brief alignment</strong> (the keywords and proof signals specialist recruiters actually scan for). Calculated in under 2 minutes from a resume upload — no account required.</dd>
+              <dd style={{ color: "var(--w80, rgba(255,255,255,0.8))", lineHeight: 1.7, margin: 0 }} itemProp="description">A diagnostic rating — HIGH, MEDIUM, or LOW — that quantifies exactly why your job applications are generating silence instead of interviews. It measures three blockers: <strong>channel mismatch</strong> (applying through public job boards rather than the specialist-recruiter channel where mid-to-senior roles are disproportionately filled), <strong>ghost-job exposure</strong> (listings posted without an immediate intent to hire), and <strong>resume-to-brief alignment</strong> (the keywords and proof signals specialist recruiters actually scan for). Calculated in under 2 minutes from a resume upload — no account required.</dd>
             </div>
             <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px", padding: "32px", border: "1px solid rgba(255,255,255,0.08)" }} itemScope itemType="https://schema.org/DefinedTerm">
               <dt style={{ fontSize: "18px", fontWeight: 700, color: "var(--teal, #2dd4bf)", marginBottom: "12px" }} itemProp="name">Recruiter-Fit Gap</dt>
@@ -893,17 +891,17 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>Application Silence Score + blocker diagnosis</li>
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>Recruiter-Fit Score + keyword gap analysis</li>
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>Job market trends &amp; demand signals</li>
-                <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>300K+ live recruiter listings</span></li>
-                <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Truth Layer resume rewrite</span></li>
-                <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Recruiter-Ready Brief</span></li>
+                <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Not included: 300K+ live recruiter listings</span></li>
+                <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Not included: Truth Layer resume rewrite</span></li>
+                <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Not included: Recruiter-Ready Brief</span></li>
               </ul>
               <a href="/free-autopsy" className="btn bg" style={{ width: "100%", justifyContent: "center" }} onClick={() => { trackEvent("free_autopsy_click", { location: "pricing_free" }); trackEvent("pricing_cta_click", { location: "pricing_free" }); }}>Claim My Free Autopsy</a>
             </div>
             <div className="pc ft r d1">
               <div className="pbg">Most Popular</div>
               <div className="ptier">Pro</div>
-              <div className="ppr"><sup>$</sup>49</div>
-              <div className="psub">per month · Cancel anytime · No lock-in</div>
+              <div className="ppr"><sup>$</sup>99.99 <span style={{ fontSize: "16px", letterSpacing: 0, fontWeight: 500 }}>for three months</span></div>
+              <div className="psub">One payment · Nothing charged for 14 days · Cancel anytime<br />Or $49.99 monthly, also with 14 days free</div>
               <p className="pdesc">Full recruiter-visibility intelligence. The complete database, Truth Layer rewrite, Recruiter-Ready Brief, and validated job matching — all unlocked.</p>
               <div className="pdiv"></div>
               <ul className="pfl">
@@ -930,7 +928,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             ) : (
               <h2 className="disp ctatit r d1" id="ctah">Most candidates aren't getting ignored<br />because they're unqualified.<br /><span className="gr">They're getting ignored because a recruiter<br />can't pitch them in 90 seconds.</span></h2>
             )}
-            <p className="blg r d2" style={{ maxWidth: "540px", margin: "0 auto 40px" }}>Silence is not random. It is a signal — one you can read, fix, and reverse. The candidates landing calls right now did one thing differently: they stopped guessing.</p>
+            <p className="blg r d2" style={{ maxWidth: "540px", margin: "0 auto 40px" }}>Silence is not random. It is a signal — one you can read, fix, and reverse.</p>
             <div className="r d3" style={{ display: "flex", justifyContent: "center", gap: "14px", flexWrap: "wrap", flexDirection: "column", alignItems: "center" }}>
               <a href="/free-autopsy" className="btn bp" style={{ fontSize: "18px", padding: "18px 36px" }} onClick={() => trackEvent("free_autopsy_click", { location: "final_cta", experiment_id: ctaBtnExp.experimentId, variant_id: ctaBtnExp.variantId })}>
                 {ctaPrimary}

@@ -280,7 +280,7 @@ button{cursor:pointer;font-family:inherit;border:none;background:none}
 .prf{padding:var(--gap) 0;background:var(--nn)}
 .prfhd{text-align:center;margin-bottom:64px}
 .prftit{font-size:clamp(28px,4vw,48px);margin-bottom:16px}
-.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:48px}
+.sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:48px}
 @media(max-width:700px){.sgrid{grid-template-columns:repeat(2,1fr)}}
 .sc{background:var(--nc);border:1px solid var(--w06);border-radius:var(--rlg);padding:28px 24px;text-align:center;transition:border-color .25s,transform .25s var(--ease)}
 .sc:hover{border-color:var(--i20);transform:translateY(-3px)}

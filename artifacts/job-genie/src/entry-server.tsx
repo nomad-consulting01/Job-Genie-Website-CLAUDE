@@ -146,7 +146,7 @@ const AEO_ROUTES: Record<string, RouteHead> = {
 export function getRouteHead(url: string): RouteHead {
   if (url === '/' || url === '') {
     return {
-      title: `${SITE_NAME} — Free Application Autopsy | Reach the Hidden Job Market`,
+      title: 'Why Your Job Applications Go Silent | Free Application Autopsy | Job Genie',
       description:
         "Many mid-to-senior and specialist roles are filled through specialist recruiters before reaching job boards. Get your free Application Silence Score and find out what's blocking your interviews.",
       canonical: `${SITE_URL}/`,
@@ -223,7 +223,8 @@ export function buildHeadHtml(head: RouteHead): string {
       'Free recruiter-visibility diagnostic — Application Silence Score, ghost-job exposure, and resume alignment analysis.',
     offers: [
       { '@type': 'Offer', name: 'Free Autopsy', price: '0', priceCurrency: 'USD' },
-      { '@type': 'Offer', name: 'Pro Plan', price: '49', priceCurrency: 'USD', billingIncrement: 'P1M' },
+      { '@type': 'Offer', name: 'Pro Monthly', price: '49.99', priceCurrency: 'USD', billingIncrement: 'P1M' },
+      { '@type': 'Offer', name: 'Pro Three Months', price: '99.99', priceCurrency: 'USD', billingIncrement: 'P3M' },
     ],
     areaServed: 'Worldwide',
     serviceType: 'Job Search Optimization',
