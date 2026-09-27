@@ -430,7 +430,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 <div className="ssub">Role fit signal is currently <strong>too weak for recruiter submission</strong></div>
                 <div className="sbw"><div className="sb"></div></div>
                 <div className="bks">
-                  <div className="bk"><span className="bd r"></span><div><p className="bt">Wrong channel — you're in the 30% everyone fights over</p><p className="bs">Many specialist roles filled via recruiters before public posting</p></div></div>
+                  <div className="bk"><span className="bd r"></span><div><p className="bt">Wrong channel — 244 applicants per opening, and you're in the pile</p><p className="bs">Many specialist roles filled via recruiters before public posting</p></div></div>
                   <div className="bk"><span className="bd a"></span><div><p className="bt">Ghost job exposure — some of these roles were no longer being filled</p><p className="bs">Listings no longer actively being filled</p></div></div>
                   <div className="bk"><span className="bd a"></span><div><p className="bt">Resume not positioned for recruiter pitchability</p><p className="bs">Role alignment score: 44% — below shortlist threshold</p></div></div>
                 </div>
