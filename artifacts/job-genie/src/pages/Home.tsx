@@ -778,7 +778,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           <div className="difhd">
             <div className="stag" style={{ justifyContent: "center" }}>How Is Job Genie Different From LinkedIn, Indeed, ZipRecruiter, and Resume Writers?</div>
             <h2 className="disp diftit r" id="difh">This is not another<br /><span className="gr">resume tool.</span></h2>
-            <p className="blg r d1" style={{ maxWidth: "520px", margin: "0 auto" }}>Job Genie is a recruiter-visibility system. Everything else polishes your CV for the public-board channel — 244 applicants per opening, and you're in the pile. This shows you why you're invisible to the specialist-recruiter channel — then fixes it.</p>
+            <p className="blg r d1" style={{ maxWidth: "520px", margin: "0 auto" }}>Job Genie is a recruiter-visibility system. Everything else polishes your CV for the public-board channel everyone fights over. This shows you why you're invisible to the specialist-recruiter channel — then fixes it.</p>
           </div>
           <div className="tw r" style={{ overflowX: "auto" }}>
             <table className="dt" role="table" aria-label="Job Genie vs LinkedIn vs Indeed vs ZipRecruiter vs Resume Writers — 7-criteria comparison matrix">
