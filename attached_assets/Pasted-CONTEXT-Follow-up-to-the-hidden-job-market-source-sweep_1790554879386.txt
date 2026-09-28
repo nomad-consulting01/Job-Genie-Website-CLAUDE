@@ -1,0 +1,100 @@
+CONTEXT
+
+Follow-up to the "hidden job market" source sweep. Eleven hits were found;
+eight are correct and must be left alone. Three need changing. Two files
+only: SEO.tsx and variants.json, both under artifacts/job-genie/src/.
+
+DO NOT TOUCH — these use the phrase to DEBUNK or DEFINE it, which is
+correct and is the site's position:
+  - Home.tsx:160  — FAQ answering whether 70–80% of jobs are hidden; calls
+                    the figure essentially a myth and traces it to
+                    Granovetter
+  - Home.tsx:163  — definitional FAQ; calls the popular percentage an
+                    unsupported inflation
+  - SEO.tsx:79,82 — the same definitional answer in FAQPage schema
+  - Home.tsx:188  — regex that bolds key terms, including the phrase
+  - entry-server.tsx:64 — glossary page description listing it as a defined
+                    term
+  - AnswerIndex.tsx:124, BlogIndex.tsx:112 — index descriptions listing it
+                    as a topic covered
+
+═══════════════════════════════════════════════════════════════════
+CHANGE 1 — SEO.tsx:201, og:image alt text
+═══════════════════════════════════════════════════════════════════
+
+Currently:
+
+  <meta property="og:image:alt" content="Job Genie — Free Application
+  Autopsy. Reach the Hidden Job Market." />
+
+This is the same claim the homepage title fix removed, surviving in the
+social-share card. Anyone sharing a Job Genie link posts the phrase the
+site's own FAQ debunks.
+
+Replace the content value with:
+
+  Job Genie — free Application Silence Score. Find out why your
+  applications get no reply.
+
+Change nothing else in that meta block, and do not alter the og:image
+dimensions or URL.
+
+═══════════════════════════════════════════════════════════════════
+CHANGE 2 — variants.json, the hidden-job-market variant (lines ~109–117)
+═══════════════════════════════════════════════════════════════════
+
+This variant currently asserts as fact the thing the site's FAQ calls an
+unsupported inflation. If it ships, two live pages contradict each other and
+a beehiiv segment receives the hype version.
+
+Do NOT delete the variant or its canonical URL — the organic keyword is
+legitimately valuable and the underlying phenomenon is real for mid-to-
+senior and specialist roles. Only the overclaim changes.
+
+Make exactly these three field edits:
+
+  "audience"
+    from: job seekers who have heard the hidden job market exists
+    to:   job seekers who have heard the hidden job market exists and want
+          to know what is actually true about it
+
+  "aeo_question"
+    from: What is the hidden job market and how do I access it?
+    to:   Is the hidden job market real, and how much of it is myth?
+
+  "offer"
+    from: Free Application Autopsy — access the hidden market today
+    to:   Free Application Autopsy — find out which channel is failing you
+
+  "headline"
+    from: The Hidden Job Market Is Real — And You're Missing It
+    to:   Most senior roles are filled before they're advertised
+
+Leave unchanged in this variant:
+  - "canonical_url" (https://www.job-genie.ai/hidden-job-market)
+  - "primary_keyword" (hidden job market)
+  - "traffic_source", "beehiiv_segment"
+  - "subheadline" — already accurate, needs nothing
+
+CHECK THE REST OF THE FILE: variants.json may contain other variants making
+the same overclaim that the grep did not surface because they phrase it
+differently. Search this file for "hidden", "never advertised", "unadvertised",
+"80%", "70%" and report any further hits with their variant id BEFORE
+changing them.
+
+═══════════════════════════════════════════════════════════════════
+CONSTRAINTS
+═══════════════════════════════════════════════════════════════════
+
+- Two files only: SEO.tsx and variants.json. No other file should change.
+- Add no statistic anywhere.
+- Do not rewrite any FAQ answer, schema answer, or page description listed
+  in the DO NOT TOUCH block above.
+- Before editing, run `grep -rn "Reach the Hidden Job Market"` across source
+  and report every hit — the homepage title drift showed the same string is
+  often set in more than one file.
+- If an instruction conflicts with the code, STOP and report.
+
+DELIVERABLE — report the actual diff for both changes, plus the results of
+the two searches (the "Reach the Hidden Job Market" sweep, and the
+variants.json scan for further overclaims).
