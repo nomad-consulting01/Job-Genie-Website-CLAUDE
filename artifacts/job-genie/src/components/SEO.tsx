@@ -198,7 +198,7 @@ export function SEO({
       <meta property="og:image" content={ogImage ?? OG_IMAGE} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      <meta property="og:image:alt" content="Job Genie — Free Application Autopsy. Reach the Hidden Job Market." />
+      <meta property="og:image:alt" content="Job Genie — free Application Silence Score. Find out why your applications get no reply." />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />

@@ -1,0 +1,105 @@
+CONTEXT
+
+Follow-up to the "hidden job market" sweep. The previous attempt correctly
+stopped because the phrase "Reach the Hidden Job Market" appears in TWO
+files, not one: SEO.tsx:201 and index.html:17. The file limit is revised to
+three files.
+
+The variants.json scan came back clean: variant_b (the hidden-job-market
+variant) is the only one making the overclaim. No other variant matched
+"hidden", "never advertised", "unadvertised", "80%" or "70%".
+
+DO NOT TOUCH — these use the phrase to DEBUNK or DEFINE it, which is the
+site's position and is correct:
+  - Home.tsx:160  — FAQ on the 70–80% claim; calls it essentially a myth
+  - Home.tsx:163  — definitional FAQ; calls the popular percentage an
+                    unsupported inflation
+  - SEO.tsx:79,82 — the same definitional answer in FAQPage schema
+  - Home.tsx:188  — regex that bolds key terms
+  - entry-server.tsx:64 — glossary description listing it as a defined term
+  - AnswerIndex.tsx:124, BlogIndex.tsx:112 — index descriptions listing it
+                    as a topic covered
+
+═══════════════════════════════════════════════════════════════════
+CHANGE 1 — og:image alt text, in BOTH files
+═══════════════════════════════════════════════════════════════════
+
+The og:image:alt currently reads "Job Genie — Free Application Autopsy.
+Reach the Hidden Job Market." This is the claim the homepage title fix
+removed, surviving in the social-share card: anyone sharing a Job Genie link
+posts the phrase the site's own FAQ debunks.
+
+Replace the content value in BOTH of these locations with the SAME text:
+  - artifacts/job-genie/src/components/SEO.tsx:201
+  - artifacts/job-genie/index.html:17
+
+New value, identical in both:
+
+  Job Genie — free Application Silence Score. Find out why your
+  applications get no reply.
+
+They must match exactly. If they diverge, the served value depends on the
+render path and produces the same class of bug as the homepage title.
+
+BEFORE EDITING: check whether og:image:alt is also set in entry-server.tsx.
+That file sets other head fields and is the server-rendered path, which is
+what crawlers actually receive. If it sets this field too, update it with
+the same text and report that it was a fourth location.
+
+Do not change og:image URL, dimensions, or any other meta in these blocks.
+
+═══════════════════════════════════════════════════════════════════
+CHANGE 2 — variants.json, variant_b (lines ~104, 109–118)
+═══════════════════════════════════════════════════════════════════
+
+This variant asserts as fact the thing the site's FAQ calls an unsupported
+inflation. If it ships, two live pages contradict each other and a beehiiv
+segment receives the hype version.
+
+Do NOT delete the variant or its canonical URL. The organic keyword is
+valuable and the underlying phenomenon is real for mid-to-senior and
+specialist roles — only the overclaim changes.
+
+Four field edits, exactly as written:
+
+  "audience"
+    from: job seekers who have heard the hidden job market exists
+    to:   job seekers who have heard the hidden job market exists and want
+          to know what is actually true about it
+
+  "aeo_question"
+    from: What is the hidden job market and how do I access it?
+    to:   Is the hidden job market real, and how much of it is myth?
+
+  "offer"
+    from: Free Application Autopsy — access the hidden market today
+    to:   Free Application Autopsy — find out which channel is failing you
+
+  "headline"
+    from: The Hidden Job Market Is Real — And You're Missing It
+    to:   Most senior roles are filled before they're advertised
+
+Leave unchanged in variant_b:
+  - "canonical_url" (https://www.job-genie.ai/hidden-job-market)
+  - "primary_keyword" (hidden job market)
+  - "traffic_source", "beehiiv_segment"
+  - "subheadline" — already accurate
+
+Also check line 104 (the other match reported in the scan) and report what
+it contains before changing it — it was not covered by the four edits above.
+
+═══════════════════════════════════════════════════════════════════
+CONSTRAINTS
+═══════════════════════════════════════════════════════════════════
+
+- Three files: SEO.tsx, index.html, variants.json. Plus entry-server.tsx
+  only if it also sets og:image:alt.
+- Add no statistic anywhere.
+- Do not rewrite any FAQ answer, schema answer or page description in the
+  DO NOT TOUCH list.
+- If any further conflict with these instructions appears, STOP and report.
+  Stopping on the two-file conflict was the right call and found a real bug.
+
+DELIVERABLE — report the actual diff for each change, confirm whether
+entry-server.tsx also set og:image:alt, and report what line 104 of the
+variant contains.
