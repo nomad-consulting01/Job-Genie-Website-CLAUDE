@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Job Genie — funnel prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0A102A; --indigo:#4A47FF; --paper:#fff; --ink:#0A102A; --muted:#565C7A;
+  --rule:#E2E4EE; --wash:#F2F3F9; --graphite:#2C3145; --graphite-ink:#C9CEE2;
+  --good:#1F7A5C; --warn:#9A5B00;
+  --d:"Sora",system-ui,sans-serif; --b:"DM Sans",system-ui,sans-serif;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0A102A; --ink:#E9EBF5; --muted:#A3A8C3; --rule:#262D4D; --wash:#121936;
+  --graphite:#161C33; --graphite-ink:#9AA2C0; --good:#5FD3A8; --warn:#E0A96D; color-scheme:dark;}}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--wash);color:var(--ink);font-family:var(--b);font-size:16px;line-height:1.55}
+:focus-visible{outline:3px solid var(--indigo);outline-offset:2px;border-radius:4px}
+
+header.top{background:var(--navy);color:#fff;padding:22px 20px}
+header.top .in{max-width:1180px;margin:0 auto}
+header.top h1{font-family:var(--d);font-weight:700;font-size:clamp(20px,2.6vw,27px);letter-spacing:-.02em;margin:0 0 6px}
+header.top p{margin:0;color:#B9BFDB;font-size:15px;max-width:66ch}
+
+.shell{max-width:1180px;margin:0 auto;padding:26px 20px 70px;display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:34px;align-items:start}
+@media (max-width:900px){.shell{grid-template-columns:1fr;gap:22px}}
+
+/* phone */
+.phone{background:var(--paper);border:1px solid var(--rule);border-radius:22px;overflow:hidden;position:sticky;top:20px}
+@media (max-width:900px){.phone{position:static}}
+.bar{background:var(--navy);color:#fff;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.bar b{font-family:var(--d);font-size:15px;font-weight:700}
+.prog{height:3px;background:var(--rule)}
+.prog i{display:block;height:100%;background:var(--indigo);transition:width .25s}
+.screen{padding:24px 20px 26px;min-height:474px;display:flex;flex-direction:column}
+.screen h2{font-family:var(--d);font-weight:600;font-size:22px;line-height:1.22;letter-spacing:-.02em;margin:0 0 8px}
+.screen p.sub{color:var(--muted);margin:0 0 18px;font-size:15px}
+.grow{flex:1}
+
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.tile{border:1px solid var(--rule);border-radius:12px;padding:16px 14px;background:var(--paper);text-align:left;font:inherit;color:inherit;cursor:pointer}
+.tile:hover{border-color:var(--indigo)}
+.tile span{display:block;font-weight:600;font-size:15px}
+.tile small{color:var(--muted);font-size:13px}
+.linkish{background:none;border:0;color:var(--indigo);font:inherit;font-weight:500;cursor:pointer;padding:6px 0;text-align:left}
+
+.opt{display:block;width:100%;text-align:left;border:1px solid var(--rule);background:var(--paper);color:inherit;font:inherit;border-radius:10px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+.opt:hover{border-color:var(--indigo)}
+.opt.sel{border-color:var(--indigo);background:rgba(74,71,255,.06)}
+.opt b{font-weight:600}
+.opt em{display:block;font-style:normal;color:var(--muted);font-size:13.5px;margin-top:2px}
+
+.check{display:flex;gap:10px;align-items:flex-start;border:1px dashed var(--rule);border-radius:10px;padding:13px 14px;margin:14px 0 0;cursor:pointer}
+.check input{margin-top:3px;accent-color:var(--indigo)}
+.check span{font-size:14.5px}
+.check small{display:block;color:var(--muted);font-size:13px}
+
+.btn{display:block;width:100%;background:var(--indigo);color:#fff;border:0;border-radius:10px;padding:14px;font:inherit;font-weight:600;cursor:pointer;margin-top:14px}
+.btn:hover{background:#3B38E6}
+.btn.ghost{background:transparent;color:var(--muted);font-weight:500;margin-top:6px}
+.fine{color:var(--muted);font-size:12.5px;text-align:center;margin:10px 0 0}
+
+.drop{border:1px dashed var(--rule);border-radius:12px;padding:26px 16px;text-align:center;color:var(--muted);background:var(--wash)}
+.drop b{display:block;color:var(--ink);font-weight:600;margin-bottom:4px}
+
+.reflect{background:var(--wash);border-left:3px solid var(--indigo);border-radius:0 10px 10px 0;padding:16px}
+.reflect p{margin:0 0 10px;font-size:15px}
+.reflect p:last-child{margin:0}
+.reflect .said{color:var(--muted);font-style:italic}
+
+.fact{border:1px solid var(--rule);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:14.5px}
+.fact button{background:none;border:0;color:var(--indigo);font:inherit;font-size:13.5px;cursor:pointer}
+
+.verdict{border:1px solid var(--rule);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.vtop{background:var(--navy);color:#fff;padding:16px}
+.vtop .band{font-family:var(--d);font-size:30px;font-weight:700;letter-spacing:-.02em}
+.vtop .lbl{color:#B9BFDB;font-size:13px}
+.vbody{padding:14px 16px}
+.cause{font-weight:600;margin-bottom:4px}
+.conf{display:inline-block;font-size:12.5px;color:var(--warn);border:1px solid currentColor;border-radius:99px;padding:1px 9px;margin-bottom:8px}
+.ruled{border-top:1px solid var(--rule);padding-top:12px;margin-top:12px}
+.ruled h3{font-family:var(--d);font-size:14px;margin:0 0 8px;font-weight:600}
+.ruled ul{margin:0;padding:0;list-style:none;font-size:13.5px;color:var(--muted)}
+.ruled li{padding:3px 0;display:flex;justify-content:space-between;gap:10px}
+.ruled li b{color:var(--ink);font-weight:500}
+
+.demo{border:1px solid var(--rule);border-radius:10px;padding:14px;font-size:14.5px}
+.demo .q{color:var(--indigo);font-weight:600;margin:0 0 6px}
+.demo .a{color:var(--muted);margin:0 0 10px}
+.demo .o{margin:0;padding-top:10px;border-top:1px solid var(--rule)}
+
+.plan{border:1px solid var(--rule);border-radius:12px;padding:16px;margin-bottom:10px}
+.plan.lead{border-color:var(--indigo);border-width:2px}
+.plan .pr{font-family:var(--d);font-size:21px;font-weight:700;letter-spacing:-.02em}
+.plan .pn{color:var(--muted);font-size:13.5px;margin-bottom:8px}
+.plan ul{margin:8px 0 0;padding-left:18px;font-size:14px}
+.plan ul li{margin-bottom:4px}
+.guar{background:var(--wash);border-radius:10px;padding:14px;font-size:14px;margin-top:12px}
+.guar b{display:block;font-family:var(--d);font-size:14px;margin-bottom:4px}
+.guar p{margin:0 0 10px}
+.guar p:last-child{margin:0}
+
+label.f{display:block;font-size:13.5px;font-weight:500;margin:12px 0 5px}
+input.f,select.f{width:100%;font:inherit;padding:11px 12px;border:1px solid var(--rule);border-radius:9px;background:var(--paper);color:inherit}
+
+/* rail */
+.rail{display:flex;flex-direction:column;gap:14px}
+.note{background:var(--graphite);color:var(--graphite-ink);border-radius:14px;padding:20px 22px}
+.note h3{font-family:var(--d);color:#fff;font-size:17px;font-weight:600;margin:0 0 4px;letter-spacing:-.01em}
+.note .src{font-size:13px;color:#8C93B4;margin:0 0 12px}
+.note p{margin:0 0 10px;font-size:14.5px;line-height:1.6}
+.note p:last-child{margin:0}
+.note code{background:rgba(255,255,255,.08);padding:1px 6px;border-radius:5px;font-size:13px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tag{font-size:12px;border:1px solid #4A5170;color:#AEB5D2;border-radius:99px;padding:2px 9px}
+.tag.own{border-color:var(--indigo);color:#A9A7FF}
+.warnbox{background:#FFF7E8;border:1px solid #F0D9A8;color:#6B4A00;border-radius:12px;padding:16px 18px;font-size:14.5px}
+.warnbox b{display:block;font-family:var(--d);margin-bottom:4px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .warnbox{background:#2A2213;border-color:#5B4A20;color:#F0D9A8}}
+.stepnav{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
+.stepnav button{font:inherit;font-size:13px;border:1px solid var(--rule);background:var(--paper);color:var(--muted);border-radius:99px;padding:5px 11px;cursor:pointer}
+.stepnav button[aria-current="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="in">
+    <h1>Job Genie funnel prototype</h1>
+    <p>A clickable walkthrough of the proposed Autopsy flow. The phone shows what a candidate sees. The panel beside it names the device at work, where it came from, and what it is doing.</p>
+  </div>
+</header>
+
+<div class="shell">
+
+  <!-- PHONE -->
+  <div class="phone">
+    <div class="bar"><b>Job Genie</b><span id="stepLabel">Step 1 of 10</span></div>
+    <div class="prog"><i id="progBar" style="width:10%"></i></div>
+    <div class="screen" id="screen"></div>
+  </div>
+
+  <!-- RAIL -->
+  <div class="rail">
+    <div class="note" id="note"></div>
+    <div class="warnbox" id="warn" hidden></div>
+    <div class="stepnav" id="stepnav"></div>
+  </div>
+
+</div>
+
+<script>
+const steps = [
+{
+  title:"What are you trying to change?",
+  sub:"One tap. It sets what the verdict is measured against.",
+  html:`<div class="tiles">
+    <button class="tile" data-next><span>Get replies</span><small>Applications going unanswered</small></button>
+    <button class="tile" data-next><span>Move up</span><small>Same field, more seniority</small></button>
+    <button class="tile" data-next><span>Change direction</span><small>New field or function</small></button>
+    <button class="tile" data-next><span>Leave quietly</span><small>Employed, searching discreetly</small></button>
+  </div>
+  <button class="linkish" data-next>Not sure yet — start anyway</button>`,
+  note:{h:"Goal tiles before any data is asked for",s:"D53 — observed on RUNG",
+    p:["The current first ask on cold traffic is a résumé upload. That is a heavy commitment from someone who arrived thirty seconds ago from a Meta ad.",
+       "A tile costs one tap, sets the frame for everything after it, and gives an abandonment point that still tells you what the visitor wanted."],
+    tags:["D53 adopt-yes","Lowers first-ask friction"]}
+},
+{
+  title:"Where are you right now?",
+  sub:"This changes which causes are even plausible.",
+  html:`<button class="opt" data-sel><b>Employed, searching</b><em>Time-limited, discretion matters</em></button>
+  <button class="opt sel" data-sel><b>Between roles</b><em>Full-time search</em></button>
+  <button class="opt" data-sel><b>Returning after a break</b><em>Gap to account for</em></button>
+  <label class="check"><input type="checkbox" checked>
+    <span>I was made redundant recently
+    <small>Optional. It changes the tone of the verdict, not the standard.</small></span></label>
+  <button class="btn" data-next>Continue</button>`,
+  note:{h:"Situational checkbox, opt-in and unexplained",s:"D59 — observed on Interview Kickstart",
+    p:["They capture <code>I have been laid off recently</code> in an otherwise neutral signup. It costs one line and no friction.",
+       "The Autopsy currently asks for a résumé and a channel and never asks what happened to the person. Recent redundancy changes which causes are plausible — an employment gap and a compressed timeline are different diagnostic conditions.",
+       "Reframed for Job Genie: it must change the <em>verdict</em>, not the sales approach. There is no sales call here."],
+    tags:["D59 adopt-yes","Diagnostic input, not a sales qualifier"]}
+},
+{
+  title:"How long has this been going on?",
+  sub:"",
+  html:`<button class="opt" data-sel><b>Under a month</b></button>
+  <button class="opt sel" data-sel><b>One to three months</b></button>
+  <button class="opt" data-sel><b>Three to six months</b></button>
+  <button class="opt" data-sel><b>Longer than six months</b></button>
+  <p class="fine" style="text-align:left;margin-top:12px">Roughly how many applications? <b>60–100</b></p>
+  <button class="btn" data-next>Continue</button>`,
+  note:{h:"Timing and volume, as diagnostic inputs",s:"D58 — observed on Interview Kickstart",
+    p:["Their registration collects experience band, discipline and <code>when do you plan to start interviewing</code>. By the time an advisor dials, they know seniority, urgency and situation.",
+       "The rule for adopting it: every field must visibly change the verdict, or it is pure friction. Duration and volume both do — a hundred applications over six months is a different finding from a hundred over three weeks."],
+    tags:["D58 adopt-yes, reframed"]}
+},
+{
+  title:"Where did those applications go?",
+  sub:"Roughly is fine.",
+  html:`<button class="opt sel" data-sel><b>Mostly public job boards</b><em>LinkedIn, Indeed, ZipRecruiter</em></button>
+  <button class="opt" data-sel><b>Mostly company career pages</b></button>
+  <button class="opt" data-sel><b>Mostly specialist recruiters</b></button>
+  <button class="opt" data-sel><b>A mix, no clear pattern</b></button>
+  <button class="btn" data-next>Continue</button>`,
+  note:{h:"The channel question",s:"Job Genie's own thesis",
+    p:["Nobody else in the tracked set asks this. It is the input that makes channel mismatch diagnosable at all, and it is the only one of the eight causes that can be established before reading the résumé.",
+       "It is also the field that makes the refund-claim channel question meaningful later — you can compare where applications went with where the hire eventually came from."],
+    tags:["Own thesis","Feeds cause 6"]}
+},
+{
+  title:"Now the document itself",
+  sub:"Strip your name and contact details first if you want. The Autopsy reads experience, not identity.",
+  html:`<div class="drop"><b>Drop your CV here</b>PDF, Word or plain text</div>
+  <p class="fine" style="text-align:left">No account. Nothing is sent anywhere. You see the verdict before you give us an email address.</p>
+  <button class="btn" data-next>Read my CV</button>`,
+  note:{h:"The upload sits at step five, not step one",s:"Sequencing decision",
+    p:["Four low-cost taps come first, so by the time the heavy ask arrives the person has invested effort and can see where it is going.",
+       "The privacy line is doing objection-removal work for employed searchers, who are a large share of the ICP.",
+       "Note what is <em>not</em> asked: no email yet. Two competitors now ask for nothing at all before showing a result, so a free verdict is no longer a differentiator — but taking the email later still beats taking it first."],
+    tags:["Verdict-first lock","Answers the free-diagnostic convergence"]}
+},
+{
+  title:"Worth pausing on",
+  sub:"",
+  html:`<div class="reflect">
+    <p class="said">You said most of these went to public job boards, and that this has been running about three months.</p>
+    <p>That combination narrows things immediately. Three of the eight causes need a longer history to show up at all, so they are already unlikely for you.</p>
+    <p>It also means the channel is worth testing before the document is — there is no point rewriting a CV that is being read by the wrong people.</p>
+  </div>
+  <button class="btn" data-next>Keep going</button>`,
+  note:{h:"Mid-flow reflection — the strongest device found",s:"D54 — observed on RUNG",
+    p:["Partway through their flow they stop, restate the answer just given, and explain what it rules in and out. Then a single button.",
+       "It builds trust in the verdict <em>before</em> the verdict arrives, and it pays the user back for questions already answered — the main lever on mid-flow abandonment.",
+       "The Autopsy currently delivers all its reasoning at the end. Two or three beats like this inside the flow cost no new data and no new claims."],
+    tags:["D54 adopt-yes","Highest-value adoption"]}
+},
+{
+  title:"Check the facts before we score them",
+  sub:"We read these from your CV. Fix anything wrong — nothing is scored until you confirm.",
+  html:`<div class="fact"><span>Target role: <b>Programme Manager</b></span><button>Change</button></div>
+  <div class="fact"><span>Seniority read as: <b>Senior / Lead</b></span><button>Change</button></div>
+  <div class="fact"><span>Sector: <b>Financial services</b></span><button>Change</button></div>
+  <div class="fact"><span>Most recent role ended: <b>March 2026</b></span><button>Change</button></div>
+  <button class="btn" data-next>These are right — score it</button>`,
+  note:{h:"User confirms the facts before anything is generated",s:"D52 — observed on Carefully Applied and SkillResy",
+    p:["Their defence against AI invention is a step the <em>user performs</em>, not a promise the vendor makes. The live Job Genie site says the product only recommends changes based on real experience — that is a vendor promise, which is weaker.",
+       "It also improves the verdict. A misread target role produces a wrong diagnosis, and this is the cheapest place to catch it."],
+    tags:["D52 adopt-yes","Stronger than the current claim"]}
+},
+{
+  title:"Your Application Silence Score",
+  sub:"",
+  html:`<div class="verdict">
+    <div class="vtop"><div class="lbl">Application Silence Score</div><div class="band">HIGH</div></div>
+    <div class="vbody">
+      <p class="cause">Channel mismatch is the strongest signal in your case.</p>
+      <span class="conf">Moderate confidence</span>
+      <p style="font-size:14.5px;margin:0">Your applications concentrated on public boards, where roles at your level are least often filled. Your evidence reads well enough that the document is unlikely to be the first problem.</p>
+      <div class="ruled">
+        <h3>What we ruled out, and why</h3>
+        <ul>
+          <li><b>Achievement legibility</b><span>scored 4/5 — not it</span></li>
+          <li><b>Title lineage</b><span>progression is clean</span></li>
+          <li><b>Active-candidate penalty</b><span>too short a history</span></li>
+          <li><b>Role economics</b><span>target band is realistic</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p class="fine" style="text-align:left">Every claim behind this links to a named source on our methodology page.</p>
+  <button class="btn" data-next>Show me the fix</button>`,
+  note:{h:"Show what was ruled out, not only what was found",s:"D55 — observed on dojob",
+    p:["They publish every role the agent reviewed but did not surface, grouped by reason, with an override. It is the emotional payload of the Autopsy, already shipped by a competitor.",
+       "The distinction that still protects the position is narrow: they audit <em>their own</em> screen. Job Genie audits the employer's. A reader will not draw that line unless the copy does.",
+       "Showing the eliminations makes a single-cause verdict credible. Without them, naming one cause looks like a guess."],
+    tags:["D55 adopt the posture","Sharpen the distinction in copy"]}
+},
+{
+  title:"Your Truth Layer",
+  sub:"Free, and yours whatever you decide next.",
+  html:`<div class="demo">
+    <p class="q">We asked you:</p>
+    <p class="a">“You mentioned a supplier reporting change. What did you change, and what happened afterwards?”</p>
+    <p class="a" style="color:var(--ink)">“I merged six supplier spreadsheets into one tracker so the weekly pack stopped being rebuilt by hand.”</p>
+    <p class="o"><b>Your line, rewritten:</b><br>Consolidated six supplier reporting streams into a single tracker, removing ~6 hours of manual rework per week across a 4-person team.</p>
+  </div>
+  <label class="f" for="em">Email your Truth Layer to yourself</label>
+  <input class="f" id="em" type="email" placeholder="you@example.com">
+  <button class="btn" data-next>Send it and continue</button>
+  <p class="fine">First time we have asked for this. You already have the verdict.</p>`,
+  note:{h:"Show the question, not just the before and after",s:"D51 — observed on Carefully Applied",
+    p:["Their proof is one worked example: the question asked, the ordinary answer given, the finished line. No testimonial, no statistic.",
+       "The Truth Layer section already shows before/after pairs. What is missing is the <em>question</em> — proof that the input is a sentence a person can actually produce, not a polished achievement they would have to invent.",
+       "The email is captured here, at the value peak, rather than at step one."],
+    tags:["D51 adopt-yes","Email at the value peak"]}
+},
+{
+  title:"The rest of it",
+  sub:"",
+  html:`<div class="plan lead">
+    <div class="pr">$99.99 for three months</div>
+    <div class="pn">One payment. Nothing charged for 14 days.</div>
+    <ul><li>Full Recruiter-Ready Brief</li><li>Validated specialist recruiter listings</li><li>A fresh Truth Layer per target title</li></ul>
+  </div>
+  <div class="plan"><div class="pr" style="font-size:17px">or $49.99 monthly</div><div class="pn" style="margin:0">Also with 14 days free</div></div>
+  <div class="guar">
+    <b>Why three months, and why we expect you to leave</b>
+    <p>A job search is a project with an end, not a subscription you keep forever. We price it for the search, and we would rather you finish and cancel than stay out of inertia — so we email you seven days before it renews.</p>
+    <b>What we guarantee, and what we don't</b>
+    <p>Your verdict in minutes, every claim linked to a source, and the Truth Layer is yours whether or not you subscribe. We cannot guarantee you an interview, and nobody honestly can — that depends on employers and a market we don't control.</p>
+    <p><b style="display:inline">Hired before three months are up?</b> Tell us and we refund the unused months. Three fields, no paperwork.</p>
+  </div>
+  <button class="btn" data-next>Start my 14 days</button>`,
+  note:{h:"Deliverable guarantee, reasoned refusal, anti-retention rationale",s:"D47 and D57 — Candidates1st, Carefully Applied, SkillResy, Dream Job Move",
+    p:["Three operators refuse the outcome guarantee and explain why. One offers it — but they gate entry with a qualifying call and can decline anyone unlikely to hit it. Job Genie is self-serve and cannot, so the refusal is the correct model.",
+       "The refusal belongs where a sceptic looks for it. Placed there it stops being a limitation and becomes the trust signal.",
+       "The condition-stating discipline comes from Dream Job Move: conditions in plain language wherever the promise appears, never only in the terms page."],
+    tags:["D47 adopt-yes","D57 conditions discipline","Anti-retention rationale"],
+    warn:"The anti-retention line only ships alongside the seven-day renewal reminder. Without the reminder, a term that silently renews contradicts the sentence above it — a disclosure-score-2 contradiction of exactly the kind logged against three competitors."}
+},
+{
+  title:"You got hired. Tell us where.",
+  sub:"Three fields. We don't verify any of it and we won't ask for documents.",
+  html:`<label class="f" for="e1">Employer or role</label><input class="f" id="e1" placeholder="Programme Manager, retail bank">
+  <label class="f" for="e2">Start date</label><input class="f" id="e2" placeholder="14 October 2026">
+  <label class="f" for="e3">How did this role come to you?</label>
+  <select class="f" id="e3">
+    <option>A job board</option><option>The company's own careers page or in-house recruiter</option>
+    <option selected>A specialist or agency recruiter</option><option>A referral, or someone I know</option><option>Something else</option>
+  </select>
+  <label class="f" for="e4">Which agency? <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+  <input class="f" id="e4" placeholder="Only if a recruiter was involved">
+  <p class="fine" style="text-align:left;margin-top:12px">The channel question is the one we most need — it is how we check whether what we told you was right. Aggregate only, never published with your name, never shared.</p>
+  <button class="btn" data-next>Send and refund my remaining months</button>`,
+  note:{h:"The refund claim is the outcome dataset",s:"Job Genie's own design decision",
+    p:["Every claim is a voluntary outcome data point: hire date, and the channel the role actually came through. Successful users are otherwise the hardest cohort to hear from, because they simply leave.",
+       "The agency name stays optional on purpose. Job Genie aggregates those agencies' listings, so requiring a recruiter's name as a condition of someone's refund would read as attribution harvesting.",
+       "Nothing else is asked. Diagnosed cause, applied channel and weeks-to-claim are already in the account."],
+    tags:["Outcome loop begins","Consent captured at collection"],
+    warn:"This dataset can never become a market rate. It is self-reported, unverified, and has no denominator — only people who were hired and claimed appear in it. It supports “among users who told us they were hired…” and nothing broader."}
+}
+];
+
+let i = 0;
+const screen=document.getElementById('screen'), note=document.getElementById('note'),
+      warn=document.getElementById('warn'), bar=document.getElementById('progBar'),
+      lbl=document.getElementById('stepLabel'), nav=document.getElementById('stepnav');
+
+function render(){
+  const s = steps[i];
+  screen.innerHTML = `<h2>${s.title}</h2>${s.sub?`<p class="sub">${s.sub}</p>`:''}<div class="grow">${s.html}</div>
+    ${i>0?'<button class="btn ghost" data-back>Back</button>':''}`;
+  lbl.textContent = `Step ${i+1} of ${steps.length}`;
+  bar.style.width = ((i+1)/steps.length*100)+'%';
+  note.innerHTML = `<h3>${s.note.h}</h3><p class="src">${s.note.s}</p>${s.note.p.map(x=>`<p>${x}</p>`).join('')}
+    <div class="tags">${s.note.tags.map(t=>`<span class="tag${t.includes('Own')||t.includes('own')?' own':''}">${t}</span>`).join('')}</div>`;
+  if(s.note.warn){ warn.hidden=false; warn.innerHTML=`<b>Condition on shipping this</b>${s.note.warn}`; }
+  else warn.hidden=true;
+  [...nav.children].forEach((b,n)=>b.setAttribute('aria-current', n===i?'true':'false'));
+  screen.querySelectorAll('[data-next]').forEach(b=>b.onclick=()=>{ if(i<steps.length-1){i++;render();} });
+  const back = screen.querySelector('[data-back]'); if(back) back.onclick=()=>{ i--; render(); };
+  screen.querySelectorAll('[data-sel]').forEach(b=>b.onclick=()=>{
+    b.parentNode.querySelectorAll('[data-sel]').forEach(x=>x.classList.remove('sel')); b.classList.add('sel');
+  });
+}
+steps.forEach((s,n)=>{ const b=document.createElement('button'); b.textContent=n+1;
+  b.setAttribute('aria-label','Go to step '+(n+1)); b.onclick=()=>{i=n;render();}; nav.appendChild(b); });
+render();
+</script>
+</body>
+</html>

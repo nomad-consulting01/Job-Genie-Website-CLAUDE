@@ -35,6 +35,7 @@ const ROUTES = [
   '/data-deletion',
   '/free-autopsy',
   '/free-autopsy2',
+  '/free-autopsy3',
 ];
 
 async function main() {
@@ -284,6 +285,7 @@ async function main() {
     { loc: '/job-genie-vs-auto-apply', changefreq: 'monthly', priority: '0.75' },
     { loc: '/free-autopsy', changefreq: 'monthly', priority: '0.9' },
     { loc: '/free-autopsy2', changefreq: 'monthly', priority: '0.9' },
+    { loc: '/free-autopsy3', changefreq: 'monthly', priority: '0.9' },
     { loc: '/resources', changefreq: 'monthly', priority: '0.8' },
     { loc: '/methodology', changefreq: 'monthly', priority: '0.8' },
     { loc: '/terms', changefreq: 'yearly', priority: '0.3' },

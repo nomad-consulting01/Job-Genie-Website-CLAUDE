@@ -40,7 +40,7 @@ router.post("/newsletter", async (req, res) => {
 
   const BEEHIIV_API_KEY = process.env["BEEHIIV_API_KEY"];
   const BEEHIIV_PUBLICATION_ID = process.env["BEEHIIV_PUBLICATION_ID"];
-  const isAutopsySignup = /^\/free-autopsy2?\/?$/.test(body.page_slug ?? "");
+  const isAutopsySignup = /^\/free-autopsy(?:2|3)?\/?$/.test(body.page_slug ?? "");
 
   if (BEEHIIV_API_KEY && BEEHIIV_PUBLICATION_ID) {
     try {

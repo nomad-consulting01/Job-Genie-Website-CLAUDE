@@ -53,6 +53,23 @@ async function submit(page_slug: string) {
 }
 
 describe("Free Autopsy newsletter signup", () => {
+  it("enrolls /free-autopsy3 visitors in the Autopsy journey", async () => {
+    const beehiiv = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: { id: "sub_third" } }), { status: 201 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        data: [{ subscription_id: "sub_third", status: "in_progress" }],
+      }), { status: 200 }));
+    vi.stubGlobal("fetch", (input: string | URL | Request, init?: RequestInit) =>
+      String(input) === url ? globalFetch(input, init) : beehiiv(input, init));
+
+    const result = await submit("/free-autopsy3");
+    expect(result.status).toBe(200);
+    expect(beehiiv).toHaveBeenCalledTimes(3);
+    expect(JSON.parse(beehiiv.mock.calls[1][1].body).automation_ids)
+      .toEqual(["aut_0e902f78-459f-4e37-8850-906ba78d1c23"]);
+  });
+
   it("enrolls a new CTA signup and confirms its journey, retaining attribution", async () => {
     const beehiiv = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({ data: [] }), { status: 200 }))

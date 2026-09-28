@@ -12,6 +12,7 @@ import Home from './pages/Home';
 import LandingPage from './pages/LandingPage';
 import AutopsyPage from './pages/AutopsyPage';
 import FreeAutopsy2Page from './pages/FreeAutopsy2Page';
+import FreeAutopsy3Page from './pages/FreeAutopsy3Page';
 import AEOPage from './pages/AEOPage';
 import ResourcesPage from './pages/ResourcesPage';
 import TermsOfService from './pages/TermsOfService';
@@ -109,6 +110,14 @@ const AEO_ROUTES: Record<string, RouteHead> = {
     canonical: `${SITE_URL}/free-autopsy2`,
     robots: 'index, follow',
     aeoQuestion: 'How can I find out where my job applications are breaking down?',
+  },
+  '/free-autopsy3': {
+    title: 'Free Application Autopsy — See Where Your Job Search Is Stalling | Job Genie',
+    description:
+      'Tell us what you want to change, how long you have been searching, and where you apply. Start your free Application Autopsy with a private, guided first step.',
+    canonical: `${SITE_URL}/free-autopsy3`,
+    robots: 'index, follow',
+    aeoQuestion: 'How do I find out which part of my job search needs to change?',
   },
   '/resources': {
     title: 'Job Search Resources & Guides | Job Genie',
@@ -558,6 +567,7 @@ export function render(url: string): string {
             </Route>
             <Route path="/free-autopsy" component={AutopsyPage} />
             <Route path="/free-autopsy2" component={FreeAutopsy2Page} />
+            <Route path="/free-autopsy3" component={FreeAutopsy3Page} />
             <Route path="/resources" component={ResourcesPage} />
             <Route path="/methodology" component={MethodologyPage} />
             <Route path="/terms" component={TermsOfService} />
