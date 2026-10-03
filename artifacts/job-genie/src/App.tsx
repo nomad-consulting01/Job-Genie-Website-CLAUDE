@@ -21,6 +21,7 @@ import DataDeletion from "./pages/DataDeletion";
 import AutopsyPage from "./pages/AutopsyPage";
 import FreeAutopsy2Page from "./pages/FreeAutopsy2Page";
 import FreeAutopsy3Page from "./pages/FreeAutopsy3Page";
+import FreeAutopsy4Page from "./pages/FreeAutopsy4Page";
 import ResourcesPage from "./pages/ResourcesPage";
 import MethodologyPage from "./pages/MethodologyPage";
 import "./styles/brand.css";
@@ -65,6 +66,7 @@ function Router() {
       <Route path="/free-autopsy" component={AutopsyPage} />
       <Route path="/free-autopsy2" component={FreeAutopsy2Page} />
       <Route path="/free-autopsy3" component={FreeAutopsy3Page} />
+      <Route path="/free-autopsy4" component={FreeAutopsy4Page} />
       {/* Legal pages */}
       <Route path="/terms" component={TermsOfService} />
       <Route path="/privacy" component={PrivacyPolicy} />

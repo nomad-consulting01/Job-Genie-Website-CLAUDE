@@ -71,6 +71,7 @@ const STATIC_PAGES = [
   { loc: "/free-autopsy", changefreq: "monthly", priority: "0.9" },
   { loc: "/free-autopsy2", changefreq: "monthly", priority: "0.9" },
   { loc: "/free-autopsy3", changefreq: "monthly", priority: "0.9" },
+  { loc: "/free-autopsy4", changefreq: "monthly", priority: "0.9" },
   { loc: "/answers", changefreq: "daily", priority: "0.9" },
   { loc: "/methodology", changefreq: "monthly", priority: "0.8" },
   { loc: "/blog", changefreq: "daily", priority: "0.85" },

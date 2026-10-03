@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>app.job-genie.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0A102A; --indigo:#4A47FF; --paper:#FCFCFD; --panel:#fff;
+  --rule:#E4E6EF; --muted:#5A6080; --tint:#F3F4FA;
+  --amber:#9A5B00; --good:#1F7A5C;
+  --d:"Sora",system-ui,sans-serif; --b:"DM Sans",system-ui,sans-serif;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#E8EAF4; --paper:#070B1A; --panel:#0D1326; --rule:#232A47;
+  --muted:#9AA1C0; --tint:#121936; --amber:#E0A96D; --good:#5FD3A8; color-scheme:dark;}}
+*,*::before,*::after{box-sizing:inherit}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--b);font-size:15px;line-height:1.55}
+:focus-visible{outline:2.5px solid var(--indigo);outline-offset:2px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.app{display:grid;grid-template-columns:214px minmax(0,1fr);min-height:100vh}
+.rail,.main{min-width:0}
+@media (max-width:860px){.app{grid-template-columns:1fr}}
+
+/* rail */
+.rail{background:var(--ink);color:#fff;padding:20px 0;display:flex;flex-direction:column}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rail{background:#050817}}
+.brand{font-family:var(--d);font-weight:700;font-size:16px;letter-spacing:-.01em;padding:0 20px 20px}
+.brand span{display:block;font-family:var(--b);font-weight:400;font-size:11.5px;color:#8E96BE;letter-spacing:0}
+.nav{display:flex;flex-direction:column}
+.nav button{all:unset;cursor:pointer;padding:11px 20px;font-size:14.5px;color:#BFC5E0;border-left:3px solid transparent}
+.nav button:hover{color:#fff;background:rgba(255,255,255,.05)}
+.nav button[aria-current="true"]{color:#fff;border-left-color:var(--indigo);background:rgba(74,71,255,.16);font-weight:500}
+.nav small{display:block;font-size:11.5px;color:#7F87B0;margin-top:1px}
+.railfoot{margin-top:auto;padding:16px 20px 0;font-size:11.5px;color:#7F87B0;line-height:1.5}
+@media (max-width:860px){
+  .rail{padding:14px 0 0}
+  .rail{min-width:0}
+  .nav{flex-direction:row;overflow-x:auto;min-width:0;border-top:1px solid rgba(255,255,255,.1);margin-top:12px}
+  .nav button{border-left:0;border-bottom:3px solid transparent;white-space:nowrap;padding:12px 16px}
+  .nav button[aria-current="true"]{border-bottom-color:var(--indigo)}
+  .nav small{display:none}
+  .railfoot{display:none}
+}
+
+/* main */
+.main{min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;
+  padding:14px 28px;border-bottom:1px solid var(--rule);background:var(--panel);flex-wrap:wrap}
+.case{font-size:13.5px;color:var(--muted)}
+.case b{color:var(--ink);font-weight:500}
+.toggle{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);cursor:pointer}
+.toggle input{accent-color:var(--indigo);width:15px;height:15px}
+.wrap{padding:30px 28px 72px;max-width:812px}
+@media (max-width:620px){.top,.wrap{padding-left:18px;padding-right:18px}}
+
+h1{font-family:var(--d);font-weight:600;font-size:25px;letter-spacing:-.02em;margin:0 0 6px;line-height:1.2}
+.lede{color:var(--muted);margin:0 0 26px;max-width:62ch}
+h2{font-family:var(--d);font-weight:600;font-size:16px;letter-spacing:-.01em;margin:30px 0 10px}
+
+.note{border-left:3px solid var(--indigo);background:var(--tint);padding:13px 15px;margin:0 0 24px;font-size:14px;max-width:66ch}
+.note b{font-family:var(--d);font-weight:600;display:block;margin-bottom:3px;font-size:13.5px}
+.note p{margin:0}
+.note.hidden{display:none}
+
+/* panels */
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin-bottom:18px}
+.scroll{overflow-x:auto}
+.phead{padding:14px 18px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.phead h3{font-family:var(--d);font-weight:600;font-size:15px;margin:0}
+.phead span{font-size:12.5px;color:var(--muted)}
+.pbody{padding:16px 18px}
+
+/* tiles */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:560px){.tiles{grid-template-columns:1fr}}
+.tile{all:unset;cursor:pointer;border:1px solid var(--rule);border-radius:9px;padding:14px 15px;background:var(--panel)}
+.tile:hover{border-color:var(--indigo)}
+.tile[aria-pressed="true"]{border-color:var(--indigo);background:rgba(74,71,255,.06);box-shadow:inset 0 0 0 1px var(--indigo)}
+.tile b{display:block;font-weight:600;font-size:14.5px}
+.tile small{color:var(--muted);font-size:13px}
+
+/* ledger table */
+table{width:100%;min-width:520px;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th{text-align:left;font-weight:500;font-size:12.5px;color:var(--muted);padding:9px 18px;border-bottom:1px solid var(--rule)}
+td{padding:11px 18px;border-bottom:1px solid var(--rule)}
+tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:var(--tint)}
+.num{text-align:right}
+td b{font-weight:500}
+.sub{display:block;color:var(--muted);font-size:12.5px}
+
+/* computation */
+.calc{min-width:560px}
+.calc th:last-child,.calc td:last-child{text-align:right}
+.calc tfoot td{border-top:2px solid var(--ink);border-bottom:0;font-weight:600;padding-top:13px;background:none}
+.band{font-family:var(--d);font-size:21px;font-weight:700;letter-spacing:-.02em}
+.model{font-size:13px;color:var(--amber);border:1px solid currentColor;border-radius:4px;padding:10px 12px;margin-top:14px;max-width:62ch}
+
+/* verdict head */
+.vhead{background:var(--ink);color:#fff;padding:20px 18px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vhead{background:#050817}}
+.vhead .lbl{font-size:12.5px;color:#9AA2C8}
+.vhead .score{font-family:var(--d);font-size:33px;font-weight:700;letter-spacing:-.025em;line-height:1.1;margin:2px 0 6px}
+.vhead p{margin:0;font-size:14.5px;color:#D3D7EA;max-width:60ch}
+.conf{display:inline-block;font-size:12.5px;color:var(--amber);border:1px solid currentColor;border-radius:99px;padding:1px 9px;margin-top:10px}
+
+/* evidence file */
+.keep{display:flex;gap:12px;align-items:flex-start;border:1px dashed var(--rule);border-radius:9px;padding:13px 15px;font-size:14px;margin-top:14px}
+.keep b{font-family:var(--d);font-weight:600;font-size:14px;display:block;margin-bottom:2px}
+.ver{font-size:13px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;margin-top:4px}
+.bullet{border-left:2px solid var(--rule);padding:2px 0 2px 14px;margin:12px 0}
+.bullet .was{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
+.bullet .now{margin-top:5px}
+
+.flag{color:var(--amber);font-weight:500}
+.ok{color:var(--good)}
+.btn{all:unset;cursor:pointer;background:var(--indigo);color:#fff;font-weight:600;font-size:14.5px;
+  padding:11px 18px;border-radius:8px;display:inline-block;margin-top:6px}
+.btn:hover{background:#3B38E6}
+.fine{font-size:12.5px;color:var(--muted);margin-top:9px}
+.view[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <nav class="rail" aria-label="Sections">
+    <div class="brand">Job Genie<span>app.job-genie.ai</span></div>
+    <div class="nav" role="tablist">
+      <button role="tab" data-view="start" aria-current="true">Start<small>Lower the first ask</small></button>
+      <button role="tab" data-view="verdict">Verdict<small>Published computation</small></button>
+      <button role="tab" data-view="evidence">Evidence file<small>Yours to keep</small></button>
+      <button role="tab" data-view="ledger">Silence ledger<small>The reply field</small></button>
+    </div>
+    <div class="railfoot">Prototype. Every figure shown is illustrative.</div>
+  </nav>
+
+  <main class="main">
+    <div class="top">
+      <div class="case">Programme Manager search, opened <b>14 September</b> — 63 applications recorded</div>
+      <label class="toggle"><input type="checkbox" id="notes" checked> Design notes</label>
+    </div>
+
+    <div class="wrap">
+
+      <!-- START -->
+      <section class="view" id="start">
+        <h1>What are you trying to change?</h1>
+        <p class="lede">One tap. It sets what the verdict is measured against — and nothing is uploaded yet.</p>
+
+        <div class="note"><b>Move 4 — lower the first ask</b>
+        <p>MyJobsSearch opens with a pasted job description. The current Autopsy opens with a résumé upload, which is the heaviest possible first step on cold traffic. Four taps come first here, so the upload arrives after the person can see where it goes.</p></div>
+
+        <div class="panel"><div class="pbody">
+          <div class="tiles">
+            <button class="tile" aria-pressed="true"><b>Get replies</b><small>Applications going unanswered</small></button>
+            <button class="tile"><b>Move up</b><small>Same field, more seniority</small></button>
+            <button class="tile"><b>Change direction</b><small>New field or function</small></button>
+            <button class="tile"><b>Leave quietly</b><small>Employed, searching discreetly</small></button>
+          </div>
+        </div></div>
+
+        <div class="panel">
+          <div class="phead"><h3>Worth pausing on</h3><span>after question three</span></div>
+          <div class="pbody">
+            <p style="margin:0 0 10px;color:var(--muted)">You said most of these went to public job boards, over about three months.</p>
+            <p style="margin:0 0 10px">That narrows things immediately. Three of the eight causes need a longer history to show up at all, so they're already unlikely for you.</p>
+            <p style="margin:0">It also means the channel is worth testing before the document is. There's no point rewriting a CV that's being read by the wrong people.</p>
+            <button class="btn">Keep going</button>
+          </div>
+        </div>
+
+        <div class="note"><b>Why this screen exists</b>
+        <p>It pays the person back for questions already answered, which is the main lever on mid-flow abandonment. It costs no new data and makes no new claim.</p></div>
+      </section>
+
+      <!-- VERDICT -->
+      <section class="view" id="verdict" hidden>
+        <h1>Your Application Silence Score</h1>
+        <p class="lede">The band, the three measurements behind it, and the arithmetic that turns one into the other.</p>
+
+        <div class="note"><b>Move 1 — publish the computation</b>
+        <p>Job Pal scores 0–100. MyJobsSearch grades a JD match. CareerForge scores out of 100. None of them publishes how. This panel is the thing none of them can copy without doing the work.</p></div>
+
+        <div class="panel">
+          <div class="vhead">
+            <div class="lbl">Application Silence Score</div>
+            <div class="score">HIGH</div>
+            <p>Channel mismatch is the strongest signal in your case. Your evidence reads well enough that the document is unlikely to be the first problem.</p>
+            <span class="conf">Moderate confidence — 63 applications, one channel dominant</span>
+          </div>
+          <div class="scroll"><table class="calc">
+            <thead><tr><th>Blocker</th><th>What we measured</th><th>Weight</th><th>Contribution</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><b>Channel mismatch</b><span class="sub">Where your applications went</span></td>
+                <td>81% public boards<span class="sub">against 34% typical at this seniority</span></td>
+                <td>0.45</td><td>36.5</td>
+              </tr>
+              <tr>
+                <td><b>Ghost-job exposure</b><span class="sub">Postings no longer being filled</span></td>
+                <td>9 of 63 unresolvable<span class="sub">reposted or withdrawn</span></td>
+                <td>0.20</td><td>2.9</td>
+              </tr>
+              <tr>
+                <td><b>Evidence legibility</b><span class="sub">Recruiter-Fit, 35 of 40</span></td>
+                <td>12.5% below band ceiling<span class="sub">two dimensions under 4</span></td>
+                <td>0.35</td><td>4.4</td>
+              </tr>
+            </tbody>
+            <tfoot><tr><td colspan="3">Combined</td><td class="band">43.8 = HIGH</td></tr></tfoot>
+          </table></div>
+          <div class="pbody" style="border-top:1px solid var(--rule)">
+            <p style="margin:0 0 8px;font-size:14px">Bands: under 15 LOW, 15 to 34 MEDIUM, 35 and above HIGH.</p>
+            <div class="model"><b>These weights are our own model.</b> No study establishes how these three factors should be balanced. We set them from what specialist recruiters describe as disqualifying, and we will revise them against outcome data as it accumulates — publishing the revision when we do.</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="phead"><h3>What we ruled out, and why</h3><span>four of eight causes</span></div>
+          <table>
+            <tbody>
+              <tr><td><b>Achievement legibility</b></td><td class="num">scored 4 of 5 — not it</td></tr>
+              <tr><td><b>Title lineage</b></td><td class="num">progression is clean</td></tr>
+              <tr><td><b>Active-candidate penalty</b></td><td class="num">too short a history</td></tr>
+              <tr><td><b>Role economics</b></td><td class="num">target band is realistic</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- EVIDENCE -->
+      <section class="view" id="evidence" hidden>
+        <h1>Your evidence file</h1>
+        <p class="lede">Built once from what you confirmed. Reused on every application. Yours whether or not you subscribe.</p>
+
+        <div class="note"><b>Move 2 — reframe the Truth Layer as something owned</b>
+        <p>MyJobsSearch calls theirs an Achievement Library: a store the user accumulates and returns to. Ours is currently a per-run output. Same artefact, different relationship — theirs is a thing you keep, ours is a thing you receive. The second is worth less for the same work.</p></div>
+
+        <div class="panel">
+          <div class="phead"><h3>Supplier reporting</h3><span>confirmed 22 September</span></div>
+          <div class="pbody">
+            <p style="margin:0 0 6px;font-size:13.5px;color:var(--muted)">We asked: what did you change about the weekly pack, and what happened afterwards?</p>
+            <div class="bullet">
+              <div class="was">Responsible for weekly supplier reporting.</div>
+              <div class="now">Consolidated six supplier reporting streams into a single tracker, removing about six hours of manual rework a week for a four-person finance team.</div>
+            </div>
+            <div class="ver"><span>Used in 11 applications</span><span>Last edited 29 September</span><span>Confirmed by you</span></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="phead"><h3>Vendor consolidation</h3><span>confirmed 22 September</span></div>
+          <div class="pbody">
+            <div class="bullet">
+              <div class="was">Managed vendor relationships across the portfolio.</div>
+              <div class="now">Renegotiated the three largest logistics contracts at renewal, holding rates flat against a proposed increase.</div>
+            </div>
+            <div class="ver"><span>Used in 7 applications</span><span>Last edited 24 September</span><span>Confirmed by you</span></div>
+          </div>
+        </div>
+
+        <div class="keep">
+          <div><b>This file is yours</b>
+          Export it any time as Word, PDF or plain text. If you cancel, it stays in your account and the export stays open. We don't hold your evidence hostage to a subscription.</div>
+        </div>
+      </section>
+
+      <!-- LEDGER -->
+      <section class="view" id="ledger" hidden>
+        <h1>Silence ledger</h1>
+        <p class="lede">Every application, and how long it has been quiet. Replies arrive from your inbox or a forwarding address.</p>
+
+        <div class="note"><b>Move 3 — the reply field</b>
+        <p>Five competitors ship an application tracker: CareerForge, dojob, Submit4Me, Job Pal, MyJobsSearch. None of them records whether anyone replied. That column is the whole difference, and the inference built on top of it is the part that can't be copied in a sprint.</p></div>
+
+        <div class="panel">
+          <div class="phead"><h3>63 applications</h3><span>31 silent past day 10</span></div>
+          <div class="scroll"><table>
+            <thead><tr><th>Role</th><th>Sent</th><th>Channel</th><th>Reply</th><th class="num">Silent for</th></tr></thead>
+            <tbody>
+              <tr><td><b>Programme Manager</b><span class="sub">Retail bank</span></td><td>12 Sep</td><td>Job board</td><td><span class="flag">No acknowledgement</span></td><td class="num flag">19 days</td></tr>
+              <tr><td><b>Senior PM, Transformation</b><span class="sub">Insurer</span></td><td>15 Sep</td><td>Job board</td><td>Auto-acknowledgement only</td><td class="num flag">16 days</td></tr>
+              <tr><td><b>Delivery Lead</b><span class="sub">Logistics group</span></td><td>18 Sep</td><td>Specialist agency</td><td class="ok">Recruiter replied, 2 days</td><td class="num">—</td></tr>
+              <tr><td><b>PMO Manager</b><span class="sub">Utilities</span></td><td>21 Sep</td><td>Careers page</td><td>Rejected after 9 days</td><td class="num">—</td></tr>
+              <tr><td><b>Programme Manager</b><span class="sub">Healthcare provider</span></td><td>26 Sep</td><td>Job board</td><td>Auto-acknowledgement only</td><td class="num">5 days</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+
+        <div class="panel">
+          <div class="phead"><h3>What the pattern suggests</h3><span>day 10 and beyond</span></div>
+          <div class="pbody">
+            <table>
+              <tbody>
+                <tr><td><b>No acknowledgement at all</b></td><td>Never entered the system, or the board submission stopped there</td></tr>
+                <tr><td><b>Auto-acknowledgement, then nothing</b></td><td>Ranked below the point where recruiters stopped reading</td></tr>
+                <tr><td><b>Rejected within two days</b></td><td>A near-automated screen decision</td></tr>
+                <tr><td><b>Rejected after a week or more</b></td><td>A person looked, and passed</td></tr>
+              </tbody>
+            </table>
+            <div class="model" style="margin-top:16px"><b>Ten days is our threshold, not a finding.</b> We chose it because it sits past the typical acknowledgement window and short of the point where most people give up. We'll revise it once the ledger holds enough applications to show where replies actually stop.</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+const views=[...document.querySelectorAll('.view')];
+const tabs=[...document.querySelectorAll('.nav button')];
+tabs.forEach(b=>b.onclick=()=>{
+  tabs.forEach(x=>x.setAttribute('aria-current', x===b ? 'true':'false'));
+  views.forEach(v=>v.hidden = v.id!==b.dataset.view);
+  window.scrollTo({top:0,behavior:'instant'});
+});
+document.querySelectorAll('.tile').forEach(t=>t.onclick=()=>{
+  t.parentNode.querySelectorAll('.tile').forEach(x=>x.setAttribute('aria-pressed','false'));
+  t.setAttribute('aria-pressed','true');
+});
+const chk=document.getElementById('notes');
+chk.onchange=()=>document.querySelectorAll('.note').forEach(n=>n.classList.toggle('hidden',!chk.checked));
+</script>
+</body>
+</html>
