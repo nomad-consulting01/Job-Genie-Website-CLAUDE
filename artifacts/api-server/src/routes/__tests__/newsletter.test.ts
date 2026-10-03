@@ -71,13 +71,13 @@ describe("Free Autopsy newsletter signup", () => {
     const [createUrl, createOptions] = beehiiv.mock.calls[1];
     expect(String(createUrl)).toContain("/subscriptions");
     const payload = JSON.parse(createOptions.body);
-    expect(payload.automation_ids).toEqual(["aut_0e902f78-459f-4e37-8850-906ba78d1c23"]);
+    expect(payload.automation_ids).toEqual(["aut_badd5896-ca28-4019-9eed-a16f0aa58465"]);
     expect(payload.utm_source).toBe("referral");
     expect(payload.utm_medium).toBe("partner");
     expect(payload.utm_campaign).toBe("fall");
     expect(payload.custom_fields).toContainEqual({ name: "First Name", value: "Alex" });
     expect(payload.custom_fields).toContainEqual({ name: "visitor_id", value: "visitor-1" });
-    expect(String(beehiiv.mock.calls[2][0])).toContain("/automations/aut_0e902f78-459f-4e37-8850-906ba78d1c23/journeys");
+    expect(String(beehiiv.mock.calls[2][0])).toContain("/automations/aut_badd5896-ca28-4019-9eed-a16f0aa58465/journeys");
   });
 
   it("does not enroll unrelated newsletter forms", async () => {
@@ -126,6 +126,7 @@ describe("Free Autopsy newsletter signup", () => {
     const enrollCalls = beehiiv.mock.calls.filter(([path, options]) =>
       String(path).endsWith("/journeys") && options?.method === "POST");
     expect(enrollCalls).toHaveLength(1);
+    expect(String(enrollCalls[0][0])).toContain("/automations/aut_badd5896-ca28-4019-9eed-a16f0aa58465/journeys");
     expect(JSON.parse(enrollCalls[0][1].body)).toEqual({ subscription_id: "sub_existing" });
   });
 
