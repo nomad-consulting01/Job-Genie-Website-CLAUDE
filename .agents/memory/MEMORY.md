@@ -12,5 +12,6 @@
 - [Dual blog head renderers](dual-blog-head-renderers.md) — blog SEO/JSON-LD is generated in BOTH entry-server.tsx (prerender) and blog-html.ts (dynamic); changes must land in both + rebuild.
 - [Facebook blog cards](facebook-blog-cards.md) — publish blog shares through /feed as link cards; /photos creates a different native-photo layout.
 - [Autopsy CTA destination](autopsy-cta-destination.md) — marketing CTAs intentionally route to branded email signup, not the separate working diagnostic app.
+- [Autopsy live verification](autopsy-live-verification.md) — signup 502 can coexist with a delivered fork email; verify the published handler and diagnose without new enrollments.
 - [Static directory route redirects](static-directory-route-redirects.md) — production static pages redirect extensionless URLs to trailing-slash directory indexes; audit with redirects followed.
 - [Citable hiring statistics](citable-hiring-statistics.md) — never present application-volume or ATS-interview results as a ghost-job prevalence estimate; name each study's population and limits.

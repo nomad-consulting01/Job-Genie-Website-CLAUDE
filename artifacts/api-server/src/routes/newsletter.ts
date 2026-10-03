@@ -1,16 +1,16 @@
 import { Router } from "express";
 import { SubscribeNewsletterBody } from "@workspace/api-zod";
-import { getDb } from "../db/sqlite.js";
 import { logger } from "../lib/logger.js";
 
 const router = Router();
 const AUTOPSY_PUBLICATION_ID = "pub_af7c9c60-c55a-4f88-9c44-dc48b00d147f";
-const AUTOPSY_AUTOMATION_ID = "aut_0e902f78-459f-4e37-8850-906ba78d1c23";
+const AUTOPSY_AUTOMATION_ID = "aut_badd5896-ca28-4019-9eed-a16f0aa58465";
+const NEWSLETTER_HANDLER = "fork-journey-precheck";
 const BEEHIIV_BASE = "https://api.beehiiv.com/v2";
 
-async function autopsyJourneyExists(publicationId: string, subscriptionId: string, apiKey: string): Promise<boolean> {
+async function autopsyJourneyExists(publicationId: string, subscriptionId: string, apiKey: string, attempts = 4): Promise<boolean> {
   // Beehiiv may not expose the new journey immediately after subscription creation.
-  for (let attempt = 0; attempt < 4; attempt++) {
+  for (let attempt = 0; attempt < attempts; attempt++) {
     if (attempt) await new Promise((resolve) => setTimeout(resolve, 500));
     for (let page = 1; ; page++) {
       const response = await fetch(
@@ -19,10 +19,22 @@ async function autopsyJourneyExists(publicationId: string, subscriptionId: strin
       );
       if (!response.ok) throw new Error(`Beehiiv journey lookup failed (HTTP ${response.status})`);
       const result = await response.json() as { data?: { subscription_id?: string }[]; total_pages?: number };
-      if (!Array.isArray(result.data) || (result.total_pages !== undefined && !Number.isInteger(result.total_pages))) {
+      if (!Array.isArray(result.data) ||
+          result.data.some((journey) => typeof journey?.subscription_id !== "string") ||
+          (result.total_pages !== undefined && (!Number.isInteger(result.total_pages) || result.total_pages < 0))) {
         throw new Error("Beehiiv journey lookup returned an invalid response");
       }
-      if (result.data.some((journey) => journey.subscription_id === subscriptionId)) return true;
+      const matched = result.data.some((journey) => journey.subscription_id === subscriptionId);
+      logger.info({
+        automationId: AUTOPSY_AUTOMATION_ID,
+        handler: NEWSLETTER_HANDLER,
+        attempt: attempt + 1,
+        page,
+        returnedJourneys: result.data.length,
+        totalPages: result.total_pages,
+        matched,
+      }, "Autopsy journey verification");
+      if (matched) return true;
       if (page >= (result.total_pages ?? 1)) break;
     }
   }
@@ -30,6 +42,11 @@ async function autopsyJourneyExists(publicationId: string, subscriptionId: strin
 }
 
 router.post("/newsletter", async (req, res) => {
+  // A harmless invalid-payload probe identifies the running production handler
+  // without subscribing anyone or revealing credentials/subscriber information.
+  res.setHeader("X-Autopsy-Automation-Id", AUTOPSY_AUTOMATION_ID);
+  res.setHeader("X-Newsletter-Handler", NEWSLETTER_HANDLER);
+  res.setHeader("Cache-Control", "no-store");
   const parse = SubscribeNewsletterBody.safeParse(req.body);
   if (!parse.success) {
     return res.status(400).json({ error: "Invalid newsletter payload" });
@@ -62,6 +79,12 @@ router.post("/newsletter", async (req, res) => {
         existingSubscriptionId = result.data.find((subscriber) =>
           subscriber.email?.toLowerCase() === email.toLowerCase() && subscriber.status === "active"
         )?.id;
+        if (existingSubscriptionId &&
+            await autopsyJourneyExists(publicationId, existingSubscriptionId, BEEHIIV_API_KEY, 1)) {
+          // Never call create/enroll again when the fork already contains a
+          // journey (including a completed journey). Retests must be read-only.
+          return res.json({ ok: true, message: "Successfully subscribed" });
+        }
       }
       const beehiivRes = await fetch(
         `${BEEHIIV_BASE}/publications/${publicationId}/subscriptions`,
@@ -128,11 +151,11 @@ router.post("/newsletter", async (req, res) => {
           );
           // Another request may have enrolled the same subscriber in parallel.
           // Re-read in either case; only a visible journey counts as success.
-          if (!enroll.ok) logger.warn({ status: enroll.status }, "Beehiiv existing-subscriber enrollment failed");
+          if (!enroll.ok) logger.warn({ status: enroll.status, automationId: AUTOPSY_AUTOMATION_ID, handler: NEWSLETTER_HANDLER }, "Beehiiv existing-subscriber enrollment failed");
           hasJourney = await autopsyJourneyExists(publicationId, subscriptionId, BEEHIIV_API_KEY);
         }
         if (!hasJourney) {
-          logger.error("Free Autopsy subscription created without a verified automation journey");
+          logger.error({ automationId: AUTOPSY_AUTOMATION_ID, handler: NEWSLETTER_HANDLER }, "Free Autopsy subscription created without a verified automation journey");
           return res.status(502).json({ ok: false, error: "Welcome sequence not confirmed — please contact support" });
         }
       }

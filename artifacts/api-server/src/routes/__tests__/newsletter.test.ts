@@ -11,7 +11,7 @@ vi.mock("@workspace/api-zod", () => ({
   },
 }));
 vi.mock("../../lib/logger.js", () => ({
-  logger: { warn: vi.fn(), error: vi.fn() },
+  logger: { warn: vi.fn(), error: vi.fn(), info: vi.fn() },
 }));
 
 let server: Server;
@@ -53,6 +53,18 @@ async function submit(page_slug: string) {
 }
 
 describe("Free Autopsy newsletter signup", () => {
+  it("identifies the running handler without a subscription side effect", async () => {
+    const beehiiv = vi.fn();
+    vi.stubGlobal("fetch", (input: string | URL | Request, init?: RequestInit) =>
+      String(input) === url ? globalFetch(input, init) : beehiiv(input, init));
+    const result = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+    expect(result.status).toBe(400);
+    expect(result.headers.get("x-autopsy-automation-id")).toBe("aut_badd5896-ca28-4019-9eed-a16f0aa58465");
+    expect(result.headers.get("x-newsletter-handler")).toBe("fork-journey-precheck");
+    expect(result.headers.get("cache-control")).toBe("no-store");
+    expect(beehiiv).not.toHaveBeenCalled();
+  });
+
   it.each(["/free-autopsy3", "/free-autopsy4", "/free-autopsy4/"])("enrolls %s visitors in the Autopsy journey", async (slug) => {
     const beehiiv = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({ data: [] }), { status: 200 }))
@@ -67,7 +79,7 @@ describe("Free Autopsy newsletter signup", () => {
     expect(result.status).toBe(200);
     expect(beehiiv).toHaveBeenCalledTimes(3);
     expect(JSON.parse(beehiiv.mock.calls[1][1].body).automation_ids)
-      .toEqual(["aut_0e902f78-459f-4e37-8850-906ba78d1c23"]);
+      .toEqual(["aut_badd5896-ca28-4019-9eed-a16f0aa58465"]);
   });
 
   it("enrolls a new CTA signup and confirms its journey, retaining attribution", async () => {
@@ -88,13 +100,13 @@ describe("Free Autopsy newsletter signup", () => {
     const [createUrl, createOptions] = beehiiv.mock.calls[1];
     expect(String(createUrl)).toContain("/subscriptions");
     const payload = JSON.parse(createOptions.body);
-    expect(payload.automation_ids).toEqual(["aut_0e902f78-459f-4e37-8850-906ba78d1c23"]);
+    expect(payload.automation_ids).toEqual(["aut_badd5896-ca28-4019-9eed-a16f0aa58465"]);
     expect(payload.utm_source).toBe("referral");
     expect(payload.utm_medium).toBe("partner");
     expect(payload.utm_campaign).toBe("fall");
     expect(payload.custom_fields).toContainEqual({ name: "First Name", value: "Alex" });
     expect(payload.custom_fields).toContainEqual({ name: "visitor_id", value: "visitor-1" });
-    expect(String(beehiiv.mock.calls[2][0])).toContain("/automations/aut_0e902f78-459f-4e37-8850-906ba78d1c23/journeys");
+    expect(String(beehiiv.mock.calls[2][0])).toContain("/automations/aut_badd5896-ca28-4019-9eed-a16f0aa58465/journeys");
   });
 
   it("does not enroll unrelated newsletter forms", async () => {
@@ -126,6 +138,7 @@ describe("Free Autopsy newsletter signup", () => {
       .mockResolvedValueOnce(new Response(JSON.stringify({ data: [
         { id: "sub_existing", email: "new-signup@example.com", status: "active" },
       ] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [], total_pages: 1 }), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ data: { id: "sub_existing" } }), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ data: [], total_pages: 1 }), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ data: [], total_pages: 1 }), { status: 200 }))
@@ -146,23 +159,58 @@ describe("Free Autopsy newsletter signup", () => {
     expect(JSON.parse(enrollCalls[0][1].body)).toEqual({ subscription_id: "sub_existing" });
   });
 
-  it("does not re-enroll an existing subscriber who already has a journey", async () => {
+  it.each(["in_progress", "completed"])("does not write to Beehiiv for an existing subscriber with a %s journey", async (journeyStatus) => {
     const beehiiv = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({ data: [
         { id: "sub_existing", email: "new-signup@example.com", status: "active" },
       ] }), { status: 200 }))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ data: { id: "sub_existing" } }), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({
-        data: [{ subscription_id: "sub_existing", status: "in_progress" }], total_pages: 1,
+        data: [{ subscription_id: "sub_existing", status: journeyStatus }], total_pages: 1,
       }), { status: 200 }));
     vi.stubGlobal("fetch", (input: string | URL | Request, init?: RequestInit) =>
       String(input) === url ? globalFetch(input, init) : beehiiv(input, init));
 
     const result = await submit("/free-autopsy");
     expect(result.status).toBe(200);
-    expect(beehiiv).toHaveBeenCalledTimes(3);
-    expect(beehiiv.mock.calls.some(([path, options]) =>
-      String(path).endsWith("/journeys") && options?.method === "POST")).toBe(false);
+    expect(beehiiv).toHaveBeenCalledTimes(2);
+    expect(beehiiv.mock.calls.every(([, options]) => !options?.method || options.method === "GET")).toBe(true);
+    expect(result.headers.get("x-autopsy-automation-id")).toBe("aut_badd5896-ca28-4019-9eed-a16f0aa58465");
+    expect(result.headers.get("x-newsletter-handler")).toBe("fork-journey-precheck");
+  });
+
+  it("finds an existing fork journey on a later page without an enrollment write", async () => {
+    const beehiiv = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [
+        { id: "sub_existing", email: "new-signup@example.com", status: "active" },
+      ] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        data: [{ subscription_id: "sub_other" }], total_pages: 2,
+      }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        data: [{ subscription_id: "sub_existing" }], total_pages: 2,
+      }), { status: 200 }));
+    vi.stubGlobal("fetch", (input: string | URL | Request, init?: RequestInit) =>
+      String(input) === url ? globalFetch(input, init) : beehiiv(input, init));
+    const result = await submit("/free-autopsy4");
+    expect(result.status).toBe(200);
+    expect(String(beehiiv.mock.calls[2][0])).toContain("page=2");
+    expect(beehiiv.mock.calls.every(([, options]) => !options?.method || options.method === "GET")).toBe(true);
+  });
+
+  it("fails explicitly on a malformed journey response instead of trying to enroll again", async () => {
+    const beehiiv = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [
+        { id: "sub_existing", email: "new-signup@example.com", status: "active" },
+      ] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        data: [{ id: "journey_without_subscription_id" }], total_pages: 1,
+      }), { status: 200 }));
+    vi.stubGlobal("fetch", (input: string | URL | Request, init?: RequestInit) =>
+      String(input) === url ? globalFetch(input, init) : beehiiv(input, init));
+    const result = await submit("/free-autopsy");
+    expect(result.status).toBe(502);
+    expect(beehiiv).toHaveBeenCalledTimes(2);
+    expect(beehiiv.mock.calls.every(([, options]) => !options?.method || options.method === "GET")).toBe(true);
   });
 });
 
