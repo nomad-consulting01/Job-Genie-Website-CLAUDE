@@ -5,7 +5,7 @@ import { logger } from "../lib/logger.js";
 
 const router = Router();
 const AUTOPSY_PUBLICATION_ID = "pub_af7c9c60-c55a-4f88-9c44-dc48b00d147f";
-const AUTOPSY_AUTOMATION_ID = "aut_0e902f78-459f-4e37-8850-906ba78d1c23";
+const AUTOPSY_AUTOMATION_ID = "aut_badd5896-ca28-4019-9eed-a16f0aa58465";
 const BEEHIIV_BASE = "https://api.beehiiv.com/v2";
 
 async function autopsyJourneyExists(publicationId: string, subscriptionId: string, apiKey: string): Promise<boolean> {
