@@ -5,6 +5,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Keep blog sections readable in both prerendered and browser-rendered articles. */
+.blog-article-content :is(h1, h2, h3, h4, h5, h6) {
+  margin: 2rem 0 1rem;
+}
+
+.blog-article-content :is(p, ul, ol) {
+  margin: 0 0 1.5rem;
+}
+
 @theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));

@@ -302,6 +302,10 @@ function buildBlogPostHtml(opts: {
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   ${spaScripts}
+  <style>
+    .blog-article-content :is(h1, h2, h3, h4, h5, h6) { margin: 2rem 0 1rem; }
+    .blog-article-content :is(p, ul, ol) { margin: 0 0 1.5rem; }
+  </style>
 </head>
 <body>
   <div id="root" data-ssr="true">
@@ -320,7 +324,7 @@ function buildBlogPostHtml(opts: {
         <p style="font-size:14px;color:#e5e7eb;line-height:1.7;margin:0">${esc(opts.answerFirstBlock)}</p>
       </section>`
         : ""}
-      <div style="font-size:15px;color:#d1d5db;line-height:1.8">
+      <div class="blog-article-content" style="font-size:15px;color:#d1d5db;line-height:1.8">
         ${opts.contentHtml}
       </div>
       ${buildDirectResponseHtml(opts.directResponse ?? null)}

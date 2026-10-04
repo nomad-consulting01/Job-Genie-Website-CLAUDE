@@ -204,7 +204,7 @@ export default function BlogPost() {
           </div>
 
           {/* Main content */}
-          <article className="prose prose-sm max-w-none
+          <article className="blog-article-content prose prose-sm max-w-none
             prose-headings:font-semibold prose-headings:text-gray-900
             prose-h1:text-3xl prose-h1:mb-6 prose-h1:leading-tight
             prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:text-gray-900

@@ -424,7 +424,7 @@ function StaticBlogPost({ post, question, answer, directResponse }: BlogPostSSRD
             <p>{answer.answerFirstBlock}</p>
           </section>
         )}
-        <article>
+        <article className="blog-article-content">
           <ReactMarkdown>{post.content}</ReactMarkdown>
         </article>
         {question.painPointTags.length > 0 && (
