@@ -39,6 +39,9 @@
 .value-table tbody td{color:var(--w60)}
 .value-table tbody td strong{display:block;color:var(--w80);font-weight:600;margin-bottom:3px}
 .value-table em{color:var(--amber);font-style:normal;font-weight:600}
+.value-table sup a{color:var(--teal);margin-left:3px;text-decoration:underline;text-underline-offset:2px}
+.value-stack-methodology{margin-top:18px;padding-top:16px;border-top:1px solid var(--w06);color:var(--w60);font-size:12px;line-height:1.7;scroll-margin-top:76px}
+.value-stack-methodology strong{color:var(--w80)}
 .value-stack-close{margin-top:19px;text-align:right;font:700 14px var(--fd);color:var(--wh)}
 .free-either{max-width:940px;margin:0 auto 34px;display:flex;align-items:flex-start;gap:15px;padding:19px 22px;border-radius:13px;background:rgba(45,212,191,.055);border:1px solid rgba(45,212,191,.2)}
 .free-either p{color:var(--w60);font-size:13px;line-height:1.7}.free-either strong{color:var(--teal)}
