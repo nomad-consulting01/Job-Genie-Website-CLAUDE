@@ -7,6 +7,8 @@ import { SEO } from "../components/SEO";
 import { NewsletterForm } from "../components/NewsletterForm";
 import { SITE_URL } from "@workspace/site-config";
 
+const HOMEPAGE_CTA_URL = `${SITE_URL}/free-autopsy/`;
+
 function useScrollReveal() {
   useEffect(() => {
     const els = document.querySelectorAll(".r");
@@ -193,7 +195,7 @@ function FAQAccordion({ faqOrder }: { faqOrder?: string[] }) {
   );
 }
 
-function StickyBar() {
+function StickyBar({ ctaUrl = "/free-autopsy" }: { ctaUrl?: string }) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -215,7 +217,7 @@ function StickyBar() {
             300,000+ live recruiter roles. <strong>Most candidates never find them.</strong> Your free Autopsy shows you why — and where you fit.
           </p>
           <a
-            href="/free-autopsy"
+            href={ctaUrl}
             className="btn bp bsm"
             onClick={() => trackEvent("free_autopsy_click", { location: "sticky_bar" })}
           >
@@ -227,7 +229,8 @@ function StickyBar() {
   );
 }
 
-export function PageContent({ variant = {}, experimentId, variantId }: { variant?: any; experimentId?: string; variantId?: string }) {
+export function PageContent({ variant = {}, experimentId, variantId, homepageCtas = false }: { variant?: any; experimentId?: string; variantId?: string; homepageCtas?: boolean }) {
+  const ctaUrl = homepageCtas ? HOMEPAGE_CTA_URL : "/free-autopsy";
   useScrollReveal();
   useScrollNav();
   useEngagementTracking({ slug: variant.slug, experimentId, variantId });
@@ -326,7 +329,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           <li><a href="/blog">Blog</a></li>
           <li><a href="/qa">FAQ</a></li>
           <li>
-            <a href="/free-autopsy" className="btn bg bsm" style={{ color: "var(--wh)" }} onClick={() => trackEvent("free_autopsy_click", { location: "nav" })}>
+            <a href={ctaUrl} className="btn bg bsm" style={{ color: "var(--wh)" }} onClick={() => trackEvent("free_autopsy_click", { location: "nav" })}>
               {ctaPrimary}
             </a>
           </li>
@@ -389,7 +392,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           )}
 
           <a
-            href="/free-autopsy"
+            href={ctaUrl}
             className="btn bg"
             style={{ color: "var(--wh)", marginTop: "8px", textAlign: "center" }}
             onClick={() => { setMobileOpen(false); trackEvent("free_autopsy_click", { location: "mob_nav" }); }}
@@ -414,10 +417,10 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
               <div className="pq">{quote}</div>
               <p className="hsub">{subheadline}</p>
               <div className="hact">
-                <a href="/free-autopsy" className="btn bp" onClick={() => trackEvent("hero_cta_click", { location: "hero_primary" })}>
+                <a href={ctaUrl} className="btn bp" onClick={() => trackEvent("hero_cta_click", { location: "hero_primary" })}>
                   {ctaPrimary}
                 </a>
-                <a href="#how" className="btn bg" onClick={() => trackEvent("secondary_cta_click", { location: "hero" })}>
+                <a href={homepageCtas ? ctaUrl : "#how"} className="btn bg" onClick={() => trackEvent("secondary_cta_click", { location: "hero" })}>
                   {ctaSecondary}
                 </a>
               </div>
@@ -434,7 +437,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                   <div className="bk"><span className="bd a"></span><div><p className="bt">Ghost job exposure — some of these roles were no longer being filled</p><p className="bs">Listings no longer actively being filled</p></div></div>
                   <div className="bk"><span className="bd a"></span><div><p className="bt">Resume not positioned for recruiter pitchability</p><p className="bs">Role alignment score: 44% — below shortlist threshold</p></div></div>
                 </div>
-                <a href="/free-autopsy" className="btn bp" style={{ width: "100%", justifyContent: "center", marginTop: "16px", fontSize: "14px" }} onClick={() => trackEvent("free_autopsy_click", { location: "hero_card" })}>
+                <a href={ctaUrl} className="btn bp" style={{ width: "100%", justifyContent: "center", marginTop: "16px", fontSize: "14px" }} onClick={() => trackEvent("free_autopsy_click", { location: "hero_card" })}>
                   Run My Free Autopsy
                 </a>
               </div>
@@ -611,7 +614,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             </div>
           </div>
           <div className="r d2" style={{ textAlign: "center", marginTop: "52px" }}>
-            <a href="/free-autopsy" className="btn bp" style={{ fontSize: "16px", padding: "17px 34px" }} onClick={() => trackEvent("truth_layer_cta_click")}>Start with the Free Autopsy</a>
+            <a href={ctaUrl} className="btn bp" style={{ fontSize: "16px", padding: "17px 34px" }} onClick={() => trackEvent("truth_layer_cta_click")}>Start with the Free Autopsy</a>
             <p style={{ marginTop: "12px", fontSize: "12px", color: "var(--w40)" }}>The Truth Layer is a Pro feature; start by signing up for the free Autopsy.</p>
           </div>
         </div>
@@ -633,7 +636,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             <div className="buli"><span className="buln">06</span><p className="bult">The 3 gaps between your resume and the recruiter's brief — and the exact language that closes each one</p></div>
           </div>
           <div className="r d3" style={{ textAlign: "center", marginTop: "52px" }}>
-            <a href="/free-autopsy" className="btn bp" style={{ fontSize: "17px", padding: "17px 34px" }} onClick={() => trackEvent("free_autopsy_click", { location: "bullets" })}>
+            <a href={ctaUrl} className="btn bp" style={{ fontSize: "17px", padding: "17px 34px" }} onClick={() => trackEvent("free_autopsy_click", { location: "bullets" })}>
               Get My Free Autopsy — See All Six
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
             </a>
@@ -864,7 +867,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
           </div>
           <FAQAccordion faqOrder={faqOrder} />
           <div className="r d3" style={{ textAlign: "center", marginTop: "48px" }}>
-            <a href="/free-autopsy" className="btn bp" style={{ fontSize: "16px", padding: "16px 32px" }} onClick={() => trackEvent("free_autopsy_click", { location: "faq" })}>
+            <a href={ctaUrl} className="btn bp" style={{ fontSize: "16px", padding: "16px 32px" }} onClick={() => trackEvent("free_autopsy_click", { location: "faq" })}>
               Get My Free Application Autopsy
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
             </a>
@@ -895,7 +898,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Not included: Truth Layer resume rewrite</span></li>
                 <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Not included: Recruiter-Ready Brief</span></li>
               </ul>
-              <a href="/free-autopsy" className="btn bg" style={{ width: "100%", justifyContent: "center" }} onClick={() => { trackEvent("free_autopsy_click", { location: "pricing_free" }); trackEvent("pricing_cta_click", { location: "pricing_free" }); }}>Claim My Free Autopsy</a>
+              <a href={ctaUrl} className="btn bg" style={{ width: "100%", justifyContent: "center" }} onClick={() => { trackEvent("free_autopsy_click", { location: "pricing_free" }); trackEvent("pricing_cta_click", { location: "pricing_free" }); }}>Claim My Free Autopsy</a>
             </div>
             <div className="pc ft r d1">
               <div className="pbg">Most Popular</div>
@@ -913,7 +916,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg><strong style={{ color: "var(--wh)" }}>Recruiter-Ready Brief</strong> — with every rewrite</li>
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>Unlimited Excel, CSV &amp; Word downloads</li>
               </ul>
-              <a href="/free-autopsy" className="btn bp" style={{ width: "100%", justifyContent: "center" }} onClick={() => trackEvent("pricing_cta_click", { location: "pricing_pro" })}>Start with Free Autopsy</a>
+              <a href={ctaUrl} className="btn bp" style={{ width: "100%", justifyContent: "center" }} onClick={() => trackEvent("pricing_cta_click", { location: "pricing_pro" })}>Start with Free Autopsy</a>
             </div>
           </div>
         </div>
@@ -930,13 +933,22 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
             )}
             <p className="blg r d2" style={{ maxWidth: "540px", margin: "0 auto 40px" }}>Silence is not random. It is a signal — one you can read, fix, and reverse.</p>
             <div className="r d3" style={{ display: "flex", justifyContent: "center", gap: "14px", flexWrap: "wrap", flexDirection: "column", alignItems: "center" }}>
-              <a href="/free-autopsy" className="btn bp" style={{ fontSize: "18px", padding: "18px 36px" }} onClick={() => trackEvent("free_autopsy_click", { location: "final_cta", experiment_id: ctaBtnExp.experimentId, variant_id: ctaBtnExp.variantId })}>
+              <a href={ctaUrl} className="btn bp" style={{ fontSize: "18px", padding: "18px 36px" }} onClick={() => trackEvent("free_autopsy_click", { location: "final_cta", experiment_id: ctaBtnExp.experimentId, variant_id: ctaBtnExp.variantId })}>
                 {ctaPrimary}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
               </a>
               <div className="mt-8 w-full max-w-sm">
-                <p className="text-sm text-zinc-400 mb-2">Or join our newsletter for weekly recruiter insights:</p>
-                <NewsletterForm />
+                {homepageCtas ? (
+                  <>
+                    <p className="text-sm text-zinc-400 mb-2">Get the free Application Autopsy email series:</p>
+                    <a href={ctaUrl} className="btn bg" data-testid="button-home-newsletter-cta" onClick={() => trackEvent("free_autopsy_click", { location: "newsletter" })}>Get Free Autopsy Emails</a>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-zinc-400 mb-2">Or join our newsletter for weekly recruiter insights:</p>
+                    <NewsletterForm />
+                  </>
+                )}
               </div>
             </div>
             <p className="ctaps r d4"><strong>No account. No credit card.</strong> Takes 2 minutes. Results are immediate.<br /><br />P.S. — Right now, 300,000+ specialist recruiter roles are live — many of them never appearing on public job boards. Your free Autopsy is the fastest way to know which ones you actually have a shot at — and exactly why the Truth Layer will make you pitchable for them.</p>
@@ -997,7 +1009,7 @@ export function PageContent({ variant = {}, experimentId, variantId }: { variant
         </div>
       </footer>
 
-      <StickyBar />
+      <StickyBar ctaUrl={ctaUrl} />
     </>
   );
 }
@@ -1029,7 +1041,7 @@ export default function Home() {
         pageType="home"
         aeoQuestion="Why do my job applications keep going silent?"
       />
-      <PageContent variant={variant} experimentId="home_headline_test" variantId={exp?.id} />
+      <PageContent variant={variant} experimentId="home_headline_test" variantId={exp?.id} homepageCtas />
     </>
   );
 }
