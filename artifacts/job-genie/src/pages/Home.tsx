@@ -154,7 +154,7 @@ function FAQAccordion({ faqOrder }: { faqOrder?: string[] }) {
     { id: "ghost_jobs", q: "Are ghost jobs real, or am I imagining it?", a: "Ghost jobs are listings posted without an immediate intent to hire, including roles kept open for future pipelines. There is no reliable percentage here for how many currently advertised jobs fit that definition. Job Genie checks recruiter-held listings for active signals so you can focus on roles that appear to be moving." },
     { id: "real_job", q: "How can I tell if a job posting is real before I waste time applying?", a: "Watch for the tells: the same role reposted for months, vague responsibilities with no named hiring manager, generic boilerplate, or one company hiring dozens of identical seats. Real, fillable roles tend to have a specific owner, a recent post date, and concrete scope. Job Genie screens specialist-recruiter listings so you spend energy on roles actually being filled — not ghost postings." },
     { id: "ats", q: "Does my resume really get auto-rejected by ATS bots?", a: "Mostly myth, partly true. Most recruiters do not run AI detectors or auto-reject the instant a resume arrives — they do not have the time or budget. But applicant tracking systems do parse, rank, and deprioritise: legacy systems on exact keyword matches, modern systems on semantic concept-matching. The real risk is not instant deletion — it is quietly ranking below better-matched profiles. The fix is a resume written in the language of the role and the recruiter, not keyword-stuffed." },
-    { id: "tailor", q: "Do I really have to tailor my resume for every single job?", a: "Tailoring to the job post has hit diminishing returns: when everyone uses the same AI to mirror the same description, tailored resumes look identical and recruiters stop trusting surface alignment. The higher-leverage move is tailoring to the recruiter shortlist — the handful of candidates a specialist recruiter will actually represent. Job Genie's Truth Layer rewrite optimises for recruiter-fit rather than the keyword-mirroring you can no longer win on." },
+    { id: "tailor", q: "Do I really have to tailor my resume for every single job?", a: "Tailoring to the job post has hit diminishing returns: when everyone uses the same AI to mirror the same description, tailored resumes look identical and recruiters stop trusting surface alignment. The higher-leverage move is tailoring to the recruiter shortlist — the handful of candidates a specialist recruiter will actually represent. Job Genie's Evidence layer rewrite optimises for recruiter-fit rather than the keyword-mirroring you can no longer win on." },
     { id: "auto_apply", q: "Should I use an AI tool to auto-apply to hundreds of jobs?", a: "Almost certainly not. Auto-apply tools drop you straight into the pile recruiters have stopped reading — thousands of look-alike applications per role that signal low intent. In 2026 the winning move is the opposite: fewer, higher-fit applications aimed at roles genuinely being filled, with a profile a recruiter can shortlist. Quantity is exactly the strategy the broken system punishes." },
     { id: "targeted", q: "Is it better to apply to more jobs or fewer, better-targeted ones?", a: "Fewer and better-targeted, decisively. More applications mean more noise, lower per-application odds, and a higher chance of being screened out as spam. Targeted applications to real roles where you clear the recruiter-fit bar convert far better. Job Genie is built around this — it finds the roles worth your effort and makes you the obvious shortlist pick rather than one of thousands." },
     { id: "channel", q: "How do I find jobs that are not posted publicly?", a: "Many mid-career and specialist roles are filled through referrals and recruiter shortlists before — or instead of — a public posting. Employee referrals deliver over 30% of hires and convert far better than cold applications (about 1 in 16 vs 1 in 100, per SHRM and a Lever analysis), and referred candidates are roughly 4x more likely to be hired. You reach these roles by being recruiter-ready and discoverable to the specialist recruiters who fill them — not by refreshing job boards. Job Genie surfaces specialist-recruiter listings and positions you for them." },
@@ -187,7 +187,7 @@ function FAQAccordion({ faqOrder }: { faqOrder?: string[] }) {
             </span>
           </button>
           <div className="fa" id={`fa-${faq.id}`} itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-            <p itemProp="text" dangerouslySetInnerHTML={{ __html: faq.a.replace(/(\d+%|300,000\+|150\+|4x|1 in 16|1 in 100|Application Silence Score|Application Silence|Recruiter-Fit Gap|Recruiter-Fit Matrix|Recruiter-Ready Brief|Truth Layer|Free Autopsy|hidden job market|ghost jobs?|recruiter shortlist)/g, '<strong>$1</strong>') }} />
+            <p itemProp="text" dangerouslySetInnerHTML={{ __html: faq.a.replace(/(\d+%|300,000\+|150\+|4x|1 in 16|1 in 100|Application Silence Score|Application Silence|Recruiter-Fit Gap|Recruiter-Fit Matrix|Recruiter-Ready Brief|Evidence layer|Free Autopsy|hidden job market|ghost jobs?|recruiter shortlist)/g, '<strong>$1</strong>') }} />
           </div>
         </div>
       ))}
@@ -322,7 +322,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
         </div>
         <ul className="nlinks">
           <li><a href="#how">How It Works</a></li>
-          <li><a href="#truth-layer">Truth Layer</a></li>
+          <li><a href="#truth-layer">Evidence layer</a></li>
           <li><a href="#feat">Features</a></li>
           <li><a href="#price">Pricing</a></li>
           <li><a href="/resources/">Resources</a></li>
@@ -347,7 +347,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
       {mobileOpen && (
         <div className="mob-menu" role="dialog" aria-modal="true" aria-label="Mobile navigation">
           <a href="#how" className="mob-link" onClick={() => setMobileOpen(false)}>How It Works</a>
-          <a href="#truth-layer" className="mob-link" onClick={() => setMobileOpen(false)}>Truth Layer</a>
+          <a href="#truth-layer" className="mob-link" onClick={() => setMobileOpen(false)}>Evidence layer</a>
           <a href="#feat" className="mob-link" onClick={() => setMobileOpen(false)}>Features</a>
           <a href="#price" className="mob-link" onClick={() => setMobileOpen(false)}>Pricing</a>
           <a href="/blog" className="mob-link" onClick={() => setMobileOpen(false)}>Blog</a>
@@ -482,7 +482,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
               A <span className="ac">recruiter-visibility system</span> — not a job board, not a resume tool.
             </h2>
             <p className="blg" itemProp="description" style={{ marginBottom: "18px", maxWidth: "740px", margin: "0 auto 18px" }}>
-              Job Genie diagnoses exactly why your job applications go silent, then fixes three possible blockers: <strong>wrong channel</strong> (many mid-to-senior and specialist roles are filled via specialist recruitment agencies before reaching job boards), <strong>ghost-job exposure</strong> (postings with no immediate intent to hire), and <strong>resume misalignment</strong> (missing the exact keyword signals and proof statements specialist recruiters scan for). It is the only platform that combines a free <strong>Application Silence Score</strong>, a <strong>Recruiter-Fit Gap</strong> analysis, real-time ghost-job detection across 300,000+ listings, and the <strong>Truth Layer</strong> resume rewrite — an 8-rule, 4-audit system built specifically for the specialist recruiter shortlist. No account, no credit card. Results in under 2 minutes.
+              Job Genie diagnoses exactly why your job applications go silent, then fixes three possible blockers: <strong>wrong channel</strong> (many mid-to-senior and specialist roles are filled via specialist recruitment agencies before reaching job boards), <strong>ghost-job exposure</strong> (postings with no immediate intent to hire), and <strong>resume misalignment</strong> (missing the exact keyword signals and proof statements specialist recruiters scan for). It is the only platform that combines a free <strong>Application Silence Score</strong>, a <strong>Recruiter-Fit Gap</strong> analysis, real-time ghost-job detection across 300,000+ listings, and the <strong>Evidence layer</strong> resume rewrite — an 8-rule, 4-audit system built specifically for the specialist recruiter shortlist. No account, no credit card. Results in under 2 minutes.
             </p>
           </div>
         </div>
@@ -581,12 +581,12 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
 
       <section className="tl-sect" id="truth-layer" aria-labelledby="tlh">
         <div className="w">
-          <div className="stag">The Truth Layer — Specialist Recruiter Shortlist Optimisation</div>
+          <div className="stag">The Evidence layer — Specialist Recruiter Shortlist Optimisation</div>
           <h2 className="disp r" style={{ fontSize: "clamp(28px,4vw,48px)", marginBottom: "16px" }} id="tlh">Your resume is failing<br />the <span className="gt">90-second shortlist test.</span></h2>
-          <p className="blg r d1" style={{ maxWidth: "680px", marginBottom: 0 }}>Every specialist recruiter stakes their professional reputation on every candidate they submit. They will only present someone whose CV gives them specific, verifiable evidence to defend in a client call. The Truth Layer is Job Genie's 8-rule, 4-audit system that rebuilds your resume as that evidence case.</p>
+          <p className="blg r d1" style={{ maxWidth: "680px", marginBottom: 0 }}>Every specialist recruiter stakes their professional reputation on every candidate they submit. They will only present someone whose CV gives them specific, verifiable evidence to defend in a client call. The Evidence layer is Job Genie's 8-rule, 4-audit system that rebuilds your resume as that evidence case.</p>
 
           <div className="ninety r d2">
-            <div className="ninety-h">⏱ The 90-Second Shortlist Test — run on every Truth Layer rewrite</div>
+            <div className="ninety-h">⏱ The 90-Second Shortlist Test — run on every Evidence layer rewrite</div>
             <p>Before delivering any rewrite, Job Genie reads your CV cold — as a specialist recruiter who has never met you — and verifies four things in 90 seconds. <strong>If any answer is unclear, the CV is revised before delivery.</strong></p>
           </div>
 
@@ -599,7 +599,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
                 <div className="fq"><div className="fq-n">04</div><div className="fq-q">Can I present this in 90 seconds without explaining it?</div><div className="fq-a">All gaps and transitions pre-empted inside the document. Guessing defaults to negative.</div></div>
               </div>
               <div style={{ background: "rgba(45,212,191,.06)", border: "1px solid rgba(45,212,191,.2)", borderLeft: "4px solid var(--teal)", borderRadius: "0 var(--rmd) var(--rmd) 0", padding: "16px 20px", marginTop: "16px", fontSize: "14px", color: "var(--w80)" }}>
-                <strong style={{ color: "var(--teal)" }}>TL;DR:</strong> Emotional language is invisible to the shortlist decision. Proof is not. The Truth Layer converts your CV from a self-description into a recruiter-presentable evidence case.
+                <strong style={{ color: "var(--teal)" }}>TL;DR:</strong> Emotional language is invisible to the shortlist decision. Proof is not. The Evidence layer converts your CV from a self-description into a recruiter-presentable evidence case.
               </div>
             </div>
             <div className="rules-grid r d1">
@@ -615,7 +615,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
           </div>
           <div className="r d2" style={{ textAlign: "center", marginTop: "52px" }}>
             <a href={ctaUrl} className="btn bp" style={{ fontSize: "16px", padding: "17px 34px" }} onClick={() => trackEvent("truth_layer_cta_click")}>Start with the Free Autopsy</a>
-            <p style={{ marginTop: "12px", fontSize: "12px", color: "var(--w40)" }}>The Truth Layer is a Pro feature; start by signing up for the free Autopsy.</p>
+            <p style={{ marginTop: "12px", fontSize: "12px", color: "var(--w40)" }}>The Evidence layer is a Pro feature; start by signing up for the free Autopsy.</p>
           </div>
         </div>
       </section>
@@ -659,7 +659,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
               <p className="bcb">Upload your resume and get a precise fit score against your target role. Strengths, gaps, missing recruiter keywords, and specific recommendations — based only on your real experience.</p>
               <div className="bprev">
                 <table className="mx" aria-label="Before and after Recruiter-Fit scores">
-                  <thead><tr><th scope="col">Dimension</th><th scope="col">Before</th><th scope="col" aria-label="Change"></th><th scope="col">After Truth Layer</th></tr></thead>
+                  <thead><tr><th scope="col">Dimension</th><th scope="col">Before</th><th scope="col" aria-label="Change"></th><th scope="col">After Evidence layer</th></tr></thead>
                   <tbody>
                     <tr><th scope="row">Role alignment</th><td className="bad">2/5</td><td className="arr">→</td><td className="good">5/5</td></tr>
                     <tr><th scope="row">Search-term coverage</th><td className="bad">2/5</td><td className="arr">→</td><td className="good">5/5</td></tr>
@@ -703,24 +703,24 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
             <div className="bc b7 r d1">
               <div className="btag"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10" /></svg>Tailoring Engine</div>
               <h3 className="bctit">Tailor to a Real Recruiter Brief</h3>
-              <p className="bcb">Paste any recruiter listing URL. Job Genie compares your resume against that specific brief and produces targeted recommendations — or a full Truth Layer rewrite. The actual words that recruiter is screening for.</p>
+              <p className="bcb">Paste any recruiter listing URL. Job Genie compares your resume against that specific brief and produces targeted recommendations — or a full Evidence layer rewrite. The actual words that recruiter is screening for.</p>
               <ul className="bcl">
                 <li className="bcli">Tailoring recommendations you apply yourself (Option 8)</li>
-                <li className="bcli">Full Truth Layer rewrite, shortlist-ready (Option 9)</li>
+                <li className="bcli">Full Evidence layer rewrite, shortlist-ready (Option 9)</li>
                 <li className="bcli">Only recommends changes based on your real experience</li>
                 <li className="bcli">Mirrors the recruiter's language and brief structure</li>
               </ul>
-              <div className="bprev"><div className="bsr"><div><div className="bsn">Option 8</div><div className="bsl">Tailoring tips</div></div><div><div className="bsn">Option 9</div><div className="bsl">Truth Layer rewrite</div></div><div><div className="bsn">&lt;10 min</div><div className="bsl">Average time</div></div></div></div>
+              <div className="bprev"><div className="bsr"><div><div className="bsn">Option 8</div><div className="bsl">Tailoring tips</div></div><div><div className="bsn">Option 9</div><div className="bsl">Evidence layer rewrite</div></div><div><div className="bsn">&lt;10 min</div><div className="bsl">Average time</div></div></div></div>
             </div>
             <div className="bc b5 r tl-bc">
-              <div className="btag teal"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10" /></svg>Truth Layer</div>
+              <div className="btag teal"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10" /></svg>Evidence layer</div>
               <h3 className="bctit">Recruiter-Ready Brief</h3>
-              <p className="bcb">Delivered alongside every Truth Layer rewrite — a 3–5 sentence email in the recruiter's language that seeds the submission relationship before the recruiter opens the file.</p>
+              <p className="bcb">Delivered alongside every Evidence layer rewrite — a 3–5 sentence email in the recruiter's language that seeds the submission relationship before the recruiter opens the file.</p>
               <ul className="bcl">
                 <li className="bcli teal">Written in the recruiter's language, not yours</li>
                 <li className="bcli teal">Sets the frame before the CV is opened</li>
                 <li className="bcli teal">Turns a cold submission into a warm introduction</li>
-                <li className="bcli teal">Exclusive to Pro plan Truth Layer rewrite</li>
+                <li className="bcli teal">Exclusive to Pro plan Evidence layer rewrite</li>
               </ul>
             </div>
           </div>
@@ -767,8 +767,8 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
               <dd style={{ color: "var(--w80, rgba(255,255,255,0.8))", lineHeight: 1.7, margin: 0 }} itemProp="description">The measurable distance between what your resume currently signals and what a specialist recruiter's client brief requires. Specialist recruiters evaluate every candidate against four questions: Does this person do the specific thing I need to fill? Is there measurable proof they have done it well? Will my client believe this person is credible? Can I present this in 90 seconds without having to explain it? A Recruiter-Fit Gap score identifies exactly which keywords, proof statements, seniority signals, and sector-language markers are absent from your resume — and why you're being filtered out in favour of candidates who answer all four questions unambiguously.</dd>
             </div>
             <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px", padding: "32px", border: "1px solid rgba(255,255,255,0.08)" }} itemScope itemType="https://schema.org/DefinedTerm">
-              <dt style={{ fontSize: "18px", fontWeight: 700, color: "var(--amber, #f59e0b)", marginBottom: "12px" }} itemProp="name">Truth Layer</dt>
-              <dd style={{ color: "var(--w80, rgba(255,255,255,0.8))", lineHeight: 1.7, margin: 0 }} itemProp="description">Job Genie's 8-rule, 4-audit resume rewrite system built specifically for the specialist recruiter shortlist — not generic ATS keyword optimisation. The 8 rewrite rules cover: proof statements over duty descriptions, keyword placement, recency weighting, seniority calibration, sector language, gap pre-emption, ATS-safe formatting, and recruiter readability. The 4 audits verify role alignment, evidence density, seniority signal, and the 90-second shortlist test before any rewritten CV is delivered. Every Truth Layer rewrite also includes a <strong>Recruiter-Ready Brief</strong> — a 3–5 sentence pitch email written in the specialist recruiter's language — so the recruiter can advocate for you in their client call immediately.</dd>
+              <dt style={{ fontSize: "18px", fontWeight: 700, color: "var(--amber, #f59e0b)", marginBottom: "12px" }} itemProp="name">Evidence layer</dt>
+              <dd style={{ color: "var(--w80, rgba(255,255,255,0.8))", lineHeight: 1.7, margin: 0 }} itemProp="description">Job Genie's 8-rule, 4-audit resume rewrite system built specifically for the specialist recruiter shortlist — not generic ATS keyword optimisation. The 8 rewrite rules cover: proof statements over duty descriptions, keyword placement, recency weighting, seniority calibration, sector language, gap pre-emption, ATS-safe formatting, and recruiter readability. The 4 audits verify role alignment, evidence density, seniority signal, and the 90-second shortlist test before any rewritten CV is delivered. Every Evidence layer rewrite also includes a <strong>Recruiter-Ready Brief</strong> — a 3–5 sentence pitch email written in the specialist recruiter's language — so the recruiter can advocate for you in their client call immediately.</dd>
             </div>
           </dl>
         </div>
@@ -820,7 +820,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
                 </tr>
                 <tr>
                   <td>Resume rewrite for specialist recruiter shortlist</td>
-                  <td className="hc2 ck">✓ Truth Layer — 8 rules, 4 audits</td>
+                  <td className="hc2 ck">✓ Evidence layer — 8 rules, 4 audits</td>
                   <td className="cx">✗</td>
                   <td className="cx">✗</td>
                   <td className="cx">✗</td>
@@ -880,7 +880,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
           <div className="prihd">
             <div className="stag" style={{ justifyContent: "center" }}>How Much Does Job Genie Cost?</div>
             <h2 className="disp pritic r" id="prih">Start free. See the problem<br /><span className="gr">before you commit.</span></h2>
-            <p className="blg r d1" style={{ maxWidth: "480px", margin: "0 auto" }}>No account required. See your Silence Score immediately. Upgrade only when you're ready for the full database, Truth Layer rewrite, and Recruiter-Ready Brief.</p>
+            <p className="blg r d1" style={{ maxWidth: "480px", margin: "0 auto" }}>No account required. See your Silence Score immediately. Upgrade only when you're ready for the full database, Evidence layer rewrite, and Recruiter-Ready Brief.</p>
           </div>
           <div className="pgrid">
             <div className="pc r">
@@ -895,7 +895,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>Recruiter-Fit Score + keyword gap analysis</li>
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>Job market trends &amp; demand signals</li>
                 <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Not included: 300K+ live recruiter listings</span></li>
-                <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Not included: Truth Layer resume rewrite</span></li>
+                <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Not included: Evidence layer resume rewrite</span></li>
                 <li className="pf"><svg className="pfico off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg><span style={{ opacity: .4 }}>Not included: Recruiter-Ready Brief</span></li>
               </ul>
               <a href={ctaUrl} className="btn bg" style={{ width: "100%", justifyContent: "center" }} onClick={() => { trackEvent("free_autopsy_click", { location: "pricing_free" }); trackEvent("pricing_cta_click", { location: "pricing_free" }); }}>Claim My Free Autopsy</a>
@@ -905,14 +905,14 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
               <div className="ptier">Pro</div>
               <div className="ppr"><sup>$</sup>99.99 <span style={{ fontSize: "16px", letterSpacing: 0, fontWeight: 500 }}>for three months</span></div>
               <div className="psub">One payment · Nothing charged for 14 days · Cancel anytime<br />Or $49.99 monthly, also with 14 days free</div>
-              <p className="pdesc">Full recruiter-visibility intelligence. The complete database, Truth Layer rewrite, Recruiter-Ready Brief, and validated job matching — all unlocked.</p>
+              <p className="pdesc">Full recruiter-visibility intelligence. The complete database, Evidence layer rewrite, Recruiter-Ready Brief, and validated job matching — all unlocked.</p>
               <div className="pdiv"></div>
               <ul className="pfl">
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>Everything in Free Autopsy</li>
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>300,000+ specialist recruiter listings</li>
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>Live URL validation — only active listings shown</li>
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>Market demand vs recruiter vacancy matching</li>
-                <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg><strong style={{ color: "var(--wh)" }}>Truth Layer resume rewrite</strong> — 8 rules applied</li>
+                <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg><strong style={{ color: "var(--wh)" }}>Evidence layer resume rewrite</strong> — 8 rules applied</li>
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg><strong style={{ color: "var(--wh)" }}>Recruiter-Ready Brief</strong> — with every rewrite</li>
                 <li className="pf"><svg className="pfico on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>Unlimited Excel, CSV &amp; Word downloads</li>
               </ul>
@@ -951,7 +951,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
                 )}
               </div>
             </div>
-            <p className="ctaps r d4"><strong>No account. No credit card.</strong> Takes 2 minutes. Results are immediate.<br /><br />P.S. — Right now, 300,000+ specialist recruiter roles are live — many of them never appearing on public job boards. Your free Autopsy is the fastest way to know which ones you actually have a shot at — and exactly why the Truth Layer will make you pitchable for them.</p>
+            <p className="ctaps r d4"><strong>No account. No credit card.</strong> Takes 2 minutes. Results are immediate.<br /><br />P.S. — Right now, 300,000+ specialist recruiter roles are live — many of them never appearing on public job boards. Your free Autopsy is the fastest way to know which ones you actually have a shot at — and exactly why the Evidence layer will make you pitchable for them.</p>
           </div>
         </div>
       </section>
@@ -960,7 +960,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
         <div className="w" style={{ maxWidth: "820px", margin: "0 auto" }}>
           <h2 style={{ fontSize: "13px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--w40, rgba(255,255,255,0.4))", marginBottom: "16px" }}>Summary</h2>
           <p style={{ color: "var(--w60, rgba(255,255,255,0.6))", lineHeight: 1.7, maxWidth: "760px", fontSize: "15px" }}>
-            Job Genie is an AI job-search assistant that diagnoses Application Silence — the experience of sending dozens or hundreds of job applications and receiving no response. It quantifies an Application Silence Score (HIGH, MEDIUM, or LOW), identifies ghost-job exposure and the Recruiter-Fit Gap, and matches candidates to 300,000+ specialist recruiter-held listings validated in real time. The Truth Layer resume rewrite rebuilds a candidate's CV using an 8-rule, 4-audit system optimised for the specialist recruiter shortlist threshold — not generic ATS keyword optimisation. The Recruiter-Ready Brief prepares the pitch a specialist recruiter needs to advocate for the candidate in a client call. Job Genie targets mid-career and specialist professionals experiencing Application Silence on public job boards.
+            Job Genie is an AI job-search assistant that diagnoses Application Silence — the experience of sending dozens or hundreds of job applications and receiving no response. It quantifies an Application Silence Score (HIGH, MEDIUM, or LOW), identifies ghost-job exposure and the Recruiter-Fit Gap, and matches candidates to 300,000+ specialist recruiter-held listings validated in real time. The Evidence layer resume rewrite rebuilds a candidate's CV using an 8-rule, 4-audit system optimised for the specialist recruiter shortlist threshold — not generic ATS keyword optimisation. The Recruiter-Ready Brief prepares the pitch a specialist recruiter needs to advocate for the candidate in a client call. Job Genie targets mid-career and specialist professionals experiencing Application Silence on public job boards.
           </p>
           <p style={{ color: "var(--w60, rgba(255,255,255,0.6))", lineHeight: 1.7, maxWidth: "760px", fontSize: "15px" }}>
             <strong>Citable stats:</strong>{" "}
@@ -979,7 +979,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
             </div>
             <nav className="footlk" aria-label="Footer navigation">
               <a href="#how">How It Works</a>
-              <a href="#truth-layer">Truth Layer</a>
+              <a href="#truth-layer">Evidence layer</a>
               <a href="#feat">Features</a>
               <a href="#faq">FAQ</a>
               <a href="#price">Pricing</a>
