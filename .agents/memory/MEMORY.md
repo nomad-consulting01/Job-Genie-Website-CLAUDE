@@ -16,3 +16,4 @@
 - [Autopsy live verification](autopsy-live-verification.md) — signup 502 can coexist with a delivered fork email; verify the published handler and diagnose without new enrollments.
 - [Static directory route redirects](static-directory-route-redirects.md) — production static pages redirect extensionless URLs to trailing-slash directory indexes; audit with redirects followed.
 - [Citable hiring statistics](citable-hiring-statistics.md) — never present application-volume or ATS-interview results as a ghost-job prevalence estimate; name each study's population and limits.
+- [Sandbox preview section targeting](sandbox-preview-section-targeting.md) — query-string preview captures can be blank; use fragments or in-preview navigation and verify the rendered page.
