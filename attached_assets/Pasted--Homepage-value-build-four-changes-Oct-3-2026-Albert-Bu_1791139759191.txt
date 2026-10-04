@@ -1,0 +1,177 @@
+# Homepage value build: four changes
+
+Oct 3, 2026 · @Albert Bueno
+
+The homepage has more substance than the lifetime-deal page it was compared against, and converts less of it. Everything below assembles what is already proven on the page — no new claims, no invented figures.
+
+## What changes and why
+
+Four gaps, in the order they cost the most.
+
+**The stack never assembles.** Ten tools, eight rules, four audits, six reveals, eight scored dimensions and seven comparison rows are spread across roughly two thousand words. By the time a reader reaches the Pro card, they have seen enormous substance and are holding nothing. The card then lists seven bullets — a fraction of what came before. The fix is a single block directly above the price that collects what the page has already proved.
+
+**Features end in specification, not consequence.** "50, 100, or 200 validated results per search" and "60+ matched role categories" are capabilities with nothing attached. A reader has to work out what each one means for them, and most won't.
+
+**Nothing carries a price but the product.** At least four components would be bought separately elsewhere — the rewrite, the Brief, the validated database, the live validation. With no comparator, a reader defaults to judging $99.99 against résumé tools at $19–39, which is the wrong comparison and the one we lose.
+
+**The Recruiter-Ready Brief is buried.** It is a separate artefact, exclusive to Pro, that does a different job from the rewrite — and it currently appears as a feature card and two bullets. It is the most differentiated thing on the page and it reads like an add-on.
+
+## Change 1 — give the Recruiter-Ready Brief its own block
+
+It currently sits as one of ten feature cards and two bullets in the Pro list. It should sit directly after the Evidence layer section, as its own named section, because it answers a question the rewrite does not: what the recruiter says *before* they open the file.
+
+### Replacement copy
+
+**Section eyebrow:** Included with every Evidence layer rewrite
+
+**Heading:** The CV gets you read. The Brief gets you argued for.
+
+**Body:**
+
+> A specialist recruiter has about ninety seconds to pitch you to their client, and the fee on that placement is their own. If they cannot make the case quickly, they do not submit you — not out of malice, but because a weak submission costs them more than a skipped one.
+>
+> The Recruiter-Ready Brief is the three-to-five sentence email that goes with your rewritten CV. It is written in the recruiter's language, not yours. It states what you do, the proof that you have done it, and why their client should care — before the document is open.
+>
+> It turns a cold submission into a warm introduction, and it means the recruiter is reading your CV already looking for reasons to say yes.
+
+**Three supporting lines:**
+
+- Written in the recruiter's language, not the candidate's
+- Sets the frame before the CV is opened
+- Delivered with every Evidence layer rewrite — Pro only
+
+**What this changes elsewhere on the page.** In the comparison table, the Recruiter-Ready Brief row stays. In the Pro card, it keeps its bullet. The difference is that by the time a reader reaches either, they know what it is — at present the table asserts a benefit the page has barely explained.
+
+## Change 2 — end every feature on the stake
+
+Keep the specifications. They are proof and they should stay. Add one line after each block that says what it means for the reader. The rule: a feature block may not end on a number.
+
+| Block | Currently ends on | Add this line |
+| --- | --- | --- |
+| Recruiter-Fit Resume Score | "based only on your real experience" | You stop guessing which part is the problem. The gap has a name and a score, and you can see what closing it looks like. |
+| Validated Recruiter Listings | "Export to Excel for application tracking" | Every hour you spend applying goes to a role that is still open. No more applications into postings that were filled in August. |
+| Market Demand Matching | "60+ matched role categories" | You aim at the roles that have both demand and recruiters actively filling them — instead of the ones that merely sound like yours. |
+| Tailor to a Real Recruiter Brief | "Mirrors the recruiter's language and brief structure" | You send the version that recruiter is screening for, not a generic tailor that every other applicant also produced. |
+| Recruiter-Ready Brief | "Exclusive to Pro plan Evidence layer rewrite" | The recruiter is already arguing for you before they open the file. |
+| Live URL validation | "removes 10–40% of dead listings" | Between one in ten and four in ten of the roles you would have applied to no longer exist. You never see them. |
+
+**Two further lines worth changing.** In Step 03 of How It Works, "Stop applying into the void. Start landing calls" is already a stake — keep it. In the hero's sub-copy, "find out what's blocking your interviews" is the strongest consequence line on the page and should be echoed, not varied, in the stack block below.
+
+## Change 3 — assemble and price the stack
+
+This block goes immediately above the Pro card, after the pricing heading and before the two plan columns. Nothing in it is new. It collects what the page has already proved and gives the reader a comparison they can actually make.
+
+### The copy
+
+**Heading:** What's inside Pro, and what each part would cost you elsewhere
+
+|  | Comparable market rate |
+| --- | --- |
+| **Evidence layer rewrite** — 8 rules, 4 audits, the 90-second shortlist test applied before delivery | Professional résumé writing for mid-to-senior roles typically runs $200–600 |
+| **Recruiter-Ready Brief** — the pitch email, delivered with every rewrite | Usually an add-on, where it is offered at all |
+| **300,000+ specialist recruiter listings** from 150+ agencies | Not sold separately — recruiter databases are licensed to employers |
+| **Live URL validation** on every listing, removing 10–40% that are no longer live | No consumer equivalent |
+| **Recruiter-Fit scoring** across eight dimensions, with the method published | No consumer equivalent |
+| **Market demand matched to live vacancy counts** across 60+ role categories | No consumer equivalent |
+| **Unlimited exports** — Excel, CSV, Word | — |
+
+**Closing line under the table:**
+
+> Three months. One payment. $99.99. Nothing charged for the first fourteen days.
+
+### The pricing discipline behind it
+
+**Only one row carries a number, and it is a real one.** $200–600 is what professional résumé writing for mid-to-senior roles actually costs in the US market; it is checkable and it is the comparison a buyer would make anyway. Everything else is marked honestly as having no consumer equivalent, which is both true and stronger than an invented figure — you cannot buy recruiter database access as a candidate, and saying so plainly makes the point.
+
+**Do not total the column.** The moment a "$1,200 value" number appears, the page joins the category it is positioned against. The absence of a total is the discipline.
+
+**Before this ships:** the $200–600 range needs a line on the methodology page, same as every other figure. It is a market convention rather than a contested statistic, so it needs to be accurate rather than footnoted — but it needs somewhere to land.
+
+## Change 4 — bonuses, built honestly
+
+The conventional bonus stack attaches invented dollar values to things that are part of the product anyway. A $497 "commercial license" on a $27 tool is the clearest example. That route is closed here — not on taste, but because the page's entire argument is that its claims are checkable.
+
+**The honest version: a bonus must be separable, genuinely optional, and real.** Something that could be removed without breaking the product, that someone would reasonably expect to pay for, and that exists today.
+
+### What qualifies
+
+**The Application Autopsy email series.** It exists, it is separable, and it is given away without a purchase. Frame it as what it is, not as a priced asset:
+
+> **Included free, whether or not you upgrade** — the Application Autopsy email series. Five emails covering what the eight causes are, how to tell which one is yours, and what each one takes to fix. No purchase, no card.
+
+**The published methodology.** Unusual enough to be worth naming as something given rather than withheld:
+
+> **Free to anyone** — the full scoring method. Every dimension, every band, every source behind every figure, on a page you can read before you spend anything. Most tools score you and decline to say how.
+
+**The glossary and the resource guides.** Already free and already published — name them once rather than leaving them in the footer.
+
+### What does not qualify
+
+**The Recruiter-Ready Brief.** It is a premium, not a bonus. Change 1 treats it correctly — as a component of what Pro is, with its own section. Reframing it as a free add-on would reduce it.
+
+**Exports, validation, scoring.** These are the product. Calling them bonuses is the inflation this page exists to avoid.
+
+**Anything with an invented price attached.** No "$197 value", no totals, no stack arithmetic.
+
+### Where it goes
+
+One short band directly beneath the stack table, before the plan columns. Two items, no dollar figures, framed as given rather than valued:
+
+> **Free either way:** the Application Autopsy email series, and the full published scoring method — every dimension, band and source. You can read exactly how the score works before you decide whether to pay for anything.
+
+## The rationale — the thing the comparison page cannot do
+
+A lifetime deal at eight percent of the annual price has no story for why. The reader is left to assume the subscription could not be sustained. It is the weakest element of an otherwise strong offer, and it is unfixable without inventing a reason.
+
+The opposite is true here. There is a real reason for $99.99 across three months, it is already the operating policy, and it is not on the page.
+
+**Place it directly under the Pro price, above the feature bullets:**
+
+> Most tools want you subscribed for a year. We priced three months because that is roughly how long this takes — and if you are hired before the term ends, we refund the whole unused months. No documents, no argument.
+>
+> We would rather you left.
+
+**Why this is worth more than any bonus.** It is the one claim in the category that cannot be copied by a subscription business without contradicting its own billing. Every competitor logged at $19–49 a month needs you to stay. The refund-on-early-exit policy says the opposite out loud, and it is already how the product works.
+
+It also reframes the price comparison without arguing about price. A reader weighing $99.99 against $24 a month is not comparing like with like — $24 a month only ends when they remember to cancel. Stating the term and the exit converts the number from a subscription into a bounded purchase.
+
+## Build notes
+
+### Order
+
+1. **The rationale line.** One paragraph under the Pro price. Highest value per word on the page and it needs no new assets.
+2. **The stack block.** Assembly only — every claim in it already appears elsewhere on the page.
+3. **The stake lines.** Six edits, each one sentence.
+4. **The Recruiter-Ready Brief section.** New block, roughly 120 words, placed after the Evidence layer.
+5. **The free-either-way band.** Two lines under the stack.
+
+### What not to do
+
+**No total under the stack table.** The moment a summed "value" figure appears, the page is making the same move as the operators it is positioned against, and the sourcing discipline elsewhere stops reading as principle.
+
+**No invented component prices.** One real market rate (£150–400 for professional CV writing) and honest blanks everywhere else. "No consumer equivalent" is a stronger line than a made-up number because it is true and it is unusual.
+
+**No urgency.** There is no deadline, no cap and no real scarcity here. Manufacturing one would cost more than it earns against an audience that has seen every countdown in this category.
+
+**Do not reframe the Brief as a bonus.** It is a premium component. Change 1 and Change 4 must not be merged.
+
+### Open items this depends on
+
+**The $200–600 résumé writing range** needs a line on the methodology page before the stack block ships. Every price across the page is stated in US dollars.
+
+**Stripe confirmation** on $49.99 monthly and $99.99 for three months is still outstanding, and the rationale line states the refund policy publicly — it should not go live before the billing matches it.
+
+### Unrelated defect, still outstanding
+
+The footer reads **"Updated June 2026"** while the comparison table and FAQ both carry "Last updated: September 2026". It has survived three passes. One-line fix.
+
+### Currency: two Evidence layer examples still in sterling
+
+The rewrite examples under Rules 01 and 02 use pound figures on a page priced in dollars for a US audience. These are illustrative, not real data, so they are re-denominated rather than converted at an exchange rate — the point of each example is the shape of the sentence, not the amount.
+
+| Rule | Current | Replace with |
+| --- | --- | --- |
+| 01, After | B2B demand gen lead, 8yrs SaaS. Scaled inbound to £4.2M pipeline. CAC –34%. | B2B demand gen lead, 8yrs SaaS. Scaled inbound to $4.2M pipeline. CAC –34%. |
+| 02, After | Led 7 AEs, grew ARR from £2.1M to £5.8M in 24 months — 176% of target. | Led 7 AEs, grew ARR from $2.1M to $5.8M in 24 months — 142% of target. |
+
+**Why the second figure changes too.** Growing from 2.1 to 5.8 is a 176% increase, and the bullet also claims "176% of target" — two different measures carrying the same number. A reader who does the arithmetic will assume the figure was derived from the growth and mislabelled. Moving the target to 142% removes the coincidence, so the example teaches the rule instead of inviting a check.
