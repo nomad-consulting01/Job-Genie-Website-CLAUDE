@@ -16,7 +16,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { SITE_URL, SITE_NAME, OG_IMAGE } from "@workspace/site-config";
+import { SITE_URL, SITE_NAME, OG_IMAGE, BRAND_NAV_STYLES, renderBrandNavigation, BLOG_INDEX_STYLES } from "@workspace/site-config";
 
 const router = Router();
 
@@ -91,14 +91,25 @@ function mdToHtml(md: string): string {
     .join("\n");
 }
 
-/** Extract the <script type="module"> and <link rel="modulepreload"> tags from the built index.html */
+/** Include Vite's dev entry or the built scripts AND styles for the React upgrade. */
 function extractSpaScripts(): string {
+  if (process.env.NODE_ENV === "development") {
+    return `<script type="module">
+      import RefreshRuntime from "/@react-refresh";
+      RefreshRuntime.injectIntoGlobalHook(window);
+      window.$RefreshReg$ = () => {};
+      window.$RefreshSig$ = () => (type) => type;
+      window.__vite_plugin_react_preamble_installed__ = true;
+    </script>
+    <script type="module" src="/@vite/client"></script>
+    <script type="module" src="/src/main.tsx"></script>`;
+  }
   const indexPath = path.join(JOB_GENIE_DIST, "index.html");
   if (!fs.existsSync(indexPath)) return "";
   try {
     const html = fs.readFileSync(indexPath, "utf-8");
     const scripts: string[] = [];
-    const linkRe = /<link[^>]*modulepreload[^>]*>/gi;
+    const linkRe = /<link[^>]*(?:modulepreload|stylesheet)[^>]*>/gi;
     const scriptRe = /<script[^>]*type="module"[^>]*>[\s\S]*?<\/script>/gi;
     let m: RegExpExecArray | null;
     while ((m = linkRe.exec(html)) !== null) scripts.push(m[0]!);
@@ -348,15 +359,15 @@ async function buildBlogIndexHtml(posts: Array<{ slug: string; title: string; de
         const dateStr = p.publishedAt
           ? new Date(p.publishedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
           : null;
-        return `<li style="margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.06);padding-bottom:24px">
-          ${dateStr ? `<time style="font-size:12px;color:#6b7280">${esc(dateStr)}</time>` : ""}
-          <h2 style="font-size:18px;font-weight:600;color:#fff;margin:6px 0 8px;line-height:1.3">
-            <a href="/blog/${esc(p.slug)}" style="color:#fff;text-decoration:none">${esc(p.title.replace(" | Job Genie", ""))}</a>
+        return `<li class="blog-card">
+          ${dateStr ? `<time class="blog-meta">${esc(dateStr)}</time>` : ""}
+          <h2 class="blog-card-title">
+            <a href="/blog/${esc(p.slug)}">${esc(p.title.replace(" | Job Genie", ""))}</a>
           </h2>
-          ${p.description ? `<p style="font-size:14px;color:#9ca3af;line-height:1.6;margin:0">${esc(p.description)}</p>` : ""}
+          ${p.description ? `<p class="blog-description">${esc(p.description)}</p>` : ""}
         </li>`;
       }).join("\n")
-    : "<li style='color:#9ca3af'>No posts published yet — check back soon.</li>";
+    : "<li class='blog-empty'>No posts published yet — check back soon.</li>";
 
   const collectionSchema = jsonLdStr({
     "@context": "https://schema.org",
@@ -391,24 +402,30 @@ async function buildBlogIndexHtml(posts: Array<{ slug: string; title: string; de
   <script type="application/ld+json">${collectionSchema}</script>
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Sora:wght@400;600;700;800&amp;display=swap" />
+  <style>${BRAND_NAV_STYLES}\n${BLOG_INDEX_STYLES}</style>
   ${spaScripts}
 </head>
 <body>
   <div id="root">
-    <div style="min-height:100vh;background:#080b14;color:#fff;font-family:system-ui,sans-serif">
-      <header style="border-bottom:1px solid rgba(255,255,255,.06);padding:16px 24px">
-        <a href="/" style="font-size:20px;font-weight:700;color:#fff;text-decoration:none">Job Genie</a>
-      </header>
-      <main style="max-width:960px;margin:0 auto;padding:64px 24px">
-        <p style="font-size:12px;color:#2dd4bf;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin:0 0 12px">Job Search Intelligence</p>
-        <h1 style="font-size:40px;font-weight:700;color:#fff;line-height:1.2;margin:0 0 16px">Real answers to real<br />job-search questions</h1>
-        <p style="font-size:18px;color:#9ca3af;margin:0 0 48px;max-width:640px;line-height:1.6">
+    <div class="jg-blog">
+      ${renderBrandNavigation()}
+      <main class="blog-main">
+        <div class="blog-intro">
+        <p class="blog-eyebrow">Job Search Intelligence</p>
+        <h1 class="blog-title">Real answers to real<br />job-search questions</h1>
+        <p class="blog-lead">
           Every article is generated from real questions posted to Reddit's job-search communities, answered through Job Genie's AEO framework.
         </p>
-        <ul style="list-style:none;padding:0;margin:0">
+        </div>
+        <ul class="blog-grid">
           ${articleListHtml}
         </ul>
       </main>
+      <section class="blog-cta-section">
+        <p>Stop applying into the void. Get your free Application Autopsy.</p>
+        <a href="/" class="blog-cta">Get Your Free Autopsy →</a>
+      </section>
     </div>
   </div>
 </body>

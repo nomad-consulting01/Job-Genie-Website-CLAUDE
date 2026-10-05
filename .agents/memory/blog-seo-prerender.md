@@ -3,6 +3,14 @@ name: Blog SEO prerender pattern
 description: How blog posts get correct canonical, title, og:image, and article body in raw HTML for crawlers (incl. Facebook link cards)
 ---
 
+## Cached preview captures
+
+Workflow restarts do not guarantee that a capture of a server-rendered Blog URL shows fresh HTML.
+
+**Why:** Repeated captures retained old listing markup and missing-script errors after the server had restarted with corrected code. A fresh query URL showed the current markup and working interactive page.
+
+**How to apply:** If a capture contradicts current source and HTTP checks, compare the returned HTML and use a unique query parameter to verify freshness before making further code changes. This is distinct from sandbox section-targeting query quirks.
+
 ## The problem
 Vite SPA serves the same `index.html` for all routes. Blog posts at `/blog/:slug` got:
 - Homepage canonical (`https://job-genie.ai/`)
