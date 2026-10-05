@@ -6,6 +6,7 @@ import { useExperiment } from "@/hooks/useExperiment";
 import { SEO } from "../components/SEO";
 import { NewsletterForm } from "../components/NewsletterForm";
 import { SITE_URL } from "@workspace/site-config";
+import { RecruiterBriefSection, ProValueStack, FreeEitherWay, EarlyHireRationale } from "../components/home/HomeValueSections";
 
 const HOMEPAGE_CTA_URL = `${SITE_URL}/free-autopsy/`;
 
@@ -603,8 +604,8 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
               </div>
             </div>
             <div className="rules-grid r d1">
-              <div className="rule"><div className="rule-n">Rule 01</div><div className="rule-t">Summary = recruiter brief, not intro</div><div className="rule-b">Formula: [Function] + [Years] + [Sector] + [Proof point] + [Target signal].</div><div className="pc-w"><div className="pc-lbl w">✗ Before</div>"Passionate results-driven professional seeking new challenges."</div><div className="pc-r"><div className="pc-lbl g">✓ After</div>"B2B demand gen lead, 8yrs SaaS. Scaled inbound to £4.2M pipeline. CAC –34%."</div></div>
-              <div className="rule"><div className="rule-n">Rule 02</div><div className="rule-t">Every bullet = proof statement</div><div className="rule-b">Formula: [Action verb] + [Scope] + [Measurable outcome] + [Timeframe].</div><div className="pc-w"><div className="pc-lbl w">✗ Before</div>"Responsible for managing the sales team."</div><div className="pc-r"><div className="pc-lbl g">✓ After</div>"Led 7 AEs, grew ARR from £2.1M to £5.8M in 24 months — 176% of target."</div></div>
+              <div className="rule"><div className="rule-n">Rule 01</div><div className="rule-t">Summary = recruiter brief, not intro</div><div className="rule-b">Formula: [Function] + [Years] + [Sector] + [Proof point] + [Target signal].</div><div className="pc-w"><div className="pc-lbl w">✗ Before</div>"Passionate results-driven professional seeking new challenges."</div><div className="pc-r"><div className="pc-lbl g">✓ After</div>"B2B demand gen lead, 8yrs SaaS. Scaled inbound to $4.2M pipeline. CAC –34%."</div></div>
+              <div className="rule"><div className="rule-n">Rule 02</div><div className="rule-t">Every bullet = proof statement</div><div className="rule-b">Formula: [Action verb] + [Scope] + [Measurable outcome] + [Timeframe].</div><div className="pc-w"><div className="pc-lbl w">✗ Before</div>"Responsible for managing the sales team."</div><div className="pc-r"><div className="pc-lbl g">✓ After</div>"Led 7 AEs, grew ARR from $2.1M to $5.8M in 24 months — 142% of target."</div></div>
               <div className="rule"><div className="rule-n">Rule 03</div><div className="rule-t">Keywords in top third</div><div className="rule-b">Recruiters run Boolean searches before they read. If buried on p.2, you don't surface.</div><div className="pc-w"><div className="pc-lbl w">✗ Before</div>"Experienced in cloud infrastructure."</div><div className="pc-r"><div className="pc-lbl g">✓ After</div>"AWS, Azure, Terraform, Kubernetes — enterprise production."</div></div>
               <div className="rule"><div className="rule-n">Rule 04</div><div className="rule-t">Recency = 60% of shortlist weight</div><div className="rule-b">Most recent role is the most detailed and evidence-rich. Older roles compress progressively.</div></div>
               <div className="rule"><div className="rule-n">Rule 05</div><div className="rule-t">Unambiguous seniority signal</div><div className="rule-b">A CV readable as two levels gets passed over. Managers state team size + budget. Always.</div></div>
@@ -619,6 +620,8 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
           </div>
         </div>
       </section>
+
+      <RecruiterBriefSection />
 
       <section className="buls" aria-labelledby="blh">
         <div className="w">
@@ -677,6 +680,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
                 <p className="mx-band"><strong>Before:</strong> Not yet ready—proof points required from the candidate<br /><strong>After:</strong> Strong but with named gaps</p>
                 <p className="mx-note">Scored 1–5 across eight dimensions, 40 maximum. The After score is a projection of the same résumé with the recommended changes applied — it is not automatically 40, because missing evidence limits what a rewrite can reach. Full scoring method: <a href="/methodology">/methodology</a></p>
               </div>
+              <p className="feature-consequence">You stop guessing which part is the problem. The gap has a name and a score, and you can see what closing it looks like.</p>
             </div>
             <div className="bc b5 r d1">
               <div className="btag"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10" /></svg>Live Job Match</div>
@@ -684,10 +688,11 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
               <p className="bcb">300,000+ live roles from 150+ specialist agencies. Every URL validated in real time — filled positions automatically removed. No dead listings.</p>
               <ul className="bcl">
                 <li className="bcli">Profile-driven search across specialist firms</li>
-                <li className="bcli">Live URL validation removes 10–40% of dead listings</li>
+                <li className="bcli"><div>Live URL validation removes 10–40% of dead listings<p className="feature-consequence">Between one in ten and four in ten of the roles you would have applied to no longer exist. You never see them.</p></div></li>
                 <li className="bcli">50, 100, or 200 validated results per search</li>
                 <li className="bcli">Export to Excel for application tracking</li>
               </ul>
+              <p className="feature-consequence">Every hour you spend applying goes to a role that is still open. No more applications into postings that were filled in August.</p>
             </div>
             <div className="bc b5 r">
               <div className="btag"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10" /></svg>Market Intelligence</div>
@@ -699,6 +704,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
                 <li className="bcli">Filter: remote, contract, city, full-time</li>
                 <li className="bcli">60+ matched role categories</li>
               </ul>
+              <p className="feature-consequence">You aim at the roles that have both demand and recruiters actively filling them — instead of the ones that merely sound like yours.</p>
             </div>
             <div className="bc b7 r d1">
               <div className="btag"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10" /></svg>Tailoring Engine</div>
@@ -711,6 +717,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
                 <li className="bcli">Mirrors the recruiter's language and brief structure</li>
               </ul>
               <div className="bprev"><div className="bsr"><div><div className="bsn">Option 8</div><div className="bsl">Tailoring tips</div></div><div><div className="bsn">Option 9</div><div className="bsl">Evidence layer rewrite</div></div><div><div className="bsn">&lt;10 min</div><div className="bsl">Average time</div></div></div></div>
+              <p className="feature-consequence">You send the version that recruiter is screening for, not a generic tailor that every other applicant also produced.</p>
             </div>
             <div className="bc b5 r tl-bc">
               <div className="btag teal"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10" /></svg>Evidence layer</div>
@@ -722,6 +729,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
                 <li className="bcli teal">Turns a cold submission into a warm introduction</li>
                 <li className="bcli teal">Exclusive to Pro plan Evidence layer rewrite</li>
               </ul>
+              <p className="feature-consequence">The recruiter is already arguing for you before they open the file.</p>
             </div>
           </div>
         </div>
@@ -882,6 +890,8 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
             <h2 className="disp pritic r" id="prih">Start free. See the problem<br /><span className="gr">before you commit.</span></h2>
             <p className="blg r d1" style={{ maxWidth: "480px", margin: "0 auto" }}>No account required. See your Silence Score immediately. Upgrade only when you're ready for the full database, Evidence layer rewrite, and Recruiter-Ready Brief.</p>
           </div>
+          <ProValueStack />
+          <FreeEitherWay />
           <div className="pgrid">
             <div className="pc r">
               <div className="ptier">Free Autopsy</div>
@@ -903,8 +913,9 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
             <div className="pc ft r d1">
               <div className="pbg">Most Popular</div>
               <div className="ptier">Pro</div>
-              <div className="ppr"><sup>$</sup>99.99 <span style={{ fontSize: "16px", letterSpacing: 0, fontWeight: 500 }}>for three months</span></div>
-              <div className="psub">One payment · Nothing charged for 14 days · Cancel anytime<br />Or $49.99 monthly, also with 14 days free</div>
+              <div className="ppr" id="pro-plan" style={{ scrollMarginTop: "190px" }}><sup>$</sup>99.99 <span style={{ display: "block", marginTop: "8px", fontSize: "16px", lineHeight: 1.5, letterSpacing: 0, fontWeight: 500 }}>every three months</span></div>
+              <EarlyHireRationale />
+              <div className="psub">Nothing charged for 14 days · Cancel anytime<br />Renews at $99.99 every three months unless you cancel.<br />Or $49.99 per month, also with 14 days free and automatic renewal unless you cancel.</div>
               <p className="pdesc">Full recruiter-visibility intelligence. The complete database, Evidence layer rewrite, Recruiter-Ready Brief, and validated job matching — all unlocked.</p>
               <div className="pdiv"></div>
               <ul className="pfl">
@@ -1004,7 +1015,7 @@ export function PageContent({ variant = {}, experimentId, variantId, homepageCta
               <a href="/for/senior-engineers/">Senior Engineers</a>
               <a href="/for/career-changers/">Career Changers</a>
             </nav>
-            <p className="footc">© 2026 Job-Genie.ai · Recruiter Visibility Intelligence · Not a job board · <time dateTime="2026-06-01">Updated June 2026</time></p>
+            <p className="footc">© 2026 Job-Genie.ai · Recruiter Visibility Intelligence · Not a job board · <time dateTime="2026-09-01">Updated September 2026</time></p>
           </div>
         </div>
       </footer>
