@@ -1,0 +1,48 @@
+Build prompt: /free-autopsy3 channel evidence block
+Oct 4, 2026
+Paste everything below the line into the build agent. Two tasks: one copy addition with conditional logic, one indexing fix. They are independent — the second can ship without the first.
+Task 1 — add a conditional channel-evidence block to /free-autopsy3
+Page: https://www.job-genie.ai/free-autopsy3
+What the page already does: four short questions (goal, situation, timeline, channels), then a reflection screen the page describes as "see your answers together" — explicitly framed as "a reflection on your search channels, not a prediction about an employer's decision."
+What to add: one short evidence block on the reflection screen, shown only when the user's channel answer indicates public job boards.
+Why here and nowhere else. Channel is this page's actual subject. The block must appear after the four questions, never on the intro screen — someone who has just told us where their applications went is primed for it in a way a cold visitor is not. Do not add this copy to /free-autopsy, /free-autopsy2 or /free-autopsy4.
+The conditional logic
+The block is conditional on the channel answer. This is not optional polish — it is the point.
+Show the block when the user's channel answer includes public job boards (Indeed, LinkedIn Jobs, ZipRecruiter, Glassdoor, "job boards", "mostly job boards", or whatever the existing option labels are).
+Suppress the block entirely when the answer is specialist recruiters, referrals, direct to company careers pages, personal network, or any option that is not a public board. No fallback copy, no alternative quote — the section simply does not render.
+Why suppression matters. If someone answers "specialist recruiters" and we show them an argument about job boards, we reveal the reflection as a script rather than a response. The page's entire credibility rests on the reflection appearing to react to what they said. One mismatched block undoes that.
+If the channel question allows multiple selections, show the block only when public boards are the dominant or sole answer. If boards are one of several and not dominant, suppress.
+The copy — insert verbatim
+Use this exactly. Do not reword, shorten, expand, or add a heading beyond the one given. Do not add a call to action inside the block.
+You said most of these went to public job boards.
+That's worth knowing because of who's on the other side. A social recruiting platform tells employers plainly that job boards reach "only active candidates" and place their role "alongside competing roles" — and sells them a pipeline built before the posting goes live.
+Three other employer-side vendors say versions of the same thing. None of them is talking to candidates.
+Link requirement. The phrase a social recruiting platform links to the methodology page's channel section, not to the vendor's own blog. The vendor is not named in body copy — the quoted fragments stay in quotation marks and the attribution is by category.
+The last line carries the block. "None of them is talking to candidates" is the reframe: this is not advice about channels, it is what the other side says when they think you are not listening. If anything gets cut for length, cut from the middle paragraph and keep that sentence.
+Placement, styling, and what not to touch
+Placement. On the reflection screen, after the user's own answers are displayed back and before the optional email signup. It is corroboration for something the page has already said — it must not appear above the reflection itself.
+Styling. Visually quieter than the reflection, not louder. No card, no coloured panel, no icon, no badge. A left rule or a simple indent is enough. It is a footnote to their answer, not a feature.
+Do not change any of the following
+These are the strongest things on the page and are easy to damage while editing nearby.
+• The scope limits on the intro screen — "this page does not read your CV, calculate a personal score, or know why a particular employer did not reply." Leave the wording and the position exactly as they are.
+• "A reflection on your search channels, not a prediction about an employer's decision." Do not rephrase. It is precise about what kind of output this is.
+• The optional email signup and the sentence saying it is optional. Do not gate the reflection behind it, do not pre-tick anything, do not move the signup earlier.
+• The four questions themselves — count, order and wording.
+• The page's one-voice register. No statistics, no percentages, no second citation anywhere on this page.
+Task 2 — resolve the indexing conflict across the autopsy pages
+Independent of Task 1. Ship it separately if that is easier.
+The problem. /free-autopsy, /free-autopsy2, /free-autopsy3 and /free-autopsy4 are all index, follow, each canonical to itself, and all four share the same og:image and the same og:image:alt. If they are A/B variants they are competing for the same queries and splitting signal, and a share of any of them produces an identical card.
+This needs a decision before any code changes. Do not guess — report which case applies and wait.
+Case A — they are A/B variants of one page. Choose the canonical (likely /free-autopsy), set <link rel="canonical"> on all four to that URL, and set <meta name="robots" content="noindex, follow"> on the other three. Leave the canonical one indexed.
+Case B — they are distinct pages for distinct ad sets. Keep all four indexed and self-canonical, but give each its own og:image, og:image:alt, og:title and og:description matching that page's actual argument — the filter, ranking, channel, product preview. The current shared card is wrong for three of the four.
+Either way: /free-autopsy4 is a product preview with sample data. If it stays indexed it needs its own card and description making the preview nature obvious before the click.
+Stop and report, and how to verify
+Stop and report rather than improvising
+If any of the following is true, stop and describe what you found instead of making a judgement call:
+• The channel question's options do not map cleanly onto "public boards" versus "not public boards"
+• The reflection screen is generated rather than templated, so conditional insertion is not straightforward
+• The methodology page has no channel section to link to yet
+• Task 2 is ambiguous between Case A and Case B
+• Any edit would require touching an item on the do-not-change list
+Verification after the change
+Run these and report the output.
