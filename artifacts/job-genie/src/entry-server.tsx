@@ -25,6 +25,7 @@ import ReactMarkdown from 'react-markdown';
 import { DirectResponseTabs, type PublicDirectResponse } from '@/components/DirectResponseTabs';
 
 import { SITE_URL, SITE_NAME } from '@workspace/site-config';
+import autopsySocial from './data/autopsy-social.json';
 
 function esc(s: string): string {
   return s
@@ -212,6 +213,7 @@ export function getRouteHead(url: string): RouteHead {
 export function buildHeadHtml(head: RouteHead): string {
   const isHome = head.canonical === `${SITE_URL}/` || head.canonical === SITE_URL;
   const slug = head.canonical.replace(`${SITE_URL}/`, '').replace(/\/$/, '') || '';
+  const social = autopsySocial[slug as keyof typeof autopsySocial];
 
   const webPageSchema = JSON.stringify({
     '@context': 'https://schema.org',
@@ -348,14 +350,21 @@ export function buildHeadHtml(head: RouteHead): string {
     `<meta name="description" content="${esc(head.description)}" />`,
     `<meta name="robots" content="${esc(head.robots)}" />`,
     `<link rel="canonical" href="${esc(head.canonical)}" />`,
-    `<meta property="og:title" content="${esc(head.title)}" />`,
-    `<meta property="og:description" content="${esc(head.description)}" />`,
+    `<meta property="og:title" content="${esc(social?.title ?? head.title)}" />`,
+    `<meta property="og:description" content="${esc(social?.description ?? head.description)}" />`,
     `<meta property="og:url" content="${esc(head.canonical)}" />`,
     `<meta property="og:site_name" content="${esc(SITE_NAME)}" />`,
     `<meta property="og:type" content="website" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
-    `<meta name="twitter:title" content="${esc(head.title)}" />`,
-    `<meta name="twitter:description" content="${esc(head.description)}" />`,
+    `<meta name="twitter:title" content="${esc(social?.title ?? head.title)}" />`,
+    `<meta name="twitter:description" content="${esc(social?.description ?? head.description)}" />`,
+    ...(social ? [
+      `<meta property="og:image" content="${esc(SITE_URL + social.image)}" />`,
+      `<meta property="og:image:width" content="1200" />`,
+      `<meta property="og:image:height" content="630" />`,
+      `<meta property="og:image:alt" content="${esc(social.alt)}" />`,
+      `<meta name="twitter:image" content="${esc(SITE_URL + social.image)}" />`,
+    ] : []),
     `<script type="application/ld+json">${webPageSchema}</script>`,
     `<script type="application/ld+json">${serviceSchema}</script>`,
     `<script type="application/ld+json">${breadcrumbSchema}</script>`,

@@ -1,0 +1,42 @@
+{
+  "free-autopsy": {
+    "title": "Where did your applications disappear? | Job Genie",
+    "description": "Explore the résumé screen, recruiter pass and unanswered application. Join the free 100-Application Autopsy email series.",
+    "image": "/social/free-autopsy.png",
+    "alt": "Job Genie Application Autopsy: trace the résumé screen, recruiter pass and silence. Free email series.",
+    "label": "THE FILTER",
+    "lines": ["Where did your", "applications", "disappear?"],
+    "subtitle": "The résumé screen. The recruiter pass. The silence.",
+    "accent": "#A5A2FF"
+  },
+  "free-autopsy2": {
+    "title": "Qualified, but below the shortlist? | Job Genie",
+    "description": "Explore how screening ranks candidates and why a strong application can go unread. Start with the free Application Autopsy emails.",
+    "image": "/social/free-autopsy2.png",
+    "alt": "Job Genie Application Autopsy: a ranked shortlist illustration explaining how qualified candidates can remain unread.",
+    "label": "THE RANKING",
+    "lines": ["Qualified.", "Still below", "the shortlist?"],
+    "subtitle": "Not every unread application was rejected.",
+    "accent": "#F2C879"
+  },
+  "free-autopsy3": {
+    "title": "Where are your applications going? | Job Genie",
+    "description": "Four short questions about your goal, situation, timeline and channels. A reflection on your search, not a CV assessment or employer prediction.",
+    "image": "/social/free-autopsy3.png",
+    "alt": "Job Genie channel check-in: job boards, company career pages and specialist recruiters. Four questions, not a CV assessment.",
+    "label": "THE CHANNEL",
+    "lines": ["Where are your", "applications", "going?"],
+    "subtitle": "Four questions. Your search, seen together.",
+    "accent": "#76DBC7"
+  },
+  "free-autopsy4": {
+    "title": "Preview the Application Autopsy — Sample Data | Job Genie",
+    "description": "An interactive product preview using illustrative sample data. Explore the score breakdown, evidence and Silence Ledger—not a personal assessment.",
+    "image": "/social/free-autopsy4.png",
+    "alt": "Job Genie product preview with illustrative sample data: score breakdown, evidence and Silence Ledger. Not a personal assessment.",
+    "label": "PRODUCT PREVIEW · SAMPLE DATA",
+    "lines": ["See the score.", "Explore the", "evidence."],
+    "subtitle": "Illustrative sample data. Not your assessment.",
+    "accent": "#91B7FF"
+  }
+}

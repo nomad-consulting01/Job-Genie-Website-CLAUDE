@@ -131,3 +131,8 @@
 @media (prefers-reduced-motion: reduce) {
   .fa3 *, .fa3 *::before, .fa3 *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+.fa3-channel-evidence { margin: 24px 0 6px; padding-left: 16px; border-left: 1px solid var(--fa3-line); color: var(--fa3-muted); font-size: 13px; line-height: 1.7; }
+.fa3-channel-evidence p { margin: 0 0 12px; }
+.fa3-channel-evidence p:last-child { margin-bottom: 0; }
+.fa3-channel-evidence a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.fa3-channel-evidence a:focus-visible { outline: 2px solid var(--fa3-indigo); outline-offset: 3px; }

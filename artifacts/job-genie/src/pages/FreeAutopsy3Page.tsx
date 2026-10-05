@@ -245,6 +245,13 @@ export default function FreeAutopsy3Page() {
                       <p>You said they went <strong>{channels[answers.channel ?? 0].title.toLowerCase()}</strong>. Where applications go matters as much as how many you send: different routes put your profile in front of different people and processes.</p>
                       <p>This is a place to start asking better questions, <strong>not a score or a reading of your CV.</strong> We haven’t seen your applications or how employers reviewed them.</p>
                     </div>
+                    {answers.channel === 0 && (
+                      <div className="fa3-channel-evidence" data-testid="autopsy3-channel-evidence">
+                        <p>You said most of these went to public job boards.</p>
+                        <p>That's worth knowing because of who's on the other side. <a href={`${API_BASE}/methodology#channel`}>A social recruiting platform</a> tells employers plainly that job boards reach "only active candidates" and place their role "alongside competing roles" — and sells them a pipeline built before the posting goes live.</p>
+                        <p>Three other employer-side vendors say versions of the same thing. None of them is talking to candidates.</p>
+                      </div>
+                    )}
                   </div>
                 </>
               )}

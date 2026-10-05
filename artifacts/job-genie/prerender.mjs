@@ -99,6 +99,11 @@ async function main() {
     html = html.replace(/<meta name="twitter:card"[^>]*(\/?>)/g, '');
     html = html.replace(/<meta name="twitter:title"[^>]*(\/?>)/g, '');
     html = html.replace(/<meta name="twitter:description"[^>]*(\/?>)/g, '');
+    // These four routes supply their own social images; remove template duplicates.
+    if (/^\/free-autopsy[234]?$/.test(url)) {
+      html = html.replace(/<meta property="og:image[^"]*"[^>]*(\/?>)/g, '');
+      html = html.replace(/<meta name="twitter:image"[^>]*(\/?>)/g, '');
+    }
 
     // Step 3b: Replace the now-isolated <title> tag with the full route-specific
     // head block (title + description + robots + canonical + og + twitter + JSON-LD).

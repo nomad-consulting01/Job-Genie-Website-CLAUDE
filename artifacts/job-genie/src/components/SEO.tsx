@@ -1,5 +1,6 @@
 import { createPortal } from 'react-dom';
 import { SITE_URL, SITE_NAME, OG_IMAGE } from '@workspace/site-config';
+import autopsySocial from '../data/autopsy-social.json';
 
 const ORG_SCHEMA = {
   '@context': 'https://schema.org',
@@ -135,6 +136,11 @@ export function SEO({
   ogImage,
 }: SEOProps) {
   const canonical = canonicalUrl ?? url ?? SITE_URL;
+  const socialSlug = slug ?? canonical.replace(`${SITE_URL}/`, '').replace(/\/$/, '');
+  const social = autopsySocial[socialSlug as keyof typeof autopsySocial];
+  const socialTitle = social?.title ?? title;
+  const socialDescription = social?.description ?? description;
+  const socialImage = ogImage ?? (social ? `${SITE_URL}${social.image}` : OG_IMAGE);
 
   const schemas: Record<string, unknown>[] = [
     ORG_SCHEMA,
@@ -190,19 +196,19 @@ export function SEO({
     <>
       <title>{title}</title>
       <meta name="description" content={description} />
-      <meta property="og:title" content={title} />
-      <meta property="og:description" content={description} />
+      <meta property="og:title" content={socialTitle} />
+      <meta property="og:description" content={socialDescription} />
       <meta property="og:url" content={canonical} />
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:type" content="website" />
-      <meta property="og:image" content={ogImage ?? OG_IMAGE} />
+      <meta property="og:image" content={socialImage} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      <meta property="og:image:alt" content="Job Genie — free Application Silence Score. Find out why your applications get no reply." />
+      <meta property="og:image:alt" content={social?.alt ?? "Job Genie — free Application Silence Score. Find out why your applications get no reply."} />
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={ogImage ?? OG_IMAGE} />
+      <meta name="twitter:title" content={socialTitle} />
+      <meta name="twitter:description" content={socialDescription} />
+      <meta name="twitter:image" content={socialImage} />
       <link rel="canonical" href={canonical} />
       {robots && <meta name="robots" content={robots} />}
       {schemas.map((schema, i) => (
