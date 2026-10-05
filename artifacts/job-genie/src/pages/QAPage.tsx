@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRoute, Link } from "wouter";
 import { Helmet } from "react-helmet-async";
 import { SITE_URL } from "@workspace/site-config";
+import { BrandNavigation } from "../components/BrandNavigation";
 
 interface QAData {
   slug: string;
@@ -112,11 +113,7 @@ export default function QAPage() {
 
       <div className="min-h-screen bg-[#0a0a1a] text-gray-100">
         {/* Nav */}
-        <header className="border-b border-white/8 px-6 py-4">
-          <Link href="/" className="font-bold text-lg text-white hover:opacity-80">
-            Job <span className="text-purple-400">Genie</span>
-          </Link>
-        </header>
+        <BrandNavigation />
 
         <main className="max-w-3xl mx-auto px-5 py-10 pb-20">
           <Link href="/" className="text-sm text-purple-400 hover:underline mb-6 inline-block">

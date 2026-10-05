@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getContentAssetBySlug, listPublishedQAs } from "../corpus/db.js";
 import { logger } from "../lib/logger.js";
-import { SITE_URL, OG_IMAGE } from "@workspace/site-config";
+import { SITE_URL, OG_IMAGE, BRAND_NAV_STYLES, renderBrandNavigation } from "@workspace/site-config";
 
 const router = Router();
 
@@ -74,6 +74,7 @@ function buildQAHtml(payload: {
   <meta name="twitter:image" content="${OG_IMAGE}" />
   <script type="application/ld+json">${faqSchema}</script>
   <script type="application/ld+json">${breadcrumbSchema}</script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Sora:wght@700&amp;display=swap" />
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a1a;color:#e8e8f0;line-height:1.7}
@@ -94,15 +95,11 @@ function buildQAHtml(payload: {
     .cta p{color:rgba(255,255,255,.8);margin-bottom:1.25rem;font-size:.95rem}
     .cta a{display:inline-block;background:#fff;color:#0a0a1a;font-weight:700;padding:.85rem 2rem;border-radius:8px;text-decoration:none;font-size:1rem}
     .cta a:hover{opacity:.9}
-    header{border-bottom:1px solid rgba(255,255,255,.08);padding:1rem 1.5rem;margin-bottom:1.5rem}
-    .logo{font-weight:700;font-size:1.2rem;color:#fff;text-decoration:none}
-    .logo span{color:#7c6dfa}
+    ${BRAND_NAV_STYLES}
   </style>
 </head>
 <body>
-  <header>
-    <a class="logo" href="${SITE_URL}">Job <span>Genie</span></a>
-  </header>
+  ${renderBrandNavigation(SITE_URL)}
   <div class="wrap">
     <a class="back" href="${SITE_URL}">← Back to Job Genie</a>
     <h1>${escHtml(payload.title)}</h1>
@@ -178,12 +175,11 @@ router.get("/", async (req, res) => {
   <meta name="twitter:image" content="${OG_IMAGE}" />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Sora:wght@700&amp;display=swap" />
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a1a;color:#e8e8f0;line-height:1.7}
-    header{border-bottom:1px solid rgba(255,255,255,.08);padding:1rem 1.5rem;margin-bottom:1.5rem}
-    .logo{font-weight:700;font-size:1.2rem;color:#fff;text-decoration:none}
-    .logo span{color:#7c6dfa}
+    ${BRAND_NAV_STYLES}
     main{max-width:780px;margin:0 auto;padding:2rem 1.5rem 4rem}
     h1{font-size:2rem;font-weight:700;color:#fff;margin-bottom:1rem}
     .desc{color:#9ca3af;margin-bottom:2rem}
@@ -196,9 +192,7 @@ router.get("/", async (req, res) => {
   </style>
 </head>
 <body>
-  <header>
-    <a class="logo" href="${SITE_URL}">Job <span>Genie</span></a>
-  </header>
+  ${renderBrandNavigation(SITE_URL)}
   <main>
     <h1>Job Search Q&amp;A</h1>
     <p class="desc">${escHtml(description)}</p>

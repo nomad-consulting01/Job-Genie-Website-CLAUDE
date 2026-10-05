@@ -1,8 +1,8 @@
-import { useEffect } from "react";
 import { Link } from "wouter";
 import { SEO } from "../components/SEO";
 import { trackEvent } from "../lib/analytics";
 import { SITE_URL } from "@workspace/site-config";
+import { BrandNavigation } from "../components/BrandNavigation";
 
 const GUIDES = [
   {
@@ -64,45 +64,13 @@ const TAG_COLORS: Record<string, { bg: string; text: string }> = {
   "For Professionals": { bg: "rgba(167,139,250,0.1)", text: "#a78bfa" },
 };
 
-function PageNav() {
-  return (
-    <nav className="nav" id="nav" aria-label="Main navigation">
-      <Link href="/" className="nlogo">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="28" height="28">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="var(--inl)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        Job Genie
-      </Link>
-      <ul className="nlinks">
-        <li><Link href="/#how">How It Works</Link></li>
-        <li><Link href="/#feat">Features</Link></li>
-        <li><Link href="/resources" aria-current="page">Resources</Link></li>
-        <li><Link href="/blog">Blog</Link></li>
-        <li><Link href="/qa">FAQ</Link></li>
-        <li>
-          <a
-            href="/free-autopsy"
-            className="btn bg bsm"
-            style={{ color: "var(--wh)" }}
-            onClick={() => trackEvent("free_autopsy_click", { location: "nav" })}
-          >
-            Get Free Autopsy
-          </a>
-        </li>
-      </ul>
-    </nav>
-  );
-}
-
 function PageFooter() {
   return (
     <footer className="foot" role="contentinfo">
       <div className="w">
         <div className="footi">
           <div className="footl">
-            <div style={{ background: "var(--inl)", width: "40px", height: "40px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--nn)" }}>
-              <svg viewBox="0 0 24 24" fill="none" width="24" height="24" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" /></svg>
-            </div>
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Job Genie" style={{ width: 40, height: 40, objectFit: "contain", borderRadius: 8 }} />
             <span style={{ fontFamily: "var(--fd)", fontWeight: 700, fontSize: "16px" }}>Job Genie</span>
           </div>
           <nav className="footlk" aria-label="Footer navigation">
@@ -155,14 +123,6 @@ const breadcrumbSchema = JSON.stringify({
 });
 
 export default function ResourcesPage() {
-  useEffect(() => {
-    const nav = document.getElementById("nav");
-    if (!nav) return;
-    const onScroll = () => nav.classList.toggle("solid", window.scrollY > 60);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
     <>
       <SEO
@@ -176,9 +136,9 @@ export default function ResourcesPage() {
         schemas={[JSON.parse(collectionSchema), JSON.parse(breadcrumbSchema)]}
       />
 
-      <PageNav />
+      <BrandNavigation />
 
-      <main style={{ paddingTop: "80px", minHeight: "100vh", background: "var(--nn, #080810)" }}>
+      <main style={{ minHeight: "100vh", background: "var(--nn, #080810)" }}>
         <div style={{ maxWidth: "860px", margin: "0 auto", padding: "0 24px 80px" }}>
 
           {/* Breadcrumb */}

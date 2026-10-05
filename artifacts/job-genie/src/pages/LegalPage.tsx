@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { SEO } from "@/components/SEO";
+import { BrandNavigation } from "../components/BrandNavigation";
 
 const SITE_URL = "https://www.job-genie.ai";
 
@@ -103,16 +104,7 @@ export default function LegalPage({
       />
 
       <div className="min-h-screen" style={{ background: "var(--nn, #080810)" }}>
-        <header className="bg-[#080b14] border-b border-white/10">
-          <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-            <Link href="/" className="text-xl font-bold tracking-tight text-white hover:text-teal-300 transition-colors">
-              Job Genie
-            </Link>
-            <Link href="/" className="text-sm text-gray-400 hover:text-white transition-colors">
-              ← Back to home
-            </Link>
-          </div>
-        </header>
+        <BrandNavigation />
 
         <div
           className="text-center pt-16 pb-10 px-6"
