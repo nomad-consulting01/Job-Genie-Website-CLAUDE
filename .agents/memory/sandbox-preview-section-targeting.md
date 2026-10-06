@@ -13,4 +13,4 @@ Long-page section captures can also show the wrong viewport or a blank backgroun
 
 **Why:** During homepage graduation, live fragment captures returned the hero, and full static fragment captures were blank. Isolated compiled sections with scrolling and animations disabled rendered correctly.
 
-**How to apply:** Treat a blank section capture as inconclusive rather than proof of a broken page. For static layout verification, isolate the compiled section and disable motion in a temporary snapshot; check live functionality separately and remove the snapshot afterward.
+**How to apply:** Treat a blank section capture as inconclusive rather than proof of a broken page. Dynamically mounted sandbox previews may need fragment targeting after the component renders; native initial fragment navigation can leave the capture at the hero. Verify that the intended section is visible. If a live section capture remains inconclusive, isolate the compiled section and disable motion in a temporary snapshot; check live functionality separately and remove the snapshot afterward.
