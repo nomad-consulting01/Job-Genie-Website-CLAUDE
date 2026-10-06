@@ -14,6 +14,7 @@ import AutopsyPage from './pages/AutopsyPage';
 import FreeAutopsy2Page from './pages/FreeAutopsy2Page';
 import FreeAutopsy3Page from './pages/FreeAutopsy3Page';
 import FreeAutopsy4Page from './pages/FreeAutopsy4Page';
+import FreeAutopsy5Page from './pages/FreeAutopsy5Page';
 import AEOPage from './pages/AEOPage';
 import ResourcesPage from './pages/ResourcesPage';
 import TermsOfService from './pages/TermsOfService';
@@ -128,6 +129,13 @@ const AEO_ROUTES: Record<string, RouteHead> = {
     canonical: `${SITE_URL}/free-autopsy4`,
     robots: 'index, follow',
     aeoQuestion: 'What does Job Genie’s Application Autopsy show?',
+  },
+  '/free-autopsy5': {
+    title: 'Do ATS Systems Auto-Reject 75% of Résumés? The Evidence | Job Genie',
+    description: 'Read the evidence behind the ATS rejection myth, what 25 recruiter interviews actually found, and what to change when applications go unanswered.',
+    canonical: `${SITE_URL}/free-autopsy5`,
+    robots: 'index, follow',
+    aeoQuestion: 'Do applicant tracking systems auto-reject 75% of résumés?',
   },
   '/resources': {
     title: 'Job Search Resources & Guides | Job Genie',
@@ -587,6 +595,7 @@ export function render(url: string): string {
             <Route path="/free-autopsy2" component={FreeAutopsy2Page} />
             <Route path="/free-autopsy3" component={FreeAutopsy3Page} />
             <Route path="/free-autopsy4" component={FreeAutopsy4Page} />
+            <Route path="/free-autopsy5" component={FreeAutopsy5Page} />
             <Route path="/resources" component={ResourcesPage} />
             <Route path="/methodology" component={MethodologyPage} />
             <Route path="/terms" component={TermsOfService} />

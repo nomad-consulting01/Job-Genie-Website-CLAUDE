@@ -37,6 +37,7 @@ const ROUTES = [
   '/free-autopsy2',
   '/free-autopsy3',
   '/free-autopsy4',
+  '/free-autopsy5',
 ];
 
 async function main() {
@@ -99,7 +100,7 @@ async function main() {
     html = html.replace(/<meta name="twitter:card"[^>]*(\/?>)/g, '');
     html = html.replace(/<meta name="twitter:title"[^>]*(\/?>)/g, '');
     html = html.replace(/<meta name="twitter:description"[^>]*(\/?>)/g, '');
-    // These four routes supply their own social images; remove template duplicates.
+    // These routes supply their own social images; remove template duplicates.
     if (/^\/free-autopsy[234]?$/.test(url)) {
       html = html.replace(/<meta property="og:image[^"]*"[^>]*(\/?>)/g, '');
       html = html.replace(/<meta name="twitter:image"[^>]*(\/?>)/g, '');
@@ -293,6 +294,7 @@ async function main() {
     { loc: '/free-autopsy2', changefreq: 'monthly', priority: '0.9' },
     { loc: '/free-autopsy3', changefreq: 'monthly', priority: '0.9' },
     { loc: '/free-autopsy4', changefreq: 'monthly', priority: '0.9' },
+    { loc: '/free-autopsy5', changefreq: 'monthly', priority: '0.9' },
     { loc: '/resources', changefreq: 'monthly', priority: '0.8' },
     { loc: '/methodology', changefreq: 'monthly', priority: '0.8' },
     { loc: '/terms', changefreq: 'yearly', priority: '0.3' },
