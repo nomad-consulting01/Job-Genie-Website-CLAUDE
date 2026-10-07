@@ -20,3 +20,4 @@
 - [Autopsy landing-page purpose](autopsy-landing-page-purpose.md) — the four Autopsy URLs are distinct ad-set destinations, not A/B variants of one indexed page.
 - [Early-hire refund policy](early-hire-refund-policy.md) — the user confirmed that Job Genie refunds unused whole months when a subscriber is hired early.
 - [Public page branding](public-page-branding.md) — footer-linked pages use the homepage’s floating navigation as the logo and brand-color reference.
+- [Git provider authentication](git-provider-auth.md) — an active Git pane connection and successful public fetch do not prove workspace push access.

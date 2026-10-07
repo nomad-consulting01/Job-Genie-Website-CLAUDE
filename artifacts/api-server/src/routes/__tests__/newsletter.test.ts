@@ -156,6 +156,7 @@ describe("Free Autopsy newsletter signup", () => {
     const enrollCalls = beehiiv.mock.calls.filter(([path, options]) =>
       String(path).endsWith("/journeys") && options?.method === "POST");
     expect(enrollCalls).toHaveLength(1);
+    expect(String(enrollCalls[0][0])).toContain("/automations/aut_badd5896-ca28-4019-9eed-a16f0aa58465/journeys");
     expect(JSON.parse(enrollCalls[0][1].body)).toEqual({ subscription_id: "sub_existing" });
   });
 
