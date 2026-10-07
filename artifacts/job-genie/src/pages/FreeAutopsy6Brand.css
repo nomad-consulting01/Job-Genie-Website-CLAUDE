@@ -1,0 +1,96 @@
+/* Shared homepage tokens; scoped so other landing pages remain unchanged. */
+.jg-autopsy6 {
+  --jg6-navy: var(--nn);
+  --jg6-ink: var(--wh);
+  --jg6-muted: var(--w60);
+  --jg6-paper: var(--nn);
+  --jg6-white: var(--nc);
+  --jg6-line: var(--w10);
+  --jg6-indigo: var(--ind);
+  --jg6-teal: var(--teal);
+  font-family: var(--fb);
+}
+
+.jg-autopsy6 :is([class^="jg6-"], [class*=" jg6-"], button, input, textarea, small, span, strong, p) {
+  font-family: var(--fb);
+}
+
+.jg-autopsy6 :is(h1, h2, h3, h4, h1 em, h2 em) {
+  font-family: var(--fd);
+  font-style: normal;
+  color: var(--wh);
+}
+
+.jg-autopsy6 :is(h1, h1 em, h2, h2 em) { font-weight: 800; }
+.jg-autopsy6 :is(h1 em, h2 em) { color: var(--teal); }
+
+.jg-autopsy6 .jg6-hero {
+  background: radial-gradient(ellipse at 80% 0%, var(--i10), transparent 65%), var(--nn);
+  color: var(--wh);
+}
+.jg-autopsy6 .jg6-hero::before {
+  border-color: var(--i20);
+  box-shadow: 0 0 0 70px var(--w03), 0 0 0 140px var(--w03);
+}
+.jg-autopsy6 :is(.jg6-hero-note, .jg6-hero-bottom, .jg6-steps, .jg6-steps > div, .jg6-signal) {
+  border-color: var(--w10);
+}
+.jg-autopsy6 :is(.jg6-hero-note > p, .jg6-quote, .jg6-example-takeaway) {
+  font-family: var(--fb);
+  font-style: normal;
+  color: var(--w80);
+}
+.jg-autopsy6 :is(.jg6-eyebrow, .jg6-note-index, .jg6-section-label, .jg6-steps-title, .jg6-why-index, .jg6-live-mark, .jg6-steps > div > b) {
+  color: var(--teal);
+}
+.jg-autopsy6 :is(.jg6-eyebrow > span, .jg6-dot, .jg6-live-mark i, .jg6-loading span, .jg6-pulse) {
+  background: var(--teal);
+}
+.jg-autopsy6 .jg6-example-label i { background: var(--amber); }
+
+.jg-autopsy6 :is(.jg6-deck, .jg6-proofline, .jg6-note-foot, .jg6-hero-bottom, .jg6-workspace-head > p,
+  .jg6-field > span:first-child, .jg6-count, .jg6-no-account, .jg6-example-label, .jg6-example-index,
+  .jg6-example-meta, .jg6-company, .jg6-signal-heading, .jg6-signal-heading small, .jg6-signal blockquote,
+  .jg6-signal > p, .jg6-disclosure, .jg6-summary, .jg6-result-caveat, .jg6-method-note, .jg6-why-content > p,
+  .jg6-next-copy > p, .jg6-next-copy > small, .jg6-steps small, .jg6-footer p, .jg6-why-index span,
+  .jg6-tabs button, .jg6-result-top button, .jg6-eyebrow i, .jg6-proofline b) {
+  color: var(--w60);
+}
+.jg-autopsy6 :is(.jg6-tabs button.active, .jg6-steps strong, .jg6-limitations strong) { color: var(--wh); }
+.jg-autopsy6 :is(.jg6-proofline span, .jg6-hero-cta span, .jg6-source-link, .jg6-method-note a, .jg6-footer > a, .jg6-footer > button) {
+  color: var(--inl);
+}
+.jg-autopsy6 .jg6-footer > button { border-color: var(--w20); }
+
+.jg-autopsy6 :is(.jg6-field input, .jg6-field textarea) {
+  background: var(--nm);
+  color: var(--wh);
+  border-color: var(--w20);
+}
+.jg-autopsy6 :is(.jg6-field input, .jg6-field textarea)::placeholder { color: var(--w40); }
+.jg-autopsy6 :is(.jg6-field input, .jg6-field textarea):focus {
+  border-color: var(--inl);
+  box-shadow: 0 0 0 3px var(--i20);
+}
+.jg-autopsy6 :is(.jg6-privacy, .jg6-limitations, .jg6-loading) {
+  background: var(--w03);
+  color: var(--w60);
+}
+.jg-autopsy6 :is(.jg6-submit, .jg6-next-button, .jg6-hero-cta) {
+  background: linear-gradient(135deg, var(--ind), var(--vio));
+  color: var(--wh);
+  border-color: var(--i40);
+}
+.jg-autopsy6 :is(.jg6-submit, .jg6-next-button, .jg6-hero-cta) > span { color: var(--wh); }
+.jg-autopsy6 :is(.jg6-submit:hover:not(:disabled), .jg6-next-button:hover, .jg6-hero-cta:hover) {
+  background: linear-gradient(135deg, var(--vio), var(--inl));
+}
+.jg-autopsy6 .jg6-weight { background: var(--w06); color: var(--w60); }
+.jg-autopsy6 .jg6-weight.high { background: var(--i20); color: var(--inl); }
+.jg-autopsy6 .jg6-weight.medium { background: rgba(45, 212, 191, .1); color: var(--teal); }
+.jg-autopsy6 :is(.jg6-signal blockquote, .jg6-example-takeaway, .jg6-quote) { border-color: var(--teal); }
+.jg-autopsy6 .jg6-error { background: rgba(239, 68, 68, .1); color: var(--w80); }
+.jg-autopsy6 .jg6-error strong { color: var(--red); }
+.jg-autopsy6 .jg6-error button { color: var(--inl); }
+.jg-autopsy6 .jg6-why { background: var(--nm); }
+.jg-autopsy6 .jg6-next { background: var(--nd); color: var(--wh); }

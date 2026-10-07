@@ -4,6 +4,7 @@ import { BrandNavigation } from "../components/BrandNavigation";
 import { SEO } from "../components/SEO";
 import { trackEvent } from "../lib/analytics";
 import "./FreeAutopsy6Page.css";
+import "./FreeAutopsy6Brand.css";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const canonicalUrl = "https://www.job-genie.ai/free-autopsy6";
