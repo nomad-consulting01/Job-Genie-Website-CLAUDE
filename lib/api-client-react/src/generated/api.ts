@@ -23,6 +23,9 @@ import type {
   ConversionEventInput,
   EventAck,
   HealthStatus,
+  JobPostingBrief,
+  JobPostingError,
+  JobPostingInput,
   NewsletterInput,
   NewsletterResponse,
   OptimizationReport,
@@ -45,6 +48,77 @@ type AwaitedInput<T> = PromiseLike<T> | T;
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
+
+export const getAnalyzeJobPostingUrl = () => {
+
+
+
+
+  return `/api/job-posting/analyze`
+}
+
+/**
+ * @summary Extract evidence-backed screening signals without an account or CV
+ */
+export const analyzeJobPosting = async (jobPostingInput: JobPostingInput, options?: RequestInit): Promise<JobPostingBrief> => {
+
+  return customFetch<JobPostingBrief>(getAnalyzeJobPostingUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      jobPostingInput,)
+  }
+);}
+
+
+
+
+export const getAnalyzeJobPostingMutationOptions = <TError = ErrorType<JobPostingError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeJobPosting>>, TError,{data: BodyType<JobPostingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof analyzeJobPosting>>, TError,{data: BodyType<JobPostingInput>}, TContext> => {
+
+const mutationKey = ['analyzeJobPosting'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeJobPosting>>, {data: BodyType<JobPostingInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  analyzeJobPosting(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AnalyzeJobPostingMutationResult = NonNullable<Awaited<ReturnType<typeof analyzeJobPosting>>>
+    export type AnalyzeJobPostingMutationBody = BodyType<JobPostingInput>
+    export type AnalyzeJobPostingMutationError = ErrorType<JobPostingError>
+
+    /**
+ * @summary Extract evidence-backed screening signals without an account or CV
+ */
+export const useAnalyzeJobPosting = <TError = ErrorType<JobPostingError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeJobPosting>>, TError,{data: BodyType<JobPostingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof analyzeJobPosting>>,
+        TError,
+        {data: BodyType<JobPostingInput>},
+        TContext
+      > => {
+      return useMutation(getAnalyzeJobPostingMutationOptions(options));
+    }
 
 export const getHealthCheckUrl = () => {
 

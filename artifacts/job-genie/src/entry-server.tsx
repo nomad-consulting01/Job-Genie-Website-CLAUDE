@@ -15,6 +15,7 @@ import FreeAutopsy2Page from './pages/FreeAutopsy2Page';
 import FreeAutopsy3Page from './pages/FreeAutopsy3Page';
 import FreeAutopsy4Page from './pages/FreeAutopsy4Page';
 import FreeAutopsy5Page from './pages/FreeAutopsy5Page';
+import FreeAutopsy6Page from './pages/FreeAutopsy6Page';
 import AEOPage from './pages/AEOPage';
 import ResourcesPage from './pages/ResourcesPage';
 import TermsOfService from './pages/TermsOfService';
@@ -136,6 +137,13 @@ const AEO_ROUTES: Record<string, RouteHead> = {
     canonical: `${SITE_URL}/free-autopsy5`,
     robots: 'index, follow',
     aeoQuestion: 'Do applicant tracking systems auto-reject 75% of résumés?',
+  },
+  '/free-autopsy6': {
+    title: 'Paste the Job. See What They’re Screening For | Job Genie',
+    description: 'Analyze a public job posting for evidence-backed screening signals. No account, CV upload or card required. Start with the posting, not your personal details.',
+    canonical: `${SITE_URL}/free-autopsy6`,
+    robots: 'index, follow',
+    aeoQuestion: 'What evidence might a recruiter screen for in this job posting?',
   },
   '/resources': {
     title: 'Job Search Resources & Guides | Job Genie',
@@ -596,6 +604,7 @@ export function render(url: string): string {
             <Route path="/free-autopsy3" component={FreeAutopsy3Page} />
             <Route path="/free-autopsy4" component={FreeAutopsy4Page} />
             <Route path="/free-autopsy5" component={FreeAutopsy5Page} />
+            <Route path="/free-autopsy6" component={FreeAutopsy6Page} />
             <Route path="/resources" component={ResourcesPage} />
             <Route path="/methodology" component={MethodologyPage} />
             <Route path="/terms" component={TermsOfService} />

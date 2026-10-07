@@ -5,6 +5,77 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+/**
+ * Supply exactly one of url or text. No CV or identity is required.
+ */
+export interface JobPostingInput {
+  /** @maxLength 2000 */
+  url?: string;
+  /**
+     * @minLength 80
+     * @maxLength 30000
+     */
+  text?: string;
+}
+
+export type JobPostingBriefSignalsItemWeight = typeof JobPostingBriefSignalsItemWeight[keyof typeof JobPostingBriefSignalsItemWeight];
+
+
+export const JobPostingBriefSignalsItemWeight = {
+  high: 'high',
+  medium: 'medium',
+} as const;
+
+export type JobPostingBriefSignalsItem = {
+  signal: string;
+  weight: JobPostingBriefSignalsItemWeight;
+  /** A verbatim excerpt from the posting */
+  evidence: string;
+  interpretation: string;
+};
+
+export type JobPostingBriefSourceType = typeof JobPostingBriefSourceType[keyof typeof JobPostingBriefSourceType];
+
+
+export const JobPostingBriefSourceType = {
+  url: 'url',
+  text: 'text',
+} as const;
+
+export interface JobPostingBrief {
+  title: string;
+  /** @nullable */
+  company: string | null;
+  /**
+     * @minItems 3
+     * @maxItems 8
+     */
+  signals: JobPostingBriefSignalsItem[];
+  summary: string;
+  limitations: string[];
+  sourceType: JobPostingBriefSourceType;
+  /** @nullable */
+  sourceUrl: string | null;
+  analyzedAt: string;
+}
+
+export type JobPostingErrorCode = typeof JobPostingErrorCode[keyof typeof JobPostingErrorCode];
+
+
+export const JobPostingErrorCode = {
+  invalid_input: 'invalid_input',
+  blocked_url: 'blocked_url',
+  fetch_failed: 'fetch_failed',
+  insufficient_posting: 'insufficient_posting',
+  rate_limited: 'rate_limited',
+  analysis_failed: 'analysis_failed',
+} as const;
+
+export interface JobPostingError {
+  error: string;
+  code: JobPostingErrorCode;
+}
+
 export interface HealthStatus {
   status: string;
 }
@@ -116,7 +187,10 @@ export interface SlugMetrics {
 }
 
 export interface NewsletterInput {
-  /** @nullable */
+  /**
+     * @maxLength 100
+     * @nullable
+     */
   first_name?: string | null;
   email: string;
   /** @nullable */

@@ -17,6 +17,30 @@ tags:
   - name: admin
     description: Admin-protected variant management and optimization (Bearer token required)
 paths:
+  /job-posting/analyze:
+    post:
+      operationId: analyzeJobPosting
+      tags: [job-posting]
+      summary: Extract evidence-backed screening signals without an account or CV
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobPostingInput"
+      responses:
+        "200":
+          description: Screening brief grounded in the supplied posting
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobPostingBrief"
+        default:
+          description: Invalid input, blocked posting, rate limit, or analysis failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobPostingError"
   /healthz:
     get:
       operationId: healthCheck
@@ -280,6 +304,66 @@ components:
       scheme: bearer
 
   schemas:
+    JobPostingInput:
+      type: object
+      description: Supply exactly one of url or text. No CV or identity is required.
+      properties:
+        url:
+          type: string
+          maxLength: 2000
+        text:
+          type: string
+          minLength: 80
+          maxLength: 30000
+    JobPostingBrief:
+      type: object
+      required: [title, company, signals, summary, limitations, sourceType, sourceUrl, analyzedAt]
+      properties:
+        title:
+          type: string
+        company:
+          type: [string, "null"]
+        signals:
+          type: array
+          minItems: 3
+          maxItems: 8
+          items:
+            type: object
+            required: [signal, weight, evidence, interpretation]
+            properties:
+              signal:
+                type: string
+              weight:
+                type: string
+                enum: [high, medium]
+              evidence:
+                type: string
+                description: A verbatim excerpt from the posting
+              interpretation:
+                type: string
+        summary:
+          type: string
+        limitations:
+          type: array
+          items:
+            type: string
+        sourceType:
+          type: string
+          enum: [url, text]
+        sourceUrl:
+          type: [string, "null"]
+        analyzedAt:
+          type: string
+          format: date-time
+    JobPostingError:
+      type: object
+      required: [error, code]
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+          enum: [invalid_input, blocked_url, fetch_failed, insufficient_posting, rate_limited, analysis_failed]
     HealthStatus:
       type: object
       properties:

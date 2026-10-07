@@ -9,6 +9,43 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary Extract evidence-backed screening signals without an account or CV
+ */
+export const analyzeJobPostingBodyUrlMax = 2000;
+
+export const analyzeJobPostingBodyTextMin = 80;
+export const analyzeJobPostingBodyTextMax = 30000;
+
+
+
+export const AnalyzeJobPostingBody = zod.object({
+  "url": zod.string().max(analyzeJobPostingBodyUrlMax).optional(),
+  "text": zod.string().min(analyzeJobPostingBodyTextMin).max(analyzeJobPostingBodyTextMax).optional()
+}).describe('Supply exactly one of url or text. No CV or identity is required.')
+
+export const analyzeJobPostingResponseSignalsMin = 3;
+export const analyzeJobPostingResponseSignalsMax = 8;
+
+
+
+export const AnalyzeJobPostingResponse = zod.object({
+  "title": zod.string(),
+  "company": zod.string().nullable(),
+  "signals": zod.array(zod.object({
+  "signal": zod.string(),
+  "weight": zod.enum(['high', 'medium']),
+  "evidence": zod.string().describe('A verbatim excerpt from the posting'),
+  "interpretation": zod.string()
+})).min(analyzeJobPostingResponseSignalsMin).max(analyzeJobPostingResponseSignalsMax),
+  "summary": zod.string(),
+  "limitations": zod.array(zod.string()),
+  "sourceType": zod.enum(['url', 'text']),
+  "sourceUrl": zod.string().nullable(),
+  "analyzedAt": zod.coerce.date()
+})
+
+
+/**
  * Returns server health status
  * @summary Health check
  */
@@ -112,8 +149,12 @@ export const GetSlugMetricsResponse = zod.object({
  * Server-side proxy to Beehiiv API. Accepts email and segmentation metadata. Never exposes API key to client.
  * @summary Subscribe to newsletter via Beehiiv
  */
+export const subscribeNewsletterBodyFirstNameMax = 100;
+
+
+
 export const SubscribeNewsletterBody = zod.object({
-  "first_name": zod.string().max(100).nullish(),
+  "first_name": zod.string().max(subscribeNewsletterBodyFirstNameMax).nullish(),
   "email": zod.string().email(),
   "page_slug": zod.string().nullish(),
   "visitor_id": zod.string().nullish(),

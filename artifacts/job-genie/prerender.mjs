@@ -38,6 +38,7 @@ const ROUTES = [
   '/free-autopsy3',
   '/free-autopsy4',
   '/free-autopsy5',
+  '/free-autopsy6',
 ];
 
 async function main() {
@@ -295,6 +296,7 @@ async function main() {
     { loc: '/free-autopsy3', changefreq: 'monthly', priority: '0.9' },
     { loc: '/free-autopsy4', changefreq: 'monthly', priority: '0.9' },
     { loc: '/free-autopsy5', changefreq: 'monthly', priority: '0.9' },
+    { loc: '/free-autopsy6', changefreq: 'monthly', priority: '0.9' },
     { loc: '/resources', changefreq: 'monthly', priority: '0.8' },
     { loc: '/methodology', changefreq: 'monthly', priority: '0.8' },
     { loc: '/terms', changefreq: 'yearly', priority: '0.3' },

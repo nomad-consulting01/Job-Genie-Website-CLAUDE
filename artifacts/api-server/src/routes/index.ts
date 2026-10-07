@@ -6,6 +6,7 @@ import newsletterRouter from "./newsletter.js";
 import publishRouter from "./publish.js";
 import blogImagesRouter from "./blog-images.js";
 import visitorsRouter from "./visitors.js";
+import jobPostingRouter from "./job-posting.js";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(newsletterRouter);
 router.use(publishRouter);
 router.use(blogImagesRouter);
 router.use(visitorsRouter);
+router.use(jobPostingRouter);
 
 export default router;

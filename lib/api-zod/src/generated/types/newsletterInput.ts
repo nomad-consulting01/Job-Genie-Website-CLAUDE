@@ -7,7 +7,10 @@
  */
 
 export interface NewsletterInput {
-  /** @nullable */
+  /**
+     * @maxLength 100
+     * @nullable
+     */
   first_name?: string | null;
   email: string;
   /** @nullable */
